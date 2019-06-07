@@ -1,0 +1,11 @@
+<app-header></app-header>
+<app-grid-toolbar></app-grid-toolbar>
+<!--<app-mx-graph></app-mx-graph>-->
+<mat-grid-list cols="4" rowHeight="600px">
+  <mat-grid-tile [colspan]="1">
+    <app-tree class="tree"></app-tree>
+  </mat-grid-tile>
+  <mat-grid-tile [colspan]="3">
+    <app-mx-graph class="mxGraph"></app-mx-graph>
+  </mat-grid-tile>
+</mat-grid-list>
