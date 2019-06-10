@@ -8,21 +8,30 @@ export enum NodeType {
 export abstract class Node {
   id: string;
   props: string[];
-  children: Node[];
+  children: string[];
 }
 
 export class ActionNode extends Node {
-  constructor(id: string, prop: string[], child: Node[]) {
+  constructor(id: string, prop: string[], child: string[]) {
     super();
     this.id = id;
-    this.children = child;
     this.props = prop;
+    this.children = child;
   }
 }
 export class ExtractNode extends Node {
-  constructor() {
+  match: string[];
+  constructor(id: string, prop: string[], child: string[]) {
     super();
+    this.id = id;
+    this.children = child;
   }
 }
 export class ClassifierNode extends Node {
+  constructor(id: string, child: string[]) {
+    super();
+    this.id = id;
+    this.children = child;
+
+  }
 }

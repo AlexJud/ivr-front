@@ -7,6 +7,7 @@ import {ActionNode, Node} from '../nodes/nodes';
 import {ModelService} from '../services/model.service';
 import {EventService} from '../services/event.service';
 import {element} from 'protractor';
+import { NULL_EXPR } from '@angular/compiler/src/output/output_ast';
 /** Flat to-do idnode with expandable and level information */
 export class FlatNode {
   id: string;
@@ -14,13 +15,23 @@ export class FlatNode {
   expandable: boolean;
 }
 
+export class ItemNode {
+  id: string;
+  children: ItemNode[];
+  constructor(id: string, children: ItemNode[]) {
+    this.id = id;
+    this.children = children;
+  }
+  
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class ChecklistDatabase {
-  dataChange = new BehaviorSubject<Node[]>([]);
+  dataChange = new BehaviorSubject<ItemNode[]>([]);
 
-  get data(): Node[] { return this.dataChange.value; }
+  get data(): ItemNode[] { return this.dataChange.value; }
 
   constructor(private _modelService: ModelService) {
     this._modelService.init();
@@ -29,12 +40,23 @@ export class ChecklistDatabase {
 
   initialize() {
 
-    const data = this._modelService.model;
+    const data = this.buildTree();
     // const data = this.buildFileTree(TREE_DATA, 0);
     console.log(data);
     this.dataChange.next(data);
   }
 
+  private buildTree(): ItemNode[] {
+    let tree = [];
+    this._modelService.model.map((node) => {
+      if (node.props) {
+        tree.push(new ItemNode(node.id, [new ItemNode('Дочерние узлы', []), new ItemNode('Параметры', [])]));
+      } else {
+        tree.push(new ItemNode(node.id, [new ItemNode('Дочерние узлы', [])]));
+        }
+    });
+    return tree as ItemNode[];
+  }
   // /** Add an idto to-do list */
   // insertItem(parent: TodoItemNode, name: string) {
   //   if (parent.children) {
