@@ -3,8 +3,8 @@
   <!--{{ JSON.stringify(_modelService.model) }}-->
   <!--<button (click)="test()">Test</button>-->
 <!--</div>-->
-<app->
-<button mat-icon-button (click)="addNode()"><mat-icon>add</mat-icon></button>
+<app-add-tree></app-add-tree>
+<!-- <button mat-icon-button (click)="addNode()"><mat-icon>add</mat-icon></button> -->
 <button mat-icon-button><mat-icon>delete</mat-icon></button>
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding [ngClass]="{'rootNode': node }">

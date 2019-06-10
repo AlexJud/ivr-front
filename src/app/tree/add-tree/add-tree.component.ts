@@ -25,19 +25,13 @@ export class AddTreeComponent implements OnInit {
     Object.keys(NodeType).map((element) => {
       this.types.push(NodeType[element]);
     });
-    Object.keys(this.model).map((element) => {
-      this.nodes.push(element);
+    Object.keys(this.model).map((element, index, arr) => {
+      this.nodes.push(this.model[element].id);
     });
     // console.log(this.types);
-    // console.log(this.nodes);
   }
 
-  showMessage(node: string, type: string) {
-    switch(type) {
-      case NodeType.ActionNode: {
-        this._treeComp.addNode();
-      }
-    }
-    
+  showMessage(parent: string, type: NodeType) {
+    this._treeComp.addNode(parent, type);
   }
 }

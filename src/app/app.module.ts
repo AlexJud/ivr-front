@@ -21,6 +21,7 @@ import { GridToolbarComponent } from './grid-toolbar/grid-toolbar.component';
 import { CallButtonComponent } from './call-button/call-button.component';
 import { MxGraphComponent } from './mx-graph/mx-graph.component';
 import { TreeComponent } from './tree/tree.component';
+import { AddTreeComponent } from './tree/add-tree/add-tree.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {ModelService} from './services/model.service';
 import {EventService} from './services/event.service';
@@ -32,7 +33,8 @@ import {EventService} from './services/event.service';
     GridToolbarComponent,
     CallButtonComponent,
     MxGraphComponent,
-    TreeComponent
+    TreeComponent,
+    AddTreeComponent
   ],
   imports: [
     BrowserModule,

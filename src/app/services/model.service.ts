@@ -9,7 +9,7 @@ export class ModelService {
   init() {
     const classify = new ClassifierNode('classify', []);
     this._model = [
-      new ActionNode('root', ['Текст для синтеза', 'b=1'], []),
+      new ActionNode('root', ['Текст для синтеза', 'b=1'], ['classify']),
       new ClassifierNode('classify', ['buy_ext_estate', 'support_ext_name', 'transfer_ask_number']),
       new ExtractNode('buy_ext_estate', ['estate', 'rawEstate'], []),
       new ExtractNode('support_ext_name', ['name', 'rawName'], []),
