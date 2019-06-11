@@ -1,0 +1,17 @@
+<button mat-button [matMenuTriggerFor]="nodeTypes"><mat-icon>add</mat-icon></button>
+
+<mat-menu #nodeTypes="matMenu">
+  <button mat-menu-item *ngFor="let type of types" [matMenuTriggerFor]="nodeNames" [matMenuTriggerData]="{ typeName: type }">{{type}}</button>
+  <!-- <button mat-menu-item [matMenuTriggerFor]="extract">Extract</button> -->
+  <!-- <button mat-menu-item [matMenuTriggerFor]="classifier">Classifier</button> -->
+  <!-- <button mat-menu-item [matMenuTriggerFor]="validate">Validate</button> -->
+  <!-- <button mat-menu-item [matMenuTriggerFor]="send">Send</button> -->
+</mat-menu>
+
+<mat-menu #nodeNames="matMenu">
+  <ng-template matMenuContent let-typeName="typeName">
+  <!-- <div *ngFor="let type of types"> -->
+    <button *ngFor="let node of nodes" mat-menu-item (click)="showMessage(node, typeName)">{{node}}</button>
+  <!-- </div> -->
+</ng-template>
+</mat-menu>

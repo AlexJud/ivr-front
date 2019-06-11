@@ -3,11 +3,12 @@ import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, Injectable} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BehaviorSubject} from 'rxjs';
-import {ActionNode, Node, NodeType} from '../nodes/nodes';
+import {ActionNode, Node, NodeType, ClassifierNode} from '../nodes/nodes';
 import {ModelService} from '../services/model.service';
 import {EventService} from '../services/event.service';
 import {element} from 'protractor';
-import { NULL_EXPR } from '@angular/compiler/src/output/output_ast';
+import { NULL_EXPR, ClassField } from '@angular/compiler/src/output/output_ast';
+import { networkInterfaces } from 'os';
 /** Flat to-do idnode with expandable and level information */
 export class FlatNode {
   id: string;
@@ -23,7 +24,6 @@ export class ItemNode {
     this.id = id;
     this.children = children;
   }
-  
 }
 
 @Injectable({
@@ -40,10 +40,7 @@ export class ChecklistDatabase {
   }
 
   initialize() {
-
     const data = this.buildTree();
-    // const data = this.buildFileTree(TREE_DATA, 0);
-    console.log(data);
     this.dataChange.next(data);
   }
 
@@ -58,19 +55,10 @@ export class ChecklistDatabase {
     });
     return tree as ItemNode[];
   }
-  // /** Add an idto to-do list */
-  // insertItem(parent: TodoItemNode, name: string) {
-  //   if (parent.children) {
-  //     parent.children.push({item: name} as TodoItemNode);
-  //     this.dataChange.next(this.data);
-  //   }
-  // }
-  //
+
   insertRoot(node: ItemNode) {
     this.data.push(node);
     this.dataChange.next(this.data);
-    console.log('After insert')
-    console.log(this.data)
   }
 
   updateItem(node: ItemNode, name: string) {
@@ -91,15 +79,12 @@ export class TreeComponent {
   activeNode: any;
   /** Map from flat node to nested node. This helps us finding the nested node to be modified */
   flatNodeMap = new Map<FlatNode, ItemNode>();
-
   /** Map from nested node to flattened node. This helps us to keep the same object for selection */
   nestedNodeMap = new Map<ItemNode, FlatNode>();
-
   /** A selected parent node to be inserted */
   selectedParent: FlatNode | null = null;
-
   /** The new item's name */
-  newItemName = '';
+  newItemName: ItemNode;
   parentNode: string;
   nodeType: NodeType;
 
@@ -108,7 +93,8 @@ export class TreeComponent {
   dataSource: MatTreeFlatDataSource<ItemNode, FlatNode>;
 
   constructor(private _database: ChecklistDatabase,
-              private _modelService: ModelService) {
+              private _modelService: ModelService,
+              private _eventService: EventService) {
     this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel,
       this.isExpandable, this.getChildren);
     this.treeControl = new FlatTreeControl<FlatNode>(this.getLevel, this.isExpandable);
@@ -123,7 +109,6 @@ export class TreeComponent {
   getLevel = (node: FlatNode) => node.level;
   isExpandable = (node: FlatNode) => node.expandable;
   getChildren = (node: ItemNode): ItemNode[] => node.children;
-  hasChild = (_: number, _nodeData: FlatNode) => _nodeData.expandable;
   hasNoContent = (_: number, _nodeData: FlatNode) => _nodeData.id === '';
   isLevelMoreThenOne = (_: number, _nodeData: FlatNode) =>  {
     return this.getLevel(_nodeData) === 1;
@@ -150,42 +135,38 @@ export class TreeComponent {
     console.log('Ты выбрал это');
   }
 
-  /** Select the category so we can insert the new item. */
-  // addNewItem(node: FlatNode) {
-  //   const parentNode = this.flatNodeMap.get(node);
-  //   this._database.insertItem(parentNode!, '');
-  //   this.treeControl.expand(node);
-  // }
-  //
   addNode(parent: string, type: NodeType) {
     this.parentNode = parent;
     this.nodeType = type;
-    const emptyItem = new ItemNode('', [new ItemNode('Дочерние узлы', []), new ItemNode('Параметры', [])]);
-    this._database.insertRoot(emptyItem);
+    this.newItemName = new ItemNode('', [new ItemNode('Дочерние узлы', []), new ItemNode('Параметры', [])]);
+    this._database.insertRoot(this.newItemName);
   }
 
   /** Save the node to database */
   saveNode(node: FlatNode, itemValue: string) {
-    const nestedNode = this.flatNodeMap.get(node);
-    this._database.updateItem(nestedNode!, itemValue);
-    this.addNodetoModel(itemValue, [], [])
+    // const nestedNode = this.flatNodeMap.get(node);
+    // this._database.updateItem(nestedNode!, itemValue);
+    this._database.updateItem(this.newItemName, itemValue);
+    this.addNodeToModel(itemValue, [], [])
   }
 
-  addNodetoModel(id: string, props: [], children: [], ) {
+  addNodeToModel(id: string, props: [], children: [], ) {
+    let node: Node;
     switch(this.nodeType) {
       case NodeType.ActionNode: {
-        let node = new ActionNode(id, props, children);
-        this._modelService.model.push(node);
-        this._modelService.model.forEach((node)=> {
-          if (node.id === this.parentNode) {
-            node.children.push(id);
-          }
-        });
+        node = new ActionNode(id, props, children);
+      }
+      case NodeType.ClassifierNode: {
+        node = new ClassifierNode(id, children);
       }
     }
-    console.log(this._modelService.model);
-  }
-  test() {
+    this._modelService.model.push(node);
+    this._modelService.model.forEach((node)=> {
+      if (node.id === this.parentNode) {
+        node.children.push(id);
+      }
     // this._eventService.send('message.test', {testData: 'My first message to somebody...'});
+    });
+  console.log(this._modelService.model);
   }
 }
