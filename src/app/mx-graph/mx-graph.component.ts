@@ -1,7 +1,7 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {ModelService} from '../services/model.service';
-import { mxgraph } from 'mxgraph';
-import {collectExternalReferences} from "@angular/compiler";
+import {mxgraph} from 'mxgraph';
+import {collectExternalReferences} from '@angular/compiler';
 
 declare var require: any;
 const mx = require('mxgraph')({
@@ -17,31 +17,57 @@ const mx = require('mxgraph')({
 
 export class MxGraphComponent implements OnInit {
 
-  // @ViewChild('tree', {static: true}) tree;
+  @Output('getNameCellByClick') emitNameCell = new EventEmitter();
 
-  model: object;
+  model;
   graph: any;
   parent: any;
   styleSheet = {};
   styleCell = '';
   styleVertex = '';
-
-
+  mxGraphHandler;
+  highlight;
+  map = new Map();
 
   constructor(private modelService: ModelService) {
     this.model = modelService.model;
-    console.log(mx);
+    // console.log(`this model ${this.model}`);
   }
 
   ngOnInit() {
     this.initStyles();
     this.initializeMxGraph();
-    // this.initModel();
     this.buildModel();
+    this.initListeners();
+
+    // Подписаться на получение Node для подстветки =>
+    // this.highlightCellOn(NodeName); подсветка
+    // this.highlightCellReset();  сброс
 
   }
 
-  initStyles() {
+  initListeners() {
+    this.graph.setTooltips(true);
+
+    var marker = new mx.mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
+    this.graph.addMouseListener({
+      mouseDown: ((sender, me) => {
+        if (me.getCell() !== null) {
+          this.emitNameCell.emit(me.getCell().value);
+        }
+      }),
+      mouseMove: function(sender, me) {
+        marker.process(me);
+      },
+      mouseUp: function() {
+      }
+    });
+
+    this.highlight = new mx.mxCellHighlight(this.graph, '#ff0000', 2);
+
+  }
+
+  initStyles() {                                          // СТИЛИ КОМПОНЕНТОВ
     this.styleSheet[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_SWIMLANE;
     this.styleSheet[mx.mxConstants.STYLE_OPACITY] = 50;
     this.styleSheet[mx.mxConstants.STYLE_FONTCOLOR] = '#774400';
@@ -62,38 +88,28 @@ export class MxGraphComponent implements OnInit {
       this.graph = new mx.mxGraph(container);
       // const mxRubberband1 = new mx.mxRubberband(this.graph);
       this.parent = this.graph.getDefaultParent();
-
     }
   }
 
-  private buildModel() {
-    const map = new Map();
-    const mapV = new Map();
-
-
-    Object.keys(this.model).forEach((item) => {
-      const obj = this.model[item]
-      var field = new mx.mxCell(item, new mx.mxGeometry(0, 40, 140, 40), this.styleCell
-      );
-      field.vertex = true;
-      map.set(item, field);
-    });
-
-    this.graph.getModel().beginUpdate();
+  private buildModel() {                                  // ОТРИСОВКА МОДЕЛЕЙ
+    const mapNode = new Map();
 
     this.graph.getStylesheet().putCellStyle('ROUNDED', this.styleSheet);
+    this.graph.getModel().beginUpdate();
+
     try {
-      let counter = -80;
-      map.forEach((v, k) => {
-        let vo = this.graph.insertVertex(this.parent, null, 'Node', 20, 80, 140, 80, this.styleVertex);
-        vo.insert(map.get(k));
-        mapV.set(k, vo);
+      this.model.forEach((node) => {
+        let vObj = this.graph.insertVertex(this.parent, null, node.id, 0, 0, 120, 80, this.styleVertex);
+        let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
+        this.map.set(node.id, vObj);
+        mapNode.set(node.id, node);
       });
 
-      map.forEach((v, k) => {
-        if ((this.model[k].children) !== null) {
-          this.model[k].children.forEach((rec) => {
-            this.graph.insertEdge(this.parent, null, '', mapV.get(k), mapV.get(rec));
+      this.map.forEach((v, k) => {
+        if (mapNode.get(k).children.length !== 0) {
+          console.log('NOT NULL', v);
+          mapNode.get(k).children.forEach((nodeName) => {
+            this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName));
           });
         }
       });
@@ -102,9 +118,20 @@ export class MxGraphComponent implements OnInit {
       console.log(`Erorr: ${e}`);
     } finally {
       this.graph.getModel().endUpdate();
-    }
-  }
 
+      new mx.mxCompactTreeLayout(this.graph).execute(this.parent);
+
+      this.graph.setCellsLocked(true);
+    }
+
+  }
+                                                    // ПОДСВЕТКА ЯЧЕКИ
+  highlightCellOn(cell) {
+      this.highlight.highlight(this.graph.view.getState(this.map.get(cell)));
+  }
+  highlightCellReset() {
+    this.highlight.resetHandler();
+  }
   // private initModel() {
   //   const field1 = new mx.mxCell(Object.keys(this.model)[0], new mx.mxGeometry(0, 40, 140, 40),
   //     'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0');

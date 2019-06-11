@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {EventService} from '../services/event.service';
 
 @Component({
@@ -8,7 +8,12 @@ import {EventService} from '../services/event.service';
 })
 export class GridToolbarComponent implements OnInit {
 
-  constructor(private _eventService: EventService) { }
+  constructor(private _eventService: EventService) {
+  }
+
+  showData(event) {
+    console.log(`this EVENT ${event}`);
+  }
 
   ngOnInit() {
     this._eventService.on('message.test', (data) => {

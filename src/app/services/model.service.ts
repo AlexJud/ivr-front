@@ -13,7 +13,7 @@ export class ModelService {
       new ClassifierNode('classify', ['buy_ext_estate', 'support_ext_name', 'transfer_ask_number']),
       new ExtractNode('buy_ext_estate', ['estate', 'rawEstate'], []),
       new ExtractNode('support_ext_name', ['name', 'rawName'], []),
-      new ExtractNode('support_ext_name', ['name', 'rawName'], []),
+      new ExtractNode('transfer_ask_number', ['name', 'rawName'], []),
     ];
   }
 //   this._model = [
