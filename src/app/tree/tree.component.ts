@@ -3,12 +3,13 @@ import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, Injectable} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BehaviorSubject} from 'rxjs';
-import {ActionNode, Node, NodeType, ClassifierNode} from '../nodes/nodes';
+import {ActionNode, Node, NodeType, ClassifierNode} from '../graph/nodes/nodes';
 import {ModelService} from '../services/model.service';
 import {EventService} from '../services/event.service';
 import {element} from 'protractor';
 import { NULL_EXPR, ClassField } from '@angular/compiler/src/output/output_ast';
 import { networkInterfaces } from 'os';
+import { Relation } from '../graph/nodes/relation';
 /** Flat to-do idnode with expandable and level information */
 export class FlatNode {
   id: string;
@@ -152,21 +153,22 @@ export class TreeComponent {
 
   addNodeToModel(id: string, props: [], children: [], ) {
     let node: Node;
+    let relation: Relation;
     switch(this.nodeType) {
       case NodeType.ActionNode: {
         node = new ActionNode(id, props, children);
+        relation = new Relation(id)
       }
       case NodeType.ClassifierNode: {
         node = new ClassifierNode(id, children);
       }
     }
     this._modelService.model.push(node);
-    this._modelService.model.forEach((node)=> {
+    this._modelService.model.forEach((node) => {
       if (node.id === this.parentNode) {
-        node.children.push(id);
+        node.children.push(relation);
       }
-    // this._eventService.send('message.test', {testData: 'My first message to somebody...'});
     });
-  console.log(this._modelService.model);
+    this._eventService.send('addNode', {node: node, parent: this.parentNode});
   }
 }

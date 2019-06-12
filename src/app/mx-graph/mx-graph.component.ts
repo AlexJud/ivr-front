@@ -2,6 +2,9 @@ import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angula
 import {ModelService} from '../services/model.service';
 import {mxgraph} from 'mxgraph';
 import {collectExternalReferences} from '@angular/compiler';
+import { EventService } from '../services/event.service';
+import { Node, ActionNode } from '../graph/nodes/nodes';
+import { Relation } from '../graph/nodes/relation';
 
 declare var require: any;
 const mx = require('mxgraph')({
@@ -28,9 +31,10 @@ export class MxGraphComponent implements OnInit {
   mxGraphHandler;
   highlight;
   map = new Map();
-
-  constructor(private modelService: ModelService) {
-    this.model = modelService.model;
+  node = new ActionNode('asdasd', [], [])
+  constructor(private _modelService: ModelService,
+              private _eventService: EventService) {
+    this.model = _modelService.model;
     // console.log(`this model ${this.model}`);
   }
 
@@ -39,6 +43,9 @@ export class MxGraphComponent implements OnInit {
     this.initializeMxGraph();
     this.buildModel();
     this.initListeners();
+    this._eventService.on('addNode', (data) => {
+      this.addNode(data.node, data.parent);
+    });
 
     // Подписаться на получение Node для подстветки =>
     // this.highlightCellOn(NodeName); подсветка
@@ -99,7 +106,7 @@ export class MxGraphComponent implements OnInit {
 
     try {
       this.model.forEach((node) => {
-        let vObj = this.graph.insertVertex(this.parent, null, node.id, 0, 0, 120, 80, this.styleVertex);
+        let vObj = this.graph.insertVertex(this.parent, null, node.constructor.name, 0, 0, 120, 80, this.styleVertex);
         let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
         this.map.set(node.id, vObj);
         mapNode.set(node.id, node);
@@ -132,6 +139,17 @@ export class MxGraphComponent implements OnInit {
   highlightCellReset() {
     this.highlight.resetHandler();
   }
+  
+public addNode(node?: Node, parent?: string) {
+  this.graph.getModel().beginUpdate();
+  try {
+    let vObj = this.graph.insertVertex(this.parent, null, this.node.id, 0, 0, 120, 80, this.styleVertex);
+    let vCell = this.graph.insertVertex(vObj, null, this.node.id, 0, 20, 120, 40, this.styleCell);
+    this.map.set(node.id, vObj);
+   } finally {
+     this.graph.getModel().endUpdate();
+   }
+}
   // private initModel() {
   //   const field1 = new mx.mxCell(Object.keys(this.model)[0], new mx.mxGeometry(0, 40, 140, 40),
   //     'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0');

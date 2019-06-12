@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModelService } from '../../services/model.service';
-import { NodeType } from 'src/app/nodes/nodes';
+import { NodeType } from 'src/app/graph/nodes/nodes';
 import { TreeComponent } from '../tree.component';
 
 @Component({

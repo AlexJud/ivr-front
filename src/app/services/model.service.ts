@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
-import {ExtractNode, ActionNode, Node, ClassifierNode} from '../nodes/nodes';
+import {ExtractNode, ActionNode, Node, ClassifierNode} from '../graph/nodes/nodes';
+import { Relation } from '../graph/nodes/relation';
 
 @Injectable()
 export class ModelService {
@@ -9,8 +10,8 @@ export class ModelService {
   init() {
     const classify = new ClassifierNode('classify', []);
     this._model = [
-      new ActionNode('root', ['Текст для синтеза', 'b=1'], ['classify']),
-      new ClassifierNode('classify', ['buy_ext_estate', 'support_ext_name', 'transfer_ask_number']),
+      new ActionNode('root', ['Текст для синтеза', 'b=1'], []),
+      new ClassifierNode('classify', [null, null, null]),
       new ExtractNode('buy_ext_estate', ['estate', 'rawEstate'], []),
       new ExtractNode('support_ext_name', ['name', 'rawName'], []),
       new ExtractNode('transfer_ask_number', ['name', 'rawName'], []),
