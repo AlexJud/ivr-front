@@ -10,11 +10,11 @@ export class ModelService {
   init() {
     const classify = new ClassifierNode('classify', []);
     this._model = [
-      new ActionNode('root', ['Текст для синтеза', 'b=1'], []),
-      new ClassifierNode('classify', [null, null, null]),
-      new ExtractNode('buy_ext_estate', ['estate', 'rawEstate'], []),
-      new ExtractNode('support_ext_name', ['name', 'rawName'], []),
-      new ExtractNode('transfer_ask_number', ['name', 'rawName'], []),
+      new ActionNode('root', ['Текст для синтеза', 'b=1'], [new Relation('classify')]),
+      new ClassifierNode('classify', [null]),
+      // new ExtractNode('buy_ext_estate', ['estate', 'rawEstate'], []),
+      // new ExtractNode('support_ext_name', ['name', 'rawName'], []),
+      // new ExtractNode('transfer_ask_number', ['name', 'rawName'], []),
     ];
   }
 //   this._model = [

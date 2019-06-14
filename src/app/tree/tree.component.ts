@@ -1,13 +1,13 @@
 import {SelectionModel} from '@angular/cdk/collections';
 import {FlatTreeControl} from '@angular/cdk/tree';
-import {Component, Injectable} from '@angular/core';
+import {Component, Injectable, OnInit} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BehaviorSubject} from 'rxjs';
-import {ActionNode, Node, NodeType, ClassifierNode} from '../graph/nodes/nodes';
+import {ActionNode, Node, NodeType, ClassifierNode, ExtractNode, ValidateNode} from '../graph/nodes/nodes';
 import {ModelService} from '../services/model.service';
 import {EventService} from '../services/event.service';
 import {element} from 'protractor';
-import { NULL_EXPR, ClassField } from '@angular/compiler/src/output/output_ast';
+import { NULL_EXPR, ClassField, ThrowStmt } from '@angular/compiler/src/output/output_ast';
 import { networkInterfaces } from 'os';
 import { Relation } from '../graph/nodes/relation';
 /** Flat to-do idnode with expandable and level information */
@@ -66,6 +66,15 @@ export class ChecklistDatabase {
     node.id = name;
     this.dataChange.next(this.data);
   }
+
+  removeItem(node: ItemNode) {
+    const index = this.data.indexOf(node);
+ 
+    if (index > -1) {
+       this.data.splice(index, 1);
+    }
+    this.dataChange.next(this.data);
+  }
 }
 
 /**
@@ -76,7 +85,7 @@ export class ChecklistDatabase {
   templateUrl: './tree.component.html',
   styleUrls: ['./tree.component.scss']
 })
-export class TreeComponent {
+export class TreeComponent implements OnInit{
   activeNode: any;
   /** Map from flat node to nested node. This helps us finding the nested node to be modified */
   flatNodeMap = new Map<FlatNode, ItemNode>();
@@ -86,8 +95,11 @@ export class TreeComponent {
   selectedParent: FlatNode | null = null;
   /** The new item's name */
   newItemName: ItemNode;
+  /** Map from flat node to node ID */
+  flatNodeId = new Map<string, FlatNode>();
   parentNode: string;
   nodeType: NodeType;
+  selectedNode: FlatNode;
 
   treeControl: FlatTreeControl<FlatNode>;
   treeFlattener: MatTreeFlattener<ItemNode, FlatNode>;
@@ -105,6 +117,15 @@ export class TreeComponent {
       this.dataSource.data = data;
     });
     this._modelService.init();
+  }
+
+  ngOnInit() {
+    this._eventService.on('selectNode', (id: string) => {
+      console.log('Event is come');
+      console.log(id);
+      console.log(this.flatNodeId.get(id));
+      this.treeControl.expand(this.flatNodeId.get(id))
+    }); 
   }
 
   getLevel = (node: FlatNode) => node.level;
@@ -130,10 +151,11 @@ export class TreeComponent {
     flatNode.expandable = !!node.children;
     this.flatNodeMap.set(flatNode, node);
     this.nestedNodeMap.set(node, flatNode);
+    this.flatNodeId.set(node.id, flatNode);
     return flatNode;
   }
-  checked() {
-    console.log('Ты выбрал это');
+  checked(node: FlatNode) {
+    this.selectedNode = node;
   }
 
   addNode(parent: string, type: NodeType) {
@@ -151,6 +173,11 @@ export class TreeComponent {
     this.addNodeToModel(itemValue, [], [])
   }
 
+  deleteNode() {
+    const item = this.flatNodeMap.get(this.selectedNode);
+    this._database.removeItem(item);
+  }
+
   addNodeToModel(id: string, props: [], children: [], ) {
     let node: Node;
     let relation: Relation;
@@ -158,9 +185,19 @@ export class TreeComponent {
       case NodeType.ActionNode: {
         node = new ActionNode(id, props, children);
         relation = new Relation(id)
+        break;
       }
       case NodeType.ClassifierNode: {
         node = new ClassifierNode(id, children);
+        break;
+      }
+      case NodeType.ExtractNode: {
+        node = new ExtractNode(id, props ,children,);
+        break;
+      }
+      case NodeType.ValidateNode: {
+        node = new ValidateNode(id, children);
+        break;
       }
     }
     this._modelService.model.push(node);

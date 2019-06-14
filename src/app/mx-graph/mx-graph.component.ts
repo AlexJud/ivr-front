@@ -30,8 +30,9 @@ export class MxGraphComponent implements OnInit {
   styleVertex = '';
   mxGraphHandler;
   highlight;
+  layout;
   map = new Map();
-  node = new ActionNode('asdasd', [], [])
+  node: Node;
   constructor(private _modelService: ModelService,
               private _eventService: EventService) {
     this.model = _modelService.model;
@@ -41,6 +42,7 @@ export class MxGraphComponent implements OnInit {
   ngOnInit() {
     this.initStyles();
     this.initializeMxGraph();
+    this.layout = new mx.mxCompactTreeLayout(this.graph);
     this.buildModel();
     this.initListeners();
     this._eventService.on('addNode', (data) => {
@@ -60,7 +62,12 @@ export class MxGraphComponent implements OnInit {
     this.graph.addMouseListener({
       mouseDown: ((sender, me) => {
         if (me.getCell() !== null) {
-          this.emitNameCell.emit(me.getCell().value);
+          // this.emitNameCell.emit(me.getCell().value);
+          if(me.getCell().parent.value === undefined) {
+            this._eventService.send('selectNode', me.getCell().children[0].value);
+          } else {
+            this._eventService.send('selectNode', me.getCell().value);
+          }
         }
       }),
       mouseMove: function(sender, me) {
@@ -95,6 +102,8 @@ export class MxGraphComponent implements OnInit {
       this.graph = new mx.mxGraph(container);
       // const mxRubberband1 = new mx.mxRubberband(this.graph);
       this.parent = this.graph.getDefaultParent();
+      this.graph.graphHandler.setRemoveCellsFromParent(false);
+      this.graph.graphHandler.setSelectEnabled(false);
     }
   }
 
@@ -114,23 +123,19 @@ export class MxGraphComponent implements OnInit {
 
       this.map.forEach((v, k) => {
         if (mapNode.get(k).children.length !== 0) {
-          console.log('NOT NULL', v);
           mapNode.get(k).children.forEach((nodeName) => {
-            this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName));
+            console.log(nodeName);
+            let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.id));
           });
         }
       });
-
     } catch (e) {
       console.log(`Erorr: ${e}`);
     } finally {
+      this.layout.execute(this.parent);
       this.graph.getModel().endUpdate();
-
-      new mx.mxCompactTreeLayout(this.graph).execute(this.parent);
-
-      this.graph.setCellsLocked(true);
+      // this.graph.setCellsLocked(true);
     }
-
   }
                                                     // ПОДСВЕТКА ЯЧЕКИ
   highlightCellOn(cell) {
@@ -140,15 +145,19 @@ export class MxGraphComponent implements OnInit {
     this.highlight.resetHandler();
   }
   
-public addNode(node?: Node, parent?: string) {
-  this.graph.getModel().beginUpdate();
-  try {
-    let vObj = this.graph.insertVertex(this.parent, null, this.node.id, 0, 0, 120, 80, this.styleVertex);
-    let vCell = this.graph.insertVertex(vObj, null, this.node.id, 0, 20, 120, 40, this.styleCell);
-    this.map.set(node.id, vObj);
+  public addNode(node?: Node, parent?: string) {
+    // console.log('PARENT IS: ',parent);
+    console.log('PARENT',this.map.get(parent));
+    this.graph.getModel().beginUpdate();
+    try {
+      let vObj = this.graph.insertVertex(this.parent, null, node.constructor.name, 0, 0, 120, 80, this.styleVertex);
+      let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
+      this.map.set(node.id, vObj);
+      this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj);
    } finally {
-     this.graph.getModel().endUpdate();
-   }
+      this.layout.execute(this.parent);
+      this.graph.getModel().endUpdate();
+    }
 }
   // private initModel() {
   //   const field1 = new mx.mxCell(Object.keys(this.model)[0], new mx.mxGeometry(0, 40, 140, 40),

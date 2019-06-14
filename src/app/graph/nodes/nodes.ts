@@ -37,10 +37,14 @@ export class ClassifierNode extends Node {
     super();
     this.id = id;
     this.children = child;
-
   }
 }
 
-export class ValidateNode {
+export class ValidateNode extends Node {
   props: ValidateProps;
+  constructor(id: string, child: Relation[]) {
+    super();
+    this.id = id;
+    this.children = child;
+  }
 }
