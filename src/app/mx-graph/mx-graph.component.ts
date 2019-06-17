@@ -48,6 +48,9 @@ export class MxGraphComponent implements OnInit {
     this._eventService.on('addNode', (data) => {
       this.addNode(data.node, data.parent);
     });
+    this._eventService.on('deleteNode', (id: string) => {
+      this.deleteNode(id)
+    });
 
     // Подписаться на получение Node для подстветки =>
     // this.highlightCellOn(NodeName); подсветка
@@ -146,8 +149,6 @@ export class MxGraphComponent implements OnInit {
   }
   
   public addNode(node?: Node, parent?: string) {
-    // console.log('PARENT IS: ',parent);
-    console.log('PARENT',this.map.get(parent));
     this.graph.getModel().beginUpdate();
     try {
       let vObj = this.graph.insertVertex(this.parent, null, node.constructor.name, 0, 0, 120, 80, this.styleVertex);
@@ -158,7 +159,18 @@ export class MxGraphComponent implements OnInit {
       this.layout.execute(this.parent);
       this.graph.getModel().endUpdate();
     }
-}
+  }
+
+  public deleteNode(id: string) {
+    this.graph.getModel().beginUpdate();
+    try {
+      const rNode = this.map.get(id);
+      this.graph.removeCells([rNode]);
+    } finally {
+      this.graph.getModel().endUpdate();
+    }
+  }
+
   // private initModel() {
   //   const field1 = new mx.mxCell(Object.keys(this.model)[0], new mx.mxGeometry(0, 40, 140, 40),
   //     'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0');

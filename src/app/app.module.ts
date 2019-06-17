@@ -23,8 +23,10 @@ import { MxGraphComponent } from './mx-graph/mx-graph.component';
 import { TreeComponent } from './tree/tree.component';
 import { AddTreeComponent } from './tree/add-tree/add-tree.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import {ModelService} from './services/model.service';
-import {EventService} from './services/event.service';
+import { ModelService } from './services/model.service';
+import { EventService } from './services/event.service';
+import { GridSettingsComponent } from './grid-settings/grid-settings.component';
+import {MatTableModule} from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -34,7 +36,8 @@ import {EventService} from './services/event.service';
     CallButtonComponent,
     MxGraphComponent,
     TreeComponent,
-    AddTreeComponent
+    AddTreeComponent,
+    GridSettingsComponent
   ],
   imports: [
     BrowserModule,
@@ -52,7 +55,8 @@ import {EventService} from './services/event.service';
     MatInputModule,
     MatButtonToggleModule,
     MatTreeModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatTableModule
   ],
   providers: [ ModelService, EventService ],
   bootstrap: [AppComponent]

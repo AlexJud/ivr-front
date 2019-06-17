@@ -10,6 +10,7 @@ import {element} from 'protractor';
 import { NULL_EXPR, ClassField, ThrowStmt } from '@angular/compiler/src/output/output_ast';
 import { networkInterfaces } from 'os';
 import { Relation } from '../graph/nodes/relation';
+import { analyzeAndValidateNgModules } from '@angular/compiler';
 /** Flat to-do idnode with expandable and level information */
 export class FlatNode {
   id: string;
@@ -176,6 +177,21 @@ export class TreeComponent implements OnInit{
   deleteNode() {
     const item = this.flatNodeMap.get(this.selectedNode);
     this._database.removeItem(item);
+    this.deleteNodeFromModel(item.id);
+  }
+
+  deleteNodeFromModel(id: string) {
+    let rNode = {};
+    this._modelService.model.forEach((node: Node) => {
+      if(node.id === id) {
+        rNode = node;
+      }
+    });
+    const index = this._modelService.model.indexOf(rNode as Node)
+    if (index > -1) {
+      this._modelService.model.splice(index, 1);
+   }
+   this._eventService.send('deleteNode', id);
   }
 
   addNodeToModel(id: string, props: [], children: [], ) {

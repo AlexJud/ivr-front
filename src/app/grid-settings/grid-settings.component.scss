@@ -1,0 +1,30 @@
+.panel {
+    position: relative;
+    // left: 100%;
+    right: 48%;
+    top: 0;
+    display: flex;
+    // width: 100%;
+}
+.option-table {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+::ng-deep .mat-form-field-underline {
+    display: none;
+}
+table {
+    width: 100%;
+}
+tr.mat-row {
+    height: 30px;
+}
+.example-container {
+    position: relative;
+    margin-top: 1px;
+}
+  
