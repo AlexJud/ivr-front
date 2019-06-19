@@ -12,7 +12,7 @@ export enum NodeType {
 export abstract class Node {
   id: string;
   children: Relation[];
-  props: any;
+  props?: any;
 }
 
 export class ActionNode extends Node {

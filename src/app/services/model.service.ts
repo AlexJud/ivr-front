@@ -10,7 +10,7 @@ export class ModelService {
   init() {
     const classify = new ClassifierNode('classify', []);
     this._model = [
-      new ActionNode('root', ['Текст для синтеза', 'b=1'], [new Relation('classify')]),
+      new ActionNode('root', ['Единый кол центр', 'b=1'], [new Relation('classify')]),
       new ClassifierNode('classify', [null]),
       // new ExtractNode('buy_ext_estate', ['estate', 'rawEstate'], []),
       // new ExtractNode('support_ext_name', ['name', 'rawName'], []),

@@ -37,7 +37,7 @@ export class ChecklistDatabase {
   get data(): ItemNode[] { return this.dataChange.value; }
 
   constructor(private _modelService: ModelService) {
-    this._modelService.init();
+    // this._modelService.init();
     this.initialize();
   }
 

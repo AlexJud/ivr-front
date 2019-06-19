@@ -1,10 +1,8 @@
 .panel {
     position: relative;
-    // left: 100%;
     right: 48%;
     top: 0;
     display: flex;
-    // width: 100%;
 }
 .option-table {
     position: absolute;
@@ -27,4 +25,19 @@ tr.mat-row {
     position: relative;
     margin-top: 1px;
 }
-  
+.table-head {
+    font-weight: bold;
+    color: black;
+}
+tr.mat-header-row {
+    height: 40px;
+    border-top: 1px;
+}
+.mat-elevation-z8 {
+    box-shadow: none;
+}
+.toolbar-grid {
+    border: 1px solid black;
+    border-left: none;
+    border-right: none;
+}
