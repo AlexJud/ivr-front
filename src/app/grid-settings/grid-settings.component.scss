@@ -1,6 +1,6 @@
 .panel {
     position: relative;
-    right: 48%;
+    right: 45%;
     top: 0;
     display: flex;
 }
@@ -11,6 +11,14 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
+}
+.children-table {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; 
 }
 ::ng-deep .mat-form-field-underline {
     display: none;

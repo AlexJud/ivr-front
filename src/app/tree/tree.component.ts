@@ -3,7 +3,7 @@ import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, Injectable, OnInit} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BehaviorSubject} from 'rxjs';
-import {ActionNode, Node, NodeType, ClassifierNode, ExtractNode, ValidateNode} from '../graph/nodes/nodes';
+import {ActionNode, Node, NodeType, ClassifierNode, ExtractNode, ValidateNode, SpecifierNode} from '../graph/nodes/nodes';
 import {ModelService} from '../services/model.service';
 import {EventService} from '../services/event.service';
 import {element} from 'protractor';
@@ -21,10 +21,12 @@ export class FlatNode {
 export class ItemNode {
   id: string;
   children: ItemNode[];
+  parent: string;
 
-  constructor(id: string, children: ItemNode[]) {
+  constructor(id: string, children: ItemNode[], parent?: string) {
     this.id = id;
     this.children = children;
+    this.parent = parent;
   }
 }
 
@@ -50,9 +52,9 @@ export class ChecklistDatabase {
     let tree = [];
     this._modelService.model.map((node) => {
       if (node.props) {
-        tree.push(new ItemNode(node.id, [new ItemNode('Дочерние узлы', []), new ItemNode('Параметры', [])]));
+        tree.push(new ItemNode(node.id, [new ItemNode('Дочерние узлы', [], node.id), new ItemNode('Параметры', [], node.id)]));
       } else {
-        tree.push(new ItemNode(node.id, [new ItemNode('Дочерние узлы', [])]));
+        tree.push(new ItemNode(node.id, [new ItemNode('Дочерние узлы', [], node.id)]));
         }
     });
     return tree as ItemNode[];
@@ -137,7 +139,12 @@ export class TreeComponent implements OnInit{
     return this.getLevel(_nodeData) === 1;
   }
   onTreeClick(node: FlatNode) {
-    this.activeNode = node;
+    const type = node.id === 'Дочерние узлы' ? 'children' : 'options'
+    const nodeId = this.flatNodeMap.get(node).parent;
+    this._eventService.send('showProps', {
+      type: type,
+      node: nodeId
+    })
   }
   /**
    * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
@@ -170,6 +177,7 @@ export class TreeComponent implements OnInit{
   saveNode(node: FlatNode, itemValue: string) {
     // const nestedNode = this.flatNodeMap.get(node);
     // this._database.updateItem(nestedNode!, itemValue);
+    this.newItemName.children.map((child) => child.parent = itemValue)
     this._database.updateItem(this.newItemName, itemValue);
     this.addNodeToModel(itemValue, [], [])
   }
@@ -194,7 +202,7 @@ export class TreeComponent implements OnInit{
    this._eventService.send('deleteNode', id);
   }
 
-  addNodeToModel(id: string, props: [], children: [], ) {
+  addNodeToModel(id: string, props: any, children: [], ) {
     let node: Node;
     let relation: Relation;
     switch(this.nodeType) {
@@ -205,15 +213,22 @@ export class TreeComponent implements OnInit{
       }
       case NodeType.ClassifierNode: {
         node = new ClassifierNode(id, children);
+        relation = new Relation(id)
         break;
       }
       case NodeType.ExtractNode: {
         node = new ExtractNode(id, props ,children,);
+        relation = new Relation(id)
         break;
       }
       case NodeType.ValidateNode: {
         node = new ValidateNode(id, children);
+        relation = new Relation(id)
         break;
+      }
+      case NodeType.SpecifierNode: {
+        node = new SpecifierNode(id, props, children);
+        relation = new Relation(id)
       }
     }
     this._modelService.model.push(node);

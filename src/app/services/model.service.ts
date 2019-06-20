@@ -11,7 +11,7 @@ export class ModelService {
     const classify = new ClassifierNode('classify', []);
     this._model = [
       new ActionNode('root', ['Единый кол центр', 'b=1'], [new Relation('classify')]),
-      new ClassifierNode('classify', [null]),
+      new ClassifierNode('classify', [new Relation('buy_ext', ['some', 'key', 'words'])]),
       // new ExtractNode('buy_ext_estate', ['estate', 'rawEstate'], []),
       // new ExtractNode('support_ext_name', ['name', 'rawName'], []),
       // new ExtractNode('transfer_ask_number', ['name', 'rawName'], []),

@@ -1,12 +1,14 @@
 import { Relation } from './relation';
 import { ExtractProps } from '../nodeProps/extractProps';
 import { ValidateProps } from '../nodeProps/validateProps';
+import { SpecifierProps } from '../nodeProps/specifierProps';
 
 export enum NodeType {
   ActionNode = "ActionNode",
   ClassifierNode = "ClassifierNode",
   ExtractNode = "ExtractNode",
-  ValidateNode = "ValidateNode"
+  ValidateNode = "ValidateNode",
+  SpecifierNode = "SpecifierNode"
 }
 
 export abstract class Node {
@@ -26,10 +28,11 @@ export class ActionNode extends Node {
 }
 export class ExtractNode extends Node {
   props: ExtractProps;
-  constructor(id: string, prop: string[], child: Relation[]) {
+  constructor(id: string, prop: ExtractProps, child: Relation[]) {
     super();
     this.id = id;
     this.children = child;
+    this.props = prop;
   }
 }
 export class ClassifierNode extends Node {
@@ -39,12 +42,20 @@ export class ClassifierNode extends Node {
     this.children = child;
   }
 }
-
 export class ValidateNode extends Node {
   props: ValidateProps;
   constructor(id: string, child: Relation[]) {
     super();
     this.id = id;
     this.children = child;
+  }
+}
+export class SpecifierNode extends Node {
+  props: SpecifierProps;
+  constructor(id: string, props, child: Relation[]) {
+    super();
+    this.id = id;
+    this.children = child;
+    this.props = props;
   }
 }
