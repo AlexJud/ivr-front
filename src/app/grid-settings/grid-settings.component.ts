@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ModelService } from '../services/model.service'
-import { NodeType, SpecifierNode } from '../graph/nodes/nodes';
+import { NodeType, SpecifierNode, Node } from '../graph/nodes/nodes';
 import { Options } from '../graph/nodeProps/optionStrings';
 import { EventService } from '../services/event.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { Subscriber, BehaviorSubject } from 'rxjs';
 
 export interface Data {
   option: string;
@@ -21,11 +23,15 @@ export interface DisplayColumn {
   styleUrls: ['./grid-settings.component.scss']
 })
 export class GridSettingsComponent implements OnInit {
+  isInput: boolean  //Проверяем был ли ввод в какой-нить Input
+  currentNode: Node;  //Здесь храним текущий объект
+  tableData: any;
   isOption: boolean;
   isChildren: boolean;
   displayedColumnsForChildren: string[];
   displayedColumnsForOptions: string[];
-  dataSource: []; //= DATA_SOURCE for table;
+  // dataSource = []; //= DATA_SOURCE for table;
+  dataSource: any;
   optionsData = {};
   childrenData = {};
   columnMap: Map<string, DisplayColumn>; //Map to store displayed columns
@@ -35,6 +41,7 @@ export class GridSettingsComponent implements OnInit {
     this.isOption = false;
     this.isChildren = false;
     this.columnMap = new Map();
+    this.tableData = {};
   }
 
   buildDataSource() {
@@ -133,20 +140,44 @@ export class GridSettingsComponent implements OnInit {
     });
   }
 
-  setDataSource(type: string, nodeId: string) {
+  private setDataSource(type: string, nodeId: string) {
     if(type === 'options') {
-      this.dataSource = this.optionsData[nodeId]
+      this.dataSource = new MatTableDataSource(this.optionsData[nodeId]); 
       this.isChildren = false;
       this.isOption = true;
     }
     if(type === 'children') {
-      this.dataSource = this.childrenData[nodeId]
+      this.dataSource = new MatTableDataSource(this.childrenData[nodeId]);
       this.isOption = false;
       this.isChildren = true;
     }
+    this.currentNode = this._modelService.getNode(nodeId);
   }
   private setColumns(id: string) {
     this.displayedColumnsForChildren = this.columnMap.get(id).children;
     this.displayedColumnsForOptions = this.columnMap.get(id).options;
+  }
+  onChange(event: Event) {
+    if (event.constructor.name === 'InputEvent') {
+      this.isInput = true;
+    }
+    if (event.constructor.name === 'FocusEvent') {
+      if(this.isInput) {
+        this.changeNode();
+        this.isInput = false;
+      }
+    }
+  }
+
+  changeNode() {
+    if (this.isChildren) {
+      this.currentNode.children = this.dataSource.data;
+    } else {
+      // console.log(this.dataSource.data);
+      let options = this.dataSource.data.map((item) => {
+        return item.value;
+      })
+      this.currentNode.props = options;
+    }
   }
 }

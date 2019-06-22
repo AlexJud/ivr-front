@@ -21,12 +21,17 @@ import { GridToolbarComponent } from './grid-toolbar/grid-toolbar.component';
 import { CallButtonComponent } from './call-button/call-button.component';
 import { MxGraphComponent } from './mx-graph/mx-graph.component';
 import { TreeComponent } from './tree/tree.component';
-import { AddTreeComponent } from './tree/add-tree/add-tree.component';
+import { TreePanelComponent } from './tree/tree-panel/tree-panel.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ModelService } from './services/model.service';
 import { EventService } from './services/event.service';
 import { GridSettingsComponent } from './grid-settings/grid-settings.component';
 import {MatTableModule} from '@angular/material/table';
+import { MaterialModule } from '../material-modules'
+import { FormsModule } from '@angular/forms';
+import { GridSettingsPanelComponent } from './grid-settings/grid-settings-panel/grid-settings-panel.component';
+import { HttpService } from './services/http.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -36,8 +41,9 @@ import {MatTableModule} from '@angular/material/table';
     CallButtonComponent,
     MxGraphComponent,
     TreeComponent,
-    AddTreeComponent,
-    GridSettingsComponent
+    TreePanelComponent,
+    GridSettingsComponent,
+    GridSettingsPanelComponent
   ],
   imports: [
     BrowserModule,
@@ -56,9 +62,12 @@ import {MatTableModule} from '@angular/material/table';
     MatButtonToggleModule,
     MatTreeModule,
     MatCheckboxModule,
-    MatTableModule
+    MatTableModule,
+    MaterialModule,
+    FormsModule,
+    HttpClientModule
   ],
-  providers: [ ModelService, EventService ],
+  providers: [ ModelService, EventService, HttpService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

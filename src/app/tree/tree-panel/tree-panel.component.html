@@ -1,4 +1,4 @@
-<button mat-button [matMenuTriggerFor]="nodeTypes"><mat-icon>add</mat-icon></button>
+<button mat-icon-button [matMenuTriggerFor]="nodeTypes"><mat-icon>add</mat-icon></button>
 
 <mat-menu #nodeTypes="matMenu">
   <button mat-menu-item *ngFor="let type of types" [matMenuTriggerFor]="nodeNames" [matMenuTriggerData]="{ typeName: type }">{{type}}</button>
@@ -11,3 +11,5 @@
   <!-- </div> -->
 </ng-template>
 </mat-menu>
+<button mat-icon-button (click)="delete()"><mat-icon>delete</mat-icon></button>
+<button mat-icon-button (click)="save()"><mat-icon>save</mat-icon></button>

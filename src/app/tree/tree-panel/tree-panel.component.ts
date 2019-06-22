@@ -5,11 +5,11 @@ import { TreeComponent } from '../tree.component';
 import { EventService } from 'src/app/services/event.service';
 
 @Component({
-  selector: 'app-add-tree',
-  templateUrl: './add-tree.component.html',
-  styleUrls: ['./add-tree.component.scss']
+  selector: 'app-tree-panel',
+  templateUrl: './tree-panel.component.html',
+  styleUrls: ['./tree-panel.component.scss']
 })
-export class AddTreeComponent implements OnInit {
+export class TreePanelComponent implements OnInit {
 
   nodes: string[] = [];
   types: string[] = [];
@@ -40,5 +40,11 @@ export class AddTreeComponent implements OnInit {
 
   add(parent: string, type: NodeType) {
     this._treeComp.addNode(parent, type);
+  }
+  delete() {
+    this._treeComp.deleteNode();
+  }
+  save() {
+    this._modelService.saveToJson();
   }
 }

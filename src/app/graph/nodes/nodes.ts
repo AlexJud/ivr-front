@@ -19,6 +19,7 @@ export abstract class Node {
 
 export class ActionNode extends Node {
   props: string[];
+  type: string = 'ACTION';
   constructor(id: string, prop: string[], child: Relation[]) {
     super();
     this.id = id;
@@ -28,6 +29,7 @@ export class ActionNode extends Node {
 }
 export class ExtractNode extends Node {
   props: ExtractProps;
+  type: string = 'EXTRACT';
   constructor(id: string, prop: ExtractProps, child: Relation[]) {
     super();
     this.id = id;
@@ -36,6 +38,7 @@ export class ExtractNode extends Node {
   }
 }
 export class ClassifierNode extends Node {
+  type: string = 'CLASSIFIER';
   constructor(id: string, child: Relation[]) {
     super();
     this.id = id;
@@ -44,6 +47,7 @@ export class ClassifierNode extends Node {
 }
 export class ValidateNode extends Node {
   props: ValidateProps;
+  type: string = 'VALIDATE';
   constructor(id: string, child: Relation[]) {
     super();
     this.id = id;
@@ -52,6 +56,7 @@ export class ValidateNode extends Node {
 }
 export class SpecifierNode extends Node {
   props: SpecifierProps;
+  type: string = 'SPECIFIER';
   constructor(id: string, props, child: Relation[]) {
     super();
     this.id = id;
