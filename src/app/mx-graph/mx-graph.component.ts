@@ -125,8 +125,8 @@ export class MxGraphComponent implements OnInit {
       });
 
       this.map.forEach((v, k) => {
-        if (mapNode.get(k).children.length !== 0) {
-          mapNode.get(k).children.forEach((nodeName) => {
+        if (mapNode.get(k).edgeList.length !== 0) {
+          mapNode.get(k).edgeList.forEach((nodeName) => {
             console.log(nodeName);
             let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.id));
           });

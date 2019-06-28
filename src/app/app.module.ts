@@ -26,11 +26,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ModelService } from './services/model.service';
 import { EventService } from './services/event.service';
 import { GridSettingsComponent } from './grid-settings/grid-settings.component';
-import {MatTableModule} from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MaterialModule } from '../material-modules'
 import { FormsModule } from '@angular/forms';
 import { GridSettingsPanelComponent } from './grid-settings/grid-settings-panel/grid-settings-panel.component';
 import { HttpService } from './services/http.service';
+import { BuildTreeService } from './services/build.tree.service';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
@@ -67,7 +68,7 @@ import { HttpClientModule } from '@angular/common/http';
     FormsModule,
     HttpClientModule
   ],
-  providers: [ ModelService, EventService, HttpService ],
+  providers: [ ModelService, EventService, HttpService, BuildTreeService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

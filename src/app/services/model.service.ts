@@ -1,7 +1,9 @@
 import {Injectable} from '@angular/core';
-import {ExtractNode, ActionNode, Node, ClassifierNode} from '../graph/nodes/nodes';
+import {ExtractNode, ActionNode, Node, ClassifierNode, NodeType, ValidateNode, SpecifierNode, EndNode} from '../graph/nodes/nodes';
 import { Relation } from '../graph/nodes/relation';
 import { HttpService } from './http.service';
+import { ValidateProps } from '../graph/nodeProps/validateProps';
+import { SpecifierProps } from '../graph/nodeProps/specifierProps';
 
 @Injectable()
 export class ModelService {
@@ -12,12 +14,16 @@ export class ModelService {
   }
   init() {
     const classify = new ClassifierNode('classify', []);
+    let props = new SpecifierProps();
+    props.asrOptions = 'b=1&t=5000&nit=5000';
+    props.grammar = 'http://localhost/theme:graph';
+    props.synthText = 'Как тебя зовут?'
+    props.varName = 'name'
     this._model = [
-      new ActionNode('root', ['Единый кол центр', '/etc/asterisk/grammar.xml,b=1&t=5000&nit=5000'], [new Relation('classify')]),
-      new ClassifierNode('classify', [new Relation('buy_ext', ['some', 'key', 'words'])]),
-      // new ExtractNode('buy_ext_estate', ['estate', 'rawEstate'], []),
-      // new ExtractNode('support_ext_name', ['name', 'rawName'], []),
-      // new ExtractNode('transfer_ask_number', ['name', 'rawName'], []),
+      new ActionNode('root', ['Здравствуй, дружочек! Чего желаешь?', 'http://localhost/theme:graph,b=1&t=5000&nit=5000'], [new Relation('classify')]),
+      new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
+      new SpecifierNode('specifier', [props], [new Relation('end')] ),
+      new EndNode('end', ['@name#, все понятно, до свидания!']),
     ];
   }
 //   this._model = [
@@ -49,5 +55,6 @@ export class ModelService {
     // window.open(url);
     this._http.sendModel(this.model).subscribe((data: any) => {console.log('OPA')},
     error => console.log(error));
+    console.log(this.model);
   }
 }

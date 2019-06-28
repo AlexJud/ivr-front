@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ModelService } from '../../services/model.service';
 import { NodeType } from 'src/app/graph/nodes/nodes';
 import { TreeComponent } from '../tree.component';
 import { EventService } from 'src/app/services/event.service';
+
 
 @Component({
   selector: 'app-tree-panel',
@@ -10,13 +11,14 @@ import { EventService } from 'src/app/services/event.service';
   styleUrls: ['./tree-panel.component.scss']
 })
 export class TreePanelComponent implements OnInit {
-
+  @Output() addEvent = new EventEmitter();
+  @Output() deleteEvent = new EventEmitter();
   nodes: string[] = [];
   types: string[] = [];
   model: any;
 
   constructor(private _modelService: ModelService,
-              private _treeComp: TreeComponent,
+              // private _treeComp: TreeComponent,
               private _eventService: EventService) { 
     this.model = _modelService.model;
   }
@@ -29,6 +31,9 @@ export class TreePanelComponent implements OnInit {
     this._eventService.on('addNode', () => {
       this.updateModel();
     })
+    this._eventService.on('deleteNode', () => {
+      this.updateModel();
+    })
   }
 
   private updateModel() {
@@ -39,10 +44,13 @@ export class TreePanelComponent implements OnInit {
   }
 
   add(parent: string, type: NodeType) {
-    this._treeComp.addNode(parent, type);
+    this.addEvent.emit({parent, type})
+    // this._treeComp.addNode(parent, type);
   }
+
   delete() {
-    this._treeComp.deleteNode();
+    this.deleteEvent.emit()
+    // this._treeComp.deleteNode();
   }
   save() {
     this._modelService.saveToJson();

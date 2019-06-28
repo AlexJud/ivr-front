@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { ModelService } from '../services/model.service'
-import { NodeType, SpecifierNode, Node } from '../graph/nodes/nodes';
+import { NodeType, SpecifierNode, Node, ValidateNode } from '../graph/nodes/nodes';
 import { Options } from '../graph/nodeProps/optionStrings';
 import { EventService } from '../services/event.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subscriber, BehaviorSubject } from 'rxjs';
+import { SpecifierProps } from '../graph/nodeProps/specifierProps';
 
-export interface Data {
-  option: string;
-  value: string;
-}
+// export interface Data {
+//   option: string;
+//   value: string;
+// }
 
 export interface DisplayColumn {
   options?: string[];
@@ -53,75 +54,88 @@ export class GridSettingsComponent implements OnInit {
             {option: Options.ASR_OPTION, value: node.props[1]}
           ]
           this.childrenData[node.id] = [];
-          if(node.children[0] !== null) {
+          if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
             this.childrenData[node.id] =
             [
-              {value: node.children[0].id}
+              {id: node.edgeList[0].id}
             ]
           }
           this.columnMap.set(node.id, {
             options: ['option', 'value'],
-            children: ['value']
+            children: ['id']
           })
           break;
         }
         case NodeType.ClassifierNode: {
-          if(node.children[0] !== null) {
+          if(node.edgeList[0] !== null) {
             this.childrenData[node.id] = [];
-            node.children.map((child) => {
+            node.edgeList.map((child) => {
               this.childrenData[node.id].push(
                 {
-                  value: child.id, keywords: child.match
+                  id: child.id, keywords: child.match
                 }
               );
             });
           }
           this.columnMap.set(node.id, {
-            children: ['value', 'keywords']
+            children: ['id', 'keywords']
           });
           break;
         }
         case NodeType.ExtractNode: {
-          this.optionsData[node.id] = [
-            {option: Options.VAR_NAME, value: node.props['varName'] === undefined ? '' : node.props['varName']},
-            {option: Options.RAW_VAR_NAME, value: node.props['rawVarName'] === undefined ? '' : node.props['rawVarName']},
-            {option: Options.KEYWORDS, value: node.props['match'] === undefined ? '' : node.props['match']}
-          ]
+          console.log('PROPS: ', node.props)
+          if ( node.props.length === 0 || node.props == null) {
+            this.optionsData[node.id] = [
+              {option: Options.VAR_NAME, value: node.props['varName'] === undefined ? '' : node.props['varName']},
+              {option: Options.RAW_VAR_NAME, value: node.props['rawVarName'] === undefined ? '' : node.props['rawVarName']},
+              {option: Options.KEYWORDS, value: node.props['match'] === undefined ? '' : node.props['match']}
+            ]
+          } else {
+            this.optionsData[node.id] = node.props;
+          }
           this.childrenData[node.id] = [];
-          if(node.children[0] !== null && node.children.length !== 0) {
+          if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
             this.childrenData[node.id] = 
             [
-              {value: node.children[0].id}
+              {id: node.edgeList[0].id}
             ];
           }
           this.columnMap.set(node.id, {
             options: ['option', 'value'],
-            children: ['value']
+            children: ['id']
           })
           break;
         }
         case NodeType.SpecifierNode: {
           node as SpecifierNode;
-          this.optionsData[node.id] = [
-            {
-              varName: node.props.varName === undefined ? '' : node.props.varName,
-              synthText: node.props.synthText === undefined ? '' : node.props.synthText,
-              asrOpt: node.props.asrOpt === undefined ? '' : node.props.asrOpt,
-              grammar: node.props.grammar === undefined ? '' : node.props.grammar,
-              keywords: node.props.keywords === undefined ? '' : node.props.keywords,
-              repeatCount: node.props.repeat === undefined ? '' : node.props.repeat
-            }
-          ];
+          let specifierProps = new SpecifierProps();
+          if(node.props.length === 0 || node.props == null) {
+            this.optionsData[node.id] = [specifierProps];
+          } else {
+            this.optionsData[node.id] = node.props;
+          }
+          
           this.childrenData[node.id] = [];
-          if(node.children[0] !== null && node.children.length !== 0) {
+          if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
             this.childrenData[node.id] = 
             [
-              {value: node.children[0].id}
+              {id: node.edgeList[0].id}
             ]
           }
           this.columnMap.set(node.id, {
-            options: ['varName', 'synthText', 'asrOpt', 'grammar', 'keywords', 'repeatCount'],
-            children: ['value']
+            options: ['varName', 'synthText', 'asrOptions', 'grammar', 'keywords', 'repeat'],
+            children: ['id']
+          })
+          break;
+        }
+        case NodeType.EndNode: {
+          this.optionsData[node.id] = [
+            {option: Options.TEXT_FOR_SYNTHESIZE, value: node.props[0]},
+          ]
+          this.childrenData[node.id] = [];
+          this.columnMap.set(node.id, {
+            options: ['option', 'value'],
+            children: ['id']
           })
           break;
         }
@@ -170,14 +184,64 @@ export class GridSettingsComponent implements OnInit {
   }
 
   changeNode() {
-    if (this.isChildren) {
-      this.currentNode.children = this.dataSource.data;
-    } else {
-      // console.log(this.dataSource.data);
-      let options = this.dataSource.data.map((item) => {
-        return item.value;
-      })
-      this.currentNode.props = options;
+    console.log(this.dataSource.data);
+    switch (this.currentNode.constructor.name) {
+      case NodeType.ActionNode: {
+        if (this.isChildren) {
+          this.currentNode.edgeList = this.dataSource.data;
+        } else {
+          let options = this.dataSource.data.map((item: any) => {
+            return item.value;
+          })
+          this.currentNode.props = options;                
+        }
+        break;
+      }
+      case NodeType.ExtractNode: {
+        if (this.isChildren) {
+          this.currentNode.edgeList = this.dataSource.data;
+        } else {
+            this.currentNode.props.varName = this.dataSource.data[0].value;
+            this.currentNode.props.rawVarName = this.dataSource.data[1].value;
+            this.currentNode.props.match = this.dataSource.data[2].value;
+        }
+        break;
+      }
+      case NodeType.ClassifierNode: {
+        if (this.isChildren) {
+          this.dataSource.data.map((element, index) => {
+            this.currentNode.edgeList[index].id = element.id;
+            this.currentNode.edgeList[index].match = (element.keywords.split(',').map((item) => item.trim()));
+          });
+        } else {
+            this.currentNode.edgeList = this.dataSource.data;
+        }
+        break;
+      }
+      case NodeType.SpecifierNode: {
+        if(this.isChildren) {
+          this.currentNode.edgeList = this.dataSource.data;
+        } else {
+          this.dataSource.data.forEach(element => {
+            if (!(element.keywords instanceof Array)) {
+              element.keywords = element.keywords.split(',').map((item) => item.trim());
+            }
+          });
+          this.currentNode.props = this.dataSource.data;
+        }
+        console.log(this.currentNode.props)
+        break;
+      }
+      case NodeType.EndNode: {
+        if(this.isChildren) {
+          this.currentNode.edgeList = this.dataSource.data;
+        } else {
+          let options = this.dataSource.data.map((item: any) => {
+            return item.value;
+          })
+          this.currentNode.props = options;
+        }
+      }
     }
   }
 }

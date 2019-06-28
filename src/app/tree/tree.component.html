@@ -3,7 +3,7 @@
   <!--{{ JSON.stringify(_modelService.model) }}-->
   <!--<button (click)="test()">Test</button>-->
 <!--</div>-->
-<app-tree-panel></app-tree-panel>
+<app-tree-panel (addEvent)="addNode($event)" (deleteEvent)="deleteNode()"></app-tree-panel>
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding [ngClass]="{'rootNode': node }">
     <button mat-icon-button disabled [ngClass]="{'buttonExpand': node}">
@@ -14,13 +14,13 @@
     <mat-checkbox class="checklist-leaf-node" (change)="checked(node)">{{node.id}}</mat-checkbox>
   </mat-tree-node>
 
-  <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding>
+  <!-- <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding>
     <button mat-icon-button disabled></button>
     <mat-form-field>
       <input matInput #itemValue placeholder="New item...">
     </mat-form-field>
     <button mat-button (click)="saveNode(node, itemValue.value)">Save</button>
-  </mat-tree-node>
+  </mat-tree-node> -->
 
   <mat-tree-node *matTreeNodeDef="let node; when: isLevelMoreThenOne" matTreeNodePadding
                  (click)="onTreeClick(node)" [ngClass]="{ 'background-highlight': activeNode === node, 'back': node }">
@@ -30,3 +30,12 @@
     <!-- <button mat-icon-button (click)="addNewItem(node)"><mat-icon>add</mat-icon></button> -->
   </mat-tree-node>
 </mat-tree>
+
+<div class="addNewNode" *ngIf="addNodePressed">
+  <!-- <mat-tree-node *matTreeNodeDef="let node;when: addNewNode" matTreeNodePadding> -->
+    <mat-form-field>
+      <input matInput #itemValue placeholder="New item...">
+    </mat-form-field>
+    <button mat-button (click)="saveNode(itemValue.value)">Save</button>
+    <!-- </mat-tree-node> -->
+  </div>

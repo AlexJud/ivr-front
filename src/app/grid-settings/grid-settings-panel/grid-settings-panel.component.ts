@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { EventService } from 'src/app/services/event.service';
 import { ModelService } from 'src/app/services/model.service';
 import { Node, NodeType } from 'src/app/graph/nodes/nodes';
+import { SpecifierProps } from 'src/app/graph/nodeProps/specifierProps';
 
 @Component({
   selector: 'app-grid-settings-panel',
@@ -28,13 +29,14 @@ export class GridSettingsPanelComponent implements OnInit {
   }
 
   addRow() {
-    let item = this.currentTable.data[0];
-    for(let key in item) {
-      item[key] = '';
-    }
-    this.currentTable.data.push(item);
+    // let item = this.currentTable.data[0];
+    // for(let key in item) {
+    //   item[key] = '';
+    // }
+    this.currentTable.data.push(new SpecifierProps());
     this.currentTable._updateChangeSubscription();
   }
+
   private showButtons(nodeId: string) {
     let currentNode: Node;
     this._modelService.model.forEach((node) => {

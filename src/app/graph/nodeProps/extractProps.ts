@@ -3,4 +3,10 @@ export class ExtractProps {
     rawVarName: string;
     match: string[];
     matchFile: string;
+    constructor() {
+        this.varName = '';
+        this.rawVarName = '';
+        this.match = [];
+        this.matchFile = '';
+    }
 }
