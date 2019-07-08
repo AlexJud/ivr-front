@@ -55,7 +55,14 @@ export class TreeComponent implements OnInit {
   ngOnInit() {
     this._eventService.on('selectNode', (id: string) => {
       this.treeControl.expand(this.flatNodeId.get(id))
-    }); 
+      let element: HTMLElement = document.getElementById('checkbox-' + id);
+      console.log(element);
+      element.click();
+      // this.checked(this.flatNodeId.get(id));
+      // let itemNode = this.flatNodeMap.get(this.flatNodeId.get(id)).children[0];
+      // this.activeNode = this.flatNodeId.get(itemNode.id);
+      // console.log(this.activeNode)
+    });
   }
 
   // getLevel = (node: FlatNode) => node.level;
@@ -72,6 +79,7 @@ export class TreeComponent implements OnInit {
       type: type,
       node: nodeId
     })
+    this.activeNode = node;
   }
   /**
    * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
@@ -91,6 +99,7 @@ export class TreeComponent implements OnInit {
   //   return flatNode;
   // }
   checked(node: FlatNode) {
+    console.log(node)
     this.selectedNode = node;
   }
 
@@ -123,6 +132,6 @@ export class TreeComponent implements OnInit {
     const item = this.flatNodeMap.get(this.selectedNode);
     this._database.removeItem(item);
     this._database.deleteNodeFromModel(item.id);
+    // this.deleteChild(item);
   }
-
 }

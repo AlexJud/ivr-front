@@ -11,7 +11,7 @@
         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
       </mat-icon>
     </button>
-    <mat-checkbox class="checklist-leaf-node" (change)="checked(node)">{{node.id}}</mat-checkbox>
+    <mat-checkbox id="{{'checkbox-' + node.id}}" class="checklist-leaf-node" (change)="checked(node)">{{node.id}}</mat-checkbox>
   </mat-tree-node>
 
   <!-- <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding>

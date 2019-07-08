@@ -27,6 +27,7 @@ export class FlatNode {
 @Injectable()
 export class BuildTreeService {
   parentNode: string;
+  parentMap: Map<string, string> = new Map();
   nodeType: string;
   dataChange = new BehaviorSubject<ItemNode[]>([]);
 
@@ -43,18 +44,18 @@ export class BuildTreeService {
   }
 
   private buildTree(): ItemNode[] {
-    let tree = [];
+    let tree: ItemNode[] = [];
     this._modelService.model.map((node) => {
       if (node.props && node.edgeList) {
         tree.push(new ItemNode(node.id, [new ItemNode('Параметры', [], node.id), new ItemNode('Дочерние узлы', [], node.id)]));
       } else if (node.props && !node.edgeList) {
         tree.push(new ItemNode(node.id, [new ItemNode('Параметры', [], node.id)]));
-      } else if (!node.props && node.edgeList){
+      } else if (!node.props && node.edgeList) {
         tree.push(new ItemNode(node.id, [new ItemNode('Дочерние узлы', [], node.id)]));
       }
     });
-    console.log(tree);
-    return tree as ItemNode[];
+    console.log('TREE', tree);
+    return tree //as ItemNode[];
   }
 
   insertItem(node: ItemNode) {
@@ -106,12 +107,13 @@ export class BuildTreeService {
       }
     }
     this._modelService.model.push(node);
+    this.parentMap.set(node.id, this.parentNode);
     this._modelService.model.forEach((node) => {
       if (node.id === this.parentNode) {
         node.edgeList.push(relation);
       }
     });
-    console.log(this._modelService.model);
+    console.log('Parent MAP: ', this.parentMap);
     this._eventService.send('addNode', {node: node, parent: this.parentNode});
     this.updateTree();
   }
@@ -131,6 +133,18 @@ export class BuildTreeService {
     if (index > -1) {
       this._modelService.model.splice(index, 1);
    }
+   this.deleteChild(id);
+   this.updateTree();
+   console.log(this._modelService.model);
    this._eventService.send('deleteNode', id);
+  }
+  deleteChild(id: string) {
+    const nodeId = this.parentMap.get(id);
+    const node: Node = this._modelService.getNode(nodeId);
+    for( let i = 0; i < node.edgeList.length; i++) { 
+      if ( node.edgeList[i].id === id ) {
+        node.edgeList.splice(i, 1);
+      }
+   }
   }
 }

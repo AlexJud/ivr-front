@@ -152,6 +152,9 @@ export class GridSettingsComponent implements OnInit {
     this._eventService.on('addNode', () => {
       this.buildDataSource();
     });
+    this._eventService.on('deleteNode', () => {
+      this.buildDataSource();
+    });
   }
 
   private setDataSource(type: string, nodeId: string) {

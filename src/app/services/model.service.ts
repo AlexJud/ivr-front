@@ -20,10 +20,10 @@ export class ModelService {
     props.synthText = 'Как тебя зовут?'
     props.varName = 'name'
     this._model = [
-      new ActionNode('root', ['Здравствуй, дружочек! Чего желаешь?', 'http://localhost/theme:graph,b=1&t=5000&nit=5000'], [new Relation('classify')]),
-      new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
-      new SpecifierNode('specifier', [props], [new Relation('end')] ),
-      new EndNode('end', ['@name#, все понятно, до свидания!']),
+      new ActionNode('root', ['Здравствуй, дружочек! Чего желаешь?', 'http://localhost/theme:graph,b=1&t=5000&nit=5000'], []),
+      // new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
+      // new SpecifierNode('specifier', [props], [new Relation('end')] ),
+      // new EndNode('end', ['@name#, все понятно, до свидания!']),
     ];
   }
 //   this._model = [
