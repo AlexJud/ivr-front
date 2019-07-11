@@ -8,6 +8,7 @@ import { Relation } from '../graph/nodes/relation';
 import { ValidateProps } from '../graph/nodeProps/validateProps';
 import { ItemNode, FlatNode, BuildTreeService } from '../services/build.tree.service';
 import { log } from 'util';
+import { MatCheckboxChange } from '@angular/material';
 
 @Component({
   selector: 'app-tree',
@@ -26,7 +27,9 @@ export class TreeComponent implements OnInit {
   /** The new item's name */
   newItemName: ItemNode;
   /** Map from flat node to node ID */
-  flatNodeId = new Map<string, FlatNode>();
+  itemNodeMap = new Map<string, ItemNode>();
+  // flatToItem = new Map<FlatNode, ItemNode>();
+  checkedModel = false
 
   selectedNode: FlatNode;
   private transformer = (node: ItemNode, level: number) => {
@@ -35,7 +38,8 @@ export class TreeComponent implements OnInit {
     flatNode.id = node.id;
     flatNode.level= level;
     this.flatNodeMap.set(flatNode, node);
-    this.flatNodeId.set(node.id, flatNode);
+    this.nestedNodeMap.set(node, flatNode);
+    this.itemNodeMap.set(node.id, node);
     return flatNode
   }
   treeControl = new FlatTreeControl<FlatNode>(
@@ -45,7 +49,6 @@ export class TreeComponent implements OnInit {
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
   constructor(private _database: BuildTreeService,
-              private _modelService: ModelService,
               private _eventService: EventService) {
     _database.dataChange.subscribe(data => {
       this.dataSource.data = data;
@@ -54,10 +57,24 @@ export class TreeComponent implements OnInit {
 
   ngOnInit() {
     this._eventService.on('selectNode', (id: string) => {
-      this.treeControl.expand(this.flatNodeId.get(id))
-      let element: HTMLElement = document.getElementById('checkbox-' + id);
-      console.log(element);
-      element.click();
+      let itemNode = this.itemNodeMap.get(id)
+      let flatNode = this.nestedNodeMap.get(itemNode)
+      this.nestedNodeMap.forEach((v,k) => {
+        v.checked = false;
+        this.treeControl.collapse(v)
+      })
+      this.treeControl.expand(flatNode)
+      flatNode.checked = true
+      for(let child of itemNode.children) {
+        if(child.id === 'Параметры') {
+          flatNode = this.nestedNodeMap.get(child)
+          break
+        } else {
+          flatNode = this.nestedNodeMap.get(child)
+        }
+      }
+      
+      this.onTreeClick(flatNode)
       // this.checked(this.flatNodeId.get(id));
       // let itemNode = this.flatNodeMap.get(this.flatNodeId.get(id)).children[0];
       // this.activeNode = this.flatNodeId.get(itemNode.id);
@@ -99,8 +116,10 @@ export class TreeComponent implements OnInit {
   //   return flatNode;
   // }
   checked(node: FlatNode) {
-    console.log(node)
-    this.selectedNode = node;
+    if(!node.checked) {
+      this._eventService.send('selectNode', node.id);
+      this.selectedNode = node;
+    }
   }
 
   createItemNode(id: string): ItemNode {

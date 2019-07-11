@@ -49,6 +49,12 @@ export class GridSettingsPanelComponent implements OnInit {
         this.showAdd = true;
         this.showDelete = true;
         this.showSave = true;
+        break
+      }
+      default: {
+        this.showAdd = false;
+        this.showDelete = false;
+        this.showSave = false;
       }
     }
   }

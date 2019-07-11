@@ -123,7 +123,7 @@ export class GridSettingsComponent implements OnInit {
             ]
           }
           this.columnMap.set(node.id, {
-            options: ['varName', 'synthText', 'asrOptions', 'grammar', 'keywords', 'repeat'],
+            options: ['checked', 'varName', 'synthText', 'asrOptions', 'grammar', 'keywords', 'repeat'],
             children: ['id']
           })
           break;
@@ -184,6 +184,9 @@ export class GridSettingsComponent implements OnInit {
         this.isInput = false;
       }
     }
+  }
+  selectRow(index: number) {
+    console.log(this.dataSource.data[index]);
   }
 
   changeNode() {

@@ -22,6 +22,7 @@ export class FlatNode {
   id: string;
   level: number;
   expandable: boolean;
+  checked: boolean;
 }
 
 @Injectable()
