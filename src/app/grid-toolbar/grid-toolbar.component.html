@@ -1,0 +1,28 @@
+<mat-grid-list cols="3" rowHeight="100px">
+  <mat-grid-tile [colspan]="2">
+    <div class="addNode">
+      <mat-form-field>
+        <mat-select placeholder="Select">
+          <mat-option value="option">Option</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-select placeholder="Select">
+          <mat-option value="option">Option</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-select placeholder="Select">
+          <mat-option value="option">Option</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-button color="primary">Добавить</button>
+    </div>
+  </mat-grid-tile>
+  <mat-grid-tile [colspan]="1">
+    <app-call-button class="app-call-button"></app-call-button>
+  </mat-grid-tile>
+</mat-grid-list>
+<mat-divider></mat-divider>

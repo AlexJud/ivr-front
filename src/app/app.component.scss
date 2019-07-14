@@ -1,0 +1,38 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+.tree {
+  // position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+.mxGraph {
+  // position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.content {
+  flex: 1 0 auto;
+  overflow: hidden;
+}
+.footer {
+  flex: 0 0 auto;
+}
+.tree-container {
+  float: left; /* Обтекание по правому краю */
+  width: 20%;
+}
+.mx-graph {
+  position: relative;
+  width: 80%; /* Ширина слоя */
+  height: 100%;
+  float: left;
+}

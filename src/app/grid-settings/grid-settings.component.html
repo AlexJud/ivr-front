@@ -1,0 +1,97 @@
+<!-- <div class="grid-settings"> -->
+<app-grid-settings-panel [currentTable]="dataSource"></app-grid-settings-panel>
+<!-- <mat-grid-list cols="1" rowHeight="3vh"> -->
+  <!-- <mat-grid-tile [colspan]="1" [rowspan]="5"> -->
+    <div class="option-table" *ngIf="isOption">
+      <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
+          <ng-container matColumnDef="option">
+              <th mat-header-cell *matHeaderCellDef class="table-head"> Параметр </th>
+              <td mat-cell *matCellDef="let element"> {{element.option}} </td>
+          </ng-container>
+          <ng-container matColumnDef="value">
+              <th mat-header-cell *matHeaderCellDef class="table-head"> Значение </th>
+              <td mat-cell *matCellDef="let element;let i = index">
+                  <input matInput placeholder="Введите значение..." [(ngModel)]="dataSource.data[i].value"
+                        (focusout)="onChange($event)" (input)="onChange($event)">
+              </td>
+          </ng-container>
+          <ng-container matColumnDef="checked">
+                <th mat-header-cell *matHeaderCellDef class="table-head"> </th>
+                <td mat-cell class="check-box" *matCellDef="let element;let i = index">
+                        <mat-checkbox (change)="selectRow(i)"></mat-checkbox>
+                </td>
+            </ng-container>
+          <ng-container matColumnDef="varName">
+              <th mat-header-cell *matHeaderCellDef class="table-head"> Название переменной </th>
+              <td mat-cell *matCellDef="let element;let i = index">
+                  <input matInput placeholder="Введите значение..." [(ngModel)]="dataSource.data[i].varName"
+                        (focusout)="onChange($event)" (input)="onChange($event)">
+              </td>
+          </ng-container>
+          <ng-container matColumnDef="synthText">
+              <th mat-header-cell *matHeaderCellDef class="table-head"> Текст для синтеза </th>
+              <td mat-cell *matCellDef="let element;let i = index">
+                  <input matInput placeholder="Введите значение..." [(ngModel)]="dataSource.data[i].synthText"
+                        (focusout)="onChange($event)" (input)="onChange($event)">
+              </td>
+          </ng-container>
+          <ng-container matColumnDef="asrOptions">
+              <th mat-header-cell *matHeaderCellDef class="table-head"> Опции распознавания </th>
+              <td mat-cell *matCellDef="let element;let i = index">
+                  <input matInput placeholder="Введите значение..." [(ngModel)]="dataSource.data[i].asrOptions"
+                        (focusout)="onChange($event)" (input)="onChange($event)">
+              </td>
+          </ng-container>
+          <ng-container matColumnDef="grammar">
+              <th mat-header-cell *matHeaderCellDef class="table-head"> Грамматика </th>
+              <td mat-cell *matCellDef="let element;let i = index">
+                  <input matInput placeholder="Введите значение..." [(ngModel)]="dataSource.data[i].grammar"
+                        (focusout)="onChange($event)" (input)="onChange($event)">
+              </td>
+          </ng-container>
+          <ng-container matColumnDef="keywords">
+              <th mat-header-cell *matHeaderCellDef class="table-head"> Ключевые слова </th>
+              <td mat-cell *matCellDef="let element;let i = index">
+                  <input matInput placeholder="Введите значение..." [(ngModel)]="dataSource.data[i].keywords"
+                        (focusout)="onChange($event)" (input)="onChange($event)">
+              </td>
+          </ng-container>
+          <ng-container matColumnDef="repeat">
+              <th mat-header-cell *matHeaderCellDef class="table-head"> Количество повторений </th>
+              <td mat-cell *matCellDef="let element;let i = index">
+                  <input matInput placeholder="Введите значение..." [(ngModel)]="dataSource.data[i].repeat"
+                        (focusout)="onChange($event)" (input)="onChange($event)">
+              </td>
+          </ng-container>
+          
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsForOptions"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsForOptions;"></tr>
+      </table>
+    </div>
+    <div class="children-table" *ngIf="isChildren">
+      <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
+          <!-- <ng-container matColumnDef="option">
+              <th mat-header-cell *matHeaderCellDef class="table-head"> Параметр </th>
+              <td mat-cell *matCellDef="let element"> {{element.value}} </td>
+          </ng-container> -->
+          <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef class="table-head"> Дочерние узлы </th>
+              <td mat-cell *matCellDef="let element; let i = index">
+                  <input matInput placeholder="Введите значение..." [(ngModel)]="dataSource.data[i].id"
+                        (focusout)="onChange($event)" (input)="onChange($event)">
+              </td>
+          </ng-container>
+          <ng-container matColumnDef="keywords">
+            <th mat-header-cell *matHeaderCellDef class="table-head"> Ключевые слова </th>
+            <td mat-cell *matCellDef="let element; let i = index">
+                <textarea matInput placeholder="Список ключевых слов через запятую" [(ngModel)]="dataSource.data[i].keywords"
+                        (focusout)="onChange($event)" (input)="onChange($event)"></textarea>
+            </td>
+        </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsForChildren"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsForChildren;"></tr>
+      </table>
+    </div>
+  <!-- </mat-grid-tile> -->
+<!-- </mat-grid-list> -->
+<!-- </div> -->

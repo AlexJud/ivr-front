@@ -1,0 +1,54 @@
+.option-table {
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    height: 20vh;
+    overflow: auto;
+}
+.children-table {
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    height: 20vh;
+    overflow: auto;
+}
+::ng-deep .mat-form-field-underline {
+    display: none;
+}
+table {
+    width: 100%;
+}
+tr.mat-row {
+    height: 30px;
+}
+.example-container {
+    position: relative;
+    margin-top: 1px;
+}
+.table-head {
+    font-weight: bold;
+    color: black;
+}
+tr.mat-header-row {
+    height: 40px;
+    border-top: 1px;
+}
+.mat-elevation-z8 {
+    box-shadow: none;
+}
+.toolbar-grid {
+    border: 1px solid black;
+    border-left: none;
+    border-right: none;
+}
+.check-box {
+    text-align: center;
+    width: 3em;
+    vertical-align: middle;
+    padding-bottom: 3px;
+    padding-left: 0px !important;
+}
