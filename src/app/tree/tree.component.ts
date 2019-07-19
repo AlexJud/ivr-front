@@ -50,9 +50,11 @@ export class TreeComponent implements OnInit {
 
   constructor(private _database: BuildTreeService,
               private _eventService: EventService) {
-    _database.dataChange.subscribe(data => {
-      this.dataSource.data = data;
-    });
+    // _eventService.on("modelReceived", () => {
+      _database.dataChange.subscribe(data => {
+        this.dataSource.data = data;
+      });
+    // })
   }
 
   ngOnInit() {

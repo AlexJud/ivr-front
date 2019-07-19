@@ -19,15 +19,18 @@ export class TreePanelComponent implements OnInit {
 
   constructor(private _modelService: ModelService,
               // private _treeComp: TreeComponent,
-              private _eventService: EventService) { 
-    this.model = _modelService.model;
+              private _eventService: EventService) {
+    this._eventService.on("modelReceived", () => {
+      this.model = _modelService.model;
+      this.updateModel();
+    })
   }
 
   ngOnInit() {
     Object.keys(NodeType).map((element) => {
       this.types.push(NodeType[element]);
     });
-    this.updateModel();
+
     this._eventService.on('addNode', () => {
       this.updateModel();
     })

@@ -8,21 +8,28 @@ import { NodeType } from './graph/nodes/nodes';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent /*implements AfterViewInit*/ {
   title = 'voice-ivr-demo';
 
   constructor(private _modelService: ModelService,
               private _eventService: EventService) {
     this._modelService.init();
+    _eventService.on("modelReceived", () => {
+      this._eventService.send('showProps', {
+        type: "options",
+        node: "root"
+      })
+      this._eventService.send('selectNode', 'root');
+    })
   }
 
-  ngAfterViewInit(): void {
-    this._eventService.send('showProps', {
-      type: "options",
-      node: "root"
-    })
-    this._eventService.send('selectNode', 'root');
-    //Called after ngAfterContentInit when the component's view has been initialized. Applies to components only.
-    //Add 'implements AfterViewInit' to the class.
-  }
+  // ngAfterViewInit(): void {
+  //   this._eventService.send('showProps', {
+  //     type: "options",
+  //     node: "root"
+  //   })
+  //   this._eventService.send('selectNode', 'root');
+  //   //Called after ngAfterContentInit when the component's view has been initialized. Applies to components only.
+  //   //Add 'implements AfterViewInit' to the class.
+  // }
 }

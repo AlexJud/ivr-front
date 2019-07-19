@@ -4,38 +4,39 @@ import { Relation } from '../graph/nodes/relation';
 import { HttpService } from './http.service';
 import { ValidateProps } from '../graph/nodeProps/validateProps';
 import { SpecifierProps } from '../graph/nodeProps/specifierProps';
+import { error } from '@angular/compiler/src/util';
+import { EventService } from './event.service';
 
 @Injectable()
 export class ModelService {
 
   private _model: Node[];
-  constructor(private _http: HttpService) {
+  constructor(private _http: HttpService,
+              private _eventService: EventService) {
 
   }
   init() {
-    const classify = new ClassifierNode('classify', []);
-    let props = new SpecifierProps();
-    props.asrOptions = 'b=1&t=5000&nit=5000';
-    props.grammar = 'http://localhost/theme:graph';
-    props.synthText = 'Как тебя зовут?'
-    props.varName = 'name'
-    this._model = [
-      new ActionNode('root', ['Здравствуй, дружочек! Чего желаешь?', 'http://localhost/theme:graph,b=1&t=5000&nit=5000'], [new Relation('classify')]),
-      new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
-      new SpecifierNode('specifier', [props], [new Relation('end')] ),
-      new EndNode('end', ['@name#, все понятно, до свидания!']),
-    ];
+    this.requestModel()
+    // const classify = new ClassifierNode('classify', []);
+    // let props = new SpecifierProps();
+    // props.asrOptions = 'b=1&t=5000&nit=5000';
+    // props.grammar = 'http://localhost/theme:graph';
+    // props.synthText = 'Как тебя зовут?'
+    // props.varName = 'name'
+    // console.log(this.model);
+
+    // this._model = [
+    //   new ActionNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}, [new Relation('classify')]),
+    // //   // new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
+    // //   // new SpecifierNode('specifier', [props], [new Relation('end')] ),
+    // //   // new EndNode('end', ['@name#, все понятно, до свидания!']),
+    // ];
   }
-//   this._model = [
-//     new ActionNode('root', ['Текст для синтеза', 'b=1'], [{id: 'classify'}]),
-//     new ClassifierNode('classify', [{id: 'buy_ext_estate'}, {id: 'support_ext_name'}, {id: 'transfer_ask_number'}]),
-//     new ExtractNode('buy_ext_estate', ['estate', 'rawEstate'], []),
-//     new ExtractNode('support_ext_name', ['name', 'rawName'], []),
-//     new ExtractNode('support_ext_name', ['name', 'rawName'], []),
-//   ];
-// }
   get model(): Node[] {
     return this._model;
+  }
+  set model(model: Node[]) {
+    this._model = model;
   }
 
   getNode(nodeId: string): Node {
@@ -48,13 +49,45 @@ export class ModelService {
     return currentNode;
   }
   saveToJson() {
-    // let jsonFile = new File([], '../../assets/json');
-    // new Blob();
-    // const blob = new Blob([JSON.stringify(this.model)], { type: 'application/json' });
-    // const url= window.URL.createObjectURL(blob);
-    // window.open(url);
     this._http.sendModel(this.model).subscribe((data: any) => {console.log('OPA')},
     error => console.log(error));
     console.log(this.model);
+  }
+
+  private requestModel() {
+    this._http.requestModel().subscribe((response: any) => {
+      this.model = response.map( node => {
+        switch(node.type) {
+          case NodeType.ActionNode: {
+            node = new ActionNode(node.id, node.props, node.edgeList)
+            return node;
+          }
+          case NodeType.ClassifierNode: {
+            node = new ClassifierNode(node.id, node.edgeList)
+            return node;
+          }
+          case NodeType.EndNode: {
+            node = new EndNode(node.id, node.props)
+            return node;
+          }
+          case NodeType.ExtractNode: {
+            node = new ExtractNode(node.id, node.props, node.edgeList)
+            return node;
+          }
+          case NodeType.SpecifierNode: {
+            node = new SpecifierNode(node.id, node.props, node.edgeList)
+            return node;
+          }
+          case NodeType.ValidateNode: {
+            node = new ValidateNode(node.id, node.props)
+            return node;
+          }
+        }
+      })
+      this._eventService.send("modelReceived")
+      console.log(this.model);
+    }, error => {
+      console.log(error);
+    })
   }
 }

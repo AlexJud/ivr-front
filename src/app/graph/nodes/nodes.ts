@@ -2,6 +2,7 @@ import { Relation } from './relation';
 import { ExtractProps } from '../nodeProps/extractProps';
 import { ValidateProps } from '../nodeProps/validateProps';
 import { SpecifierProps } from '../nodeProps/specifierProps';
+import { ActionProps } from '../nodeProps/actionProps';
 
 export enum NodeType {
   ActionNode = "ActionNode",
@@ -14,14 +15,15 @@ export enum NodeType {
 
 export abstract class Node {
   id: string;
+  type?:string;
   edgeList: Relation[];
   props?: any;
 }
 
 export class ActionNode extends Node {
-  props: string[];
-  type: string = 'ACTION';
-  constructor(id: string, prop: string[], child: Relation[]) {
+  props: ActionProps;
+  type: NodeType = NodeType.ActionNode;
+  constructor(id: string, prop: ActionProps, child: Relation[]) {
     super();
     this.id = id;
     this.props = prop;
@@ -30,7 +32,7 @@ export class ActionNode extends Node {
 }
 export class ExtractNode extends Node {
   props: ExtractProps;
-  type: string = 'EXTRACT';
+  type: NodeType = NodeType.ExtractNode;
   constructor(id: string, prop: ExtractProps, child: Relation[]) {
     super();
     this.id = id;
@@ -39,7 +41,7 @@ export class ExtractNode extends Node {
   }
 }
 export class ClassifierNode extends Node {
-  type: string = 'CLASSIFIER';
+  type: NodeType = NodeType.ClassifierNode;
   constructor(id: string, child: Relation[]) {
     super();
     this.id = id;
@@ -48,7 +50,7 @@ export class ClassifierNode extends Node {
 }
 export class ValidateNode extends Node {
   props: ValidateProps;
-  type: string = 'VALIDATE';
+  type: NodeType = NodeType.ValidateNode;
   constructor(id: string, props: ValidateProps) {
     super();
     this.id = id;
@@ -57,7 +59,7 @@ export class ValidateNode extends Node {
 }
 export class SpecifierNode extends Node {
   props: SpecifierProps[];
-  type: string = 'SPECIFIER';
+  type: NodeType = NodeType.SpecifierNode;
   constructor(id: string, props: SpecifierProps[], child: Relation[]) {
     super();
     this.id = id;
@@ -68,7 +70,7 @@ export class SpecifierNode extends Node {
 
 export class EndNode extends Node {
   props: string[];
-  type: string = "TRANSFER"
+  type: NodeType = NodeType.EndNode;
   constructor(id: string, prop: string[]) {
     super();
     this.id = id;

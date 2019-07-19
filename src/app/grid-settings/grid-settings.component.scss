@@ -19,6 +19,9 @@
 ::ng-deep .mat-form-field-underline {
     display: none;
 }
+input {
+    overflow-y: auto
+}
 table {
     width: 100%;
 }
@@ -49,6 +52,6 @@ tr.mat-header-row {
     text-align: center;
     width: 3em;
     vertical-align: middle;
-    padding-bottom: 3px;
+    padding-bottom: 2px;
     padding-left: 0px !important;
 }

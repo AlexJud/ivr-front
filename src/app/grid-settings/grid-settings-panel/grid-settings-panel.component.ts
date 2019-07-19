@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { EventService } from 'src/app/services/event.service';
 import { ModelService } from 'src/app/services/model.service';
 import { Node, NodeType } from 'src/app/graph/nodes/nodes';
@@ -11,7 +11,7 @@ import { SpecifierProps } from 'src/app/graph/nodeProps/specifierProps';
 })
 export class GridSettingsPanelComponent implements OnInit {
   @Input() currentTable: any;
-
+  @Output() deleteEvent = new EventEmitter();
   showAdd: boolean;
   showDelete: boolean;
   showSave: boolean;
@@ -29,12 +29,11 @@ export class GridSettingsPanelComponent implements OnInit {
   }
 
   addRow() {
-    // let item = this.currentTable.data[0];
-    // for(let key in item) {
-    //   item[key] = '';
-    // }
     this.currentTable.data.push(new SpecifierProps());
     this.currentTable._updateChangeSubscription();
+  }
+  deleteRow() {
+    this.deleteEvent.emit()
   }
 
   private showButtons(nodeId: string) {

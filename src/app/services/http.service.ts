@@ -1,10 +1,11 @@
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ModelService } from './model.service';
 import { catchError, retry } from 'rxjs/operators';
 import { Node } from '../graph/nodes/nodes';
+import { error } from 'util';
 
 @Injectable()
 export class HttpService {
@@ -36,5 +37,29 @@ export class HttpService {
         // return an observable with a user-facing error message
         return throwError(
           'Something bad happened; please try again later.');
-      };
+    }
+
+    snedGrammarFile(file: any): Observable<HttpResponse<Object>> {
+      const headers = new HttpHeaders({
+        'Authorization': 'Basic dXNlcjpwYXNzd29yZA=='
+      })
+      const httpOptions = {
+        headers: headers,
+        observe: 'response'
+      }
+      if(file.size > 0) {
+        let formData:FormData = new FormData();
+        formData.append('uploadFile', file);
+        formData.append('fileName', file.name);
+        let headers = new Headers();
+        /** In Angular 5, including the header Content-Type can invalidate your request */
+        headers.append('Content-Type', 'multipart/form-data');
+        headers.append('Accept', 'application/json');
+        return this.http.post('https://192.168.1.74:8080/api/grammar/', formData, {observe: 'response'})
+      }
+    }
+
+    requestModel(): Observable<any> {
+      return this.http.get('https://192.168.1.74:8080/api/model')
+    }
 }

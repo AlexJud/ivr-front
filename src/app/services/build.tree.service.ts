@@ -6,6 +6,7 @@ import { Relation } from '../graph/nodes/relation';
 import { ExtractProps } from '../graph/nodeProps/extractProps';
 import { ValidateProps } from '../graph/nodeProps/validateProps';
 import { EventService } from './event.service';
+import { ActionProps } from '../graph/nodeProps/actionProps';
 
 export class ItemNode {
   id: string;
@@ -36,7 +37,9 @@ export class BuildTreeService {
 
   constructor(private _modelService: ModelService,
               private _eventService: EventService) {
-    this.updateTree();
+    _eventService.on("modelReceived", () => {
+      this.updateTree()
+    })
   }
 
   updateTree() {
@@ -53,6 +56,11 @@ export class BuildTreeService {
         tree.push(new ItemNode(node.id, [new ItemNode('Параметры', [], node.id)]));
       } else if (!node.props && node.edgeList) {
         tree.push(new ItemNode(node.id, [new ItemNode('Дочерние узлы', [], node.id)]));
+      }
+      if(node.edgeList) {
+        node.edgeList.forEach(child => {
+          this.parentMap.set(child.id, node.id)
+        })
       }
     });
     console.log('TREE', tree);
@@ -77,7 +85,7 @@ export class BuildTreeService {
     let relation: Relation;
     switch(this.nodeType) {
       case NodeType.ActionNode: {
-        node = new ActionNode(id, [], []);
+        node = new ActionNode(id, new ActionProps, []);
         relation = new Relation(id)
         break;
       }
@@ -142,10 +150,12 @@ export class BuildTreeService {
   deleteChild(id: string) {
     const nodeId = this.parentMap.get(id);
     const node: Node = this._modelService.getNode(nodeId);
-    for( let i = 0; i < node.edgeList.length; i++) { 
-      if ( node.edgeList[i].id === id ) {
-        node.edgeList.splice(i, 1);
+    if (node) {
+      for( let i = 0; i < node.edgeList.length; i++) { 
+        if ( node.edgeList[i].id === id ) {
+          node.edgeList.splice(i, 1);
+        }
       }
-   }
+    }
   }
 }
