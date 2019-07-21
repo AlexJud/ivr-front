@@ -33,6 +33,7 @@ import { GridSettingsPanelComponent } from './grid-settings/grid-settings-panel/
 import { HttpService } from './services/http.service';
 import { BuildTreeService } from './services/build.tree.service';
 import { HttpClientModule } from '@angular/common/http';
+import { GrammarService } from './services/grammar.service';
 
 @NgModule({
   declarations: [
@@ -68,7 +69,7 @@ import { HttpClientModule } from '@angular/common/http';
     FormsModule,
     HttpClientModule
   ],
-  providers: [ ModelService, EventService, HttpService, BuildTreeService ],
+  providers: [ ModelService, EventService, HttpService, BuildTreeService, GrammarService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

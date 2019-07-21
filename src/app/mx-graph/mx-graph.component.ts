@@ -35,15 +35,18 @@ export class MxGraphComponent implements OnInit {
   node: Node;
   constructor(private _modelService: ModelService,
               private _eventService: EventService) {
-    this.model = _modelService.model;
+
     // console.log(`this model ${this.model}`);
   }
 
   ngOnInit() {
+    this._eventService.on("modelReceived", () => {
+      this.model = this._modelService.model;
+      this.buildModel();
+    })
     this.initStyles();
     this.initializeMxGraph();
     this.layout = new mx.mxCompactTreeLayout(this.graph);
-    this.buildModel();
     this.initListeners();
     this._eventService.on('addNode', (data) => {
       this.addNode(data.node, data.parent);
