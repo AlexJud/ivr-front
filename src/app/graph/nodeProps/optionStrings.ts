@@ -14,3 +14,7 @@ export enum Strings {
     BUILTIN_GRAMMAR = 'Слитное распознавание',
     FILE_GRAMMAR = 'Распознавание по грамматике'
 }
+export enum CellType {
+    INPUT,
+    SELECT
+}

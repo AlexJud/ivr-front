@@ -1,5 +1,11 @@
+import { CellType } from 'src/app/graph/nodeProps/optionStrings';
+
+
 export interface ActionNodeInterface {
-    columnId: string
-    columnName: string
-    
+    name: string
+    value?: string
+    values?: string[]
+    type: CellType
+    selected?: string
+    hidden?: boolean
 }

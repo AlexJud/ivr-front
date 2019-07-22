@@ -11,4 +11,15 @@ export class GrammarService {
    get grammars(): string[] {
        return this._grammars
    }
+
+   parseGrammar(grammarPath: string): string {
+       for (let grammar in this._grammars) {
+            if(grammarPath.indexOf(grammar) !== -1) {
+                return grammar
+            } else {
+                return grammarPath
+            }
+       }
+   }
+   //TODO ПОлучить список доступных файлов с грамматиками
 }
