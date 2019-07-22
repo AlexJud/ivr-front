@@ -1,3 +1,31 @@
 {
-    "test":"test"
+    "root":
+    {
+        "option": 
+        {
+            "displayedColumn": [],
+            "dataSource": [],
+            "columnData": []
+        },
+        "children":
+        {
+            "displayedColumn": [],
+            "dataSource": [],
+            "columnData": []
+        }
+    }
 }
+[
+    {
+        "id": "root",
+        "children": [
+            {
+                "id": "Параметры"
+            },
+            {
+                "id": "Дочерние"
+            }
+        ],
+
+    }
+]

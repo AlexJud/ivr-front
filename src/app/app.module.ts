@@ -34,6 +34,7 @@ import { HttpService } from './services/http.service';
 import { BuildTreeService } from './services/build.tree.service';
 import { HttpClientModule } from '@angular/common/http';
 import { GrammarService } from './services/grammar.service';
+import { SettingsModelService } from './services/build.settings.model.service';
 
 @NgModule({
   declarations: [
@@ -69,7 +70,7 @@ import { GrammarService } from './services/grammar.service';
     FormsModule,
     HttpClientModule
   ],
-  providers: [ ModelService, EventService, HttpService, BuildTreeService, GrammarService ],
+  providers: [ ModelService, EventService, HttpService, BuildTreeService, GrammarService, SettingsModelService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

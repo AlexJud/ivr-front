@@ -63,7 +63,7 @@ export class BuildTreeService {
         })
       }
     });
-    console.log('TREE', tree);
+    console.log('TREE', tree)
     return tree //as ItemNode[];
   }
 
@@ -80,6 +80,7 @@ export class BuildTreeService {
     }
     this.dataChange.next(this.data);
   }
+  
   addNodeToModel(id: string) {
     let node: Node;
     let relation: Relation;

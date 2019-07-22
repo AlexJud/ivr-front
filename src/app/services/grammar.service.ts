@@ -13,7 +13,7 @@ export class GrammarService {
    }
 
    parseGrammar(grammarPath: string): string {
-       for (let grammar in this._grammars) {
+       for (let grammar of this._grammars) {
             if(grammarPath.indexOf(grammar) !== -1) {
                 return grammar
             } else {

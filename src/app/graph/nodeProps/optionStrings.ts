@@ -12,7 +12,9 @@ export enum Strings {
                    "\t и обнаружение речи осуществляет Asterisk=2)",
     LOAD_GRAMMAR = 'Загрузить новый файл',
     BUILTIN_GRAMMAR = 'Слитное распознавание',
-    FILE_GRAMMAR = 'Распознавание по грамматике'
+    FILE_GRAMMAR = 'Распознавание по грамматике',
+    REPEAT = 'Количество повторений',
+    CHILDREN = 'Дочерние узлы,'
 }
 export enum CellType {
     INPUT,

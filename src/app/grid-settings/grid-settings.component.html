@@ -2,8 +2,22 @@
 <input type="file" (change)="uploadFile($event)" accept="*/xml" #file [hidden]="true">
 <!-- Вызываем панель для SpecifierNode -->
 <app-grid-settings-panel [currentTable]="dataSource" (deleteEvent)="deleteRow($event)"></app-grid-settings-panel>
-<!-- Таблица, которая отображает опции ноды-->
-    <div class="option-table" *ngIf="isOption">
+<div class="option-table" *ngIf="isOption">
+    <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
+        <ng-container *ngFor="let item of columnsData" matColumnDef={{item.columnId}}>
+            <th mat-header-cell *matHeaderCellDef class="table-head"> {{item.columnName}} </th>
+            <td mat-cell *matCellDef="let element:">
+                <input matInput placeholder="Введите значение..." *ngIf="canItShow(element)" [(ngModel)]="element[item.columnId]"
+                    (focusout)="onChange($event)" (input)="onChange($event)"/>
+                <mat-select *ngIf="canItShow(element)" [(value)] = element.selected (selectionChange) = changeGrammar(element) [hidden]="element.disabled">
+                    <mat-option *ngFor="let option of element.value" [(value)]="option">{{option}}</mat-option>
+                </mat-select>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <!-- <div class="option-table" *ngIf="isOption">
       <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
           <ng-container matColumnDef="option">
               <th mat-header-cell *matHeaderCellDef class="table-head"> Параметр </th>
@@ -49,8 +63,6 @@
           <ng-container matColumnDef="recognizeWay">
             <th mat-header-cell *matHeaderCellDef class="table-head"> Способ распознавания </th>
             <td mat-cell *matCellDef="let element;let i = index">
-                <!-- <input matInput placeholder="Введите значение..." [(ngModel)]="element.grammar"
-                      (focusout)="onChange($event)" (input)="onChange($event)"> -->
                   <mat-select [(value)] = element.selected (selectionChange) = changeGrammar(element)>
                       <mat-option *ngFor="let option of element.recognizeWay" [(value)]="option">{{option}}</mat-option>
                   </mat-select>
@@ -59,8 +71,6 @@
           <ng-container matColumnDef="grammar">
               <th mat-header-cell *matHeaderCellDef class="table-head"> Грамматика </th>
               <td mat-cell *matCellDef="let element;let i = index">
-                  <!-- <input matInput placeholder="Введите значение..." [(ngModel)]="element.grammar"
-                        (focusout)="onChange($event)" (input)="onChange($event)"> -->
                     <mat-select [(value)] = element.selected (selectionChange) = changeGrammar(element) [disabled]="element.disabled">
                         <mat-option *ngFor="let option of element.grammar" [(value)]="option">{{option}}</mat-option>
                     </mat-select>
@@ -85,7 +95,6 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumnsForOptions;"></tr>
     </table>
     </div>
-    <!-- Таблица, которая отображает дочерние ноды -->
     <div class="children-table" *ngIf="isChildren">
       <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
           <ng-container matColumnDef="id">
@@ -105,4 +114,4 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumnsForChildren"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumnsForChildren;"></tr>
       </table>
-    </div>
+    </div> -->

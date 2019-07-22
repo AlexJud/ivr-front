@@ -10,6 +10,8 @@ import { GrammarService } from '../services/grammar.service';
 import { Input } from '@angular/compiler/src/core';
 import { HttpService } from '../services/http.service';
 import { ActionProps } from '../graph/nodeProps/actionProps';
+import { SettingsModelService } from '../services/build.settings.model.service';
+import { SettingsModel } from './interfaces/settings.modelinterfaces';
 
 // export interface Data {
 //   option: string;
@@ -29,180 +31,70 @@ export interface DisplayColumn {
 })
 export class GridSettingsComponent implements OnInit {
   @ViewChild("file", {static: false}) file: ElementRef
+  settingsModel: SettingsModel
   isInput: boolean  //Проверяем был ли ввод в какой-нить Input
   currentNode: Node;  //Здесь храним текущий объект
-  tableData: any;
+  // tableData: any;
   isOption: boolean;
   isChildren: boolean;
-  displayedColumnsForChildren: string[];
-  displayedColumnsForOptions: string[];
+  // displayedColumnsForChildren: string[];
+  // displayedColumnsForOptions: string[];
   // dataSource = []; //= DATA_SOURCE for table;
-  dataSource: any;
-  optionsData = {};
-  childrenData = {};
-  columnMap: Map<string, DisplayColumn>; //Map to store displayed columns
+  dataSource: MatTableDataSource<any>
+  columnsData = {}
+  displayedColumns = {}
+  // optionsData = {};
+  // childrenData = {};
+  // columnMap: Map<string, DisplayColumn>; //Map to store displayed columns
   sRowindex: number
 
   constructor(private _modelService: ModelService,
               private _eventService: EventService,
               private _grammarService: GrammarService,
-              private _http: HttpService) {
+              private _http: HttpService,
+              private _dataSource: SettingsModelService) {
     this.isOption = false;
     this.isChildren = false;
-    this.columnMap = new Map();
-    this.tableData = {};
-  }
-
-  buildDataSource() {
-    this._modelService.model.map( (node) => {
-      switch(node.constructor.name) {
-        case NodeType.ActionNode: {
-          this.optionsData[node.id] = [
-            {option: Strings.TEXT_FOR_SYNTHESIZE, value: node.props.synthText, isSelect: false},
-            {option: Strings.ASR_OPTION, value: node.props.options, isSelect: false},
-            {option: Strings.ASR_TYPE, value: ['Слитное распознавание', 'Распознавание по грамматике'], isSelect: true, selected: ''},
-            {option: Strings.GRAMMAR, value: this._grammarService.grammars, isSelect: true, selected: '', disabled: true}
-          ]
-          this.childrenData[node.id] = [];
-          if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
-            this.childrenData[node.id] =
-            [
-              {id: node.edgeList[0].id}
-            ]
-          }
-          this.columnMap.set(node.id, {
-            options: ['option', 'value'],
-            children: ['id']
-          })
-          break;
-        }
-        case NodeType.ClassifierNode: {
-          if(node.edgeList[0] !== null) {
-            this.childrenData[node.id] = [];
-            node.edgeList.map((child) => {
-              this.childrenData[node.id].push(
-                {
-                  id: child.id, keywords: child.match
-                }
-              );
-            });
-          }
-          this.columnMap.set(node.id, {
-            children: ['id', 'keywords']
-          });
-          break;
-        }
-        case NodeType.ExtractNode: {
-          console.log('PROPS: ', node.props)
-          if ( node.props.length === 0 || node.props == null) {
-            this.optionsData[node.id] = [
-              {option: Strings.VAR_NAME, value: node.props['varName'] === undefined ? '' : node.props['varName']},
-              {option: Strings.RAW_VAR_NAME, value: node.props['rawVarName'] === undefined ? '' : node.props['rawVarName']},
-              {option: Strings.KEYWORDS, value: node.props['match'] === undefined ? '' : node.props['match']}
-            ]
-          } else {
-            this.optionsData[node.id] = node.props;
-          }
-          this.childrenData[node.id] = [];
-          if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
-            this.childrenData[node.id] = 
-            [
-              {id: node.edgeList[0].id}
-            ];
-          }
-          this.columnMap.set(node.id, {
-            options: ['option', 'value'],
-            children: ['id']
-          })
-          break;
-        }
-        case NodeType.SpecifierNode: {
-          node as SpecifierNode;
-          let specifierProps = new SpecifierProps();
-          if(node.props.length === 0 || node.props == null) {
-            this.optionsData[node.id] = [specifierProps];
-          } else {
-            this.optionsData[node.id] = node.props.map(item => {
-              specifierProps = new SpecifierProps()
-              specifierProps.asrOptions = item.asrOptions
-              specifierProps.builtinRecogAfterRepeat = item.builtinRecogAfterRepeat
-              specifierProps.keywords = item.keywords
-              specifierProps.repeat = item.repeat
-              specifierProps.synthText = item.synthText
-              specifierProps.varName = item.varName
-              if(item.grammar.indexOf('localhost')) {
-                specifierProps.selected = Strings.BUILTIN_GRAMMAR
-              } else {
-                specifierProps.selected = Strings.FILE_GRAMMAR
-                specifierProps.disabled = false;
-              }
-              return specifierProps;
-            })
-          }
-          
-          this.childrenData[node.id] = [];
-          if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
-            this.childrenData[node.id] = 
-            [
-              {id: node.edgeList[0].id}
-            ]
-          }
-          this.columnMap.set(node.id, {
-            options: ['checked', 'varName', 'synthText', 'asrOptions', 'recognizeWay','grammar', 'keywords', 'repeat'],
-            children: ['id']
-          })
-          break;
-        }
-        case NodeType.EndNode: {
-          this.optionsData[node.id] = [
-            {option: Strings.TEXT_FOR_SYNTHESIZE, value: node.props[0]},
-          ]
-          this.childrenData[node.id] = [];
-          this.columnMap.set(node.id, {
-            options: ['option', 'value'],
-            children: ['id']
-          })
-          break;
-        }
-      }
-    })
+    // this.columnMap = new Map();
+    // this.tableData = {};
   }
 
   ngOnInit() {
-    // this._eventService.on("modelReceived", () => {
-      this.buildDataSource();
-      this.setDataSource('options', 'root')
-      this.setColumns('root');
-    // })
+    this._eventService.on("modelReceived", () => {
+      this.settingsModel = this._dataSource.buildDataSource();
+      this.setDataSource('root')
+    })
     this._eventService.on('showProps', (data) => {
-      this.setDataSource(data.type, data.node)
-      this.setColumns(data.node);
+      this.setDataSource(data.node)
     });
     this._eventService.on('addNode', () => {
-      this.buildDataSource();
+      this._dataSource.buildDataSource();
     });
     this._eventService.on('deleteNode', () => {
-      this.buildDataSource();
+      this._dataSource.buildDataSource();
     });
   }
 
-  private setDataSource(type: string, nodeId: string) {
-    if(type === 'options') {
-      this.dataSource = new MatTableDataSource(this.optionsData[nodeId]); 
-      this.isChildren = false;
-      this.isOption = true;
-    }
-    if(type === 'children') {
-      this.dataSource = new MatTableDataSource(this.childrenData[nodeId]);
-      this.isOption = false;
-      this.isChildren = true;
-    }
+  private setDataSource(nodeId: string) {
+    this.dataSource =  new MatTableDataSource(this.settingsModel[nodeId].option.dataSource)
+    this.columnsData = this.settingsModel[nodeId].option.columnsData
+    this.displayedColumns = this.settingsModel[nodeId].option.displayedColumns
     this.currentNode = this._modelService.getNode(nodeId);
+    // if(type === 'options') {
+    //   this.dataSource = new MatTableDataSource(this.optionsData[nodeId]); 
+    //   this.isChildren = false;
+    //   this.isOption = true;
+    // }
+    // if(type === 'children') {
+    //   this.dataSource = new MatTableDataSource(this.childrenData[nodeId]);
+    //   this.isOption = false;
+    //   this.isChildren = true;
+    // }
   }
-  private setColumns(id: string) {
-    this.displayedColumnsForChildren = this.columnMap.get(id).children;
-    this.displayedColumnsForOptions = this.columnMap.get(id).options;
-  }
+  // private setColumns(id: string) {
+  //   this.displayedColumnsForChildren = this.columnMap.get(id).children;
+  //   this.displayedColumnsForOptions = this.columnMap.get(id).options;
+  // }
   onChange(event: Event) {
     if (event.constructor.name === 'InputEvent') {
       this.isInput = true;
@@ -344,4 +236,118 @@ export class GridSettingsComponent implements OnInit {
       }
     }
   }
+  // buildDataSource() {
+  //   this._modelService.model.map( (node) => {
+  //     switch(node.constructor.name) {
+  //       case NodeType.ActionNode: {
+  //         this.optionsData[node.id] = [
+  //           {option: Strings.TEXT_FOR_SYNTHESIZE, value: node.props.synthText, isSelect: false},
+  //           {option: Strings.ASR_OPTION, value: node.props.options, isSelect: false},
+  //           {option: Strings.ASR_TYPE, value: ['Слитное распознавание', 'Распознавание по грамматике'], isSelect: true, selected: ''},
+  //           {option: Strings.GRAMMAR, value: this._grammarService.grammars, isSelect: true, selected: '', disabled: true}
+  //         ]
+  //         this.childrenData[node.id] = [];
+  //         if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
+  //           this.childrenData[node.id] =
+  //           [
+  //             {id: node.edgeList[0].id}
+  //           ]
+  //         }
+  //         this.columnMap.set(node.id, {
+  //           options: ['option', 'value'],
+  //           children: ['id']
+  //         })
+  //         break;
+  //       }
+  //       case NodeType.ClassifierNode: {
+  //         if(node.edgeList[0] !== null) {
+  //           this.childrenData[node.id] = [];
+  //           node.edgeList.map((child) => {
+  //             this.childrenData[node.id].push(
+  //               {
+  //                 id: child.id, keywords: child.match
+  //               }
+  //             );
+  //           });
+  //         }
+  //         this.columnMap.set(node.id, {
+  //           children: ['id', 'keywords']
+  //         });
+  //         break;
+  //       }
+  //       case NodeType.ExtractNode: {
+  //         console.log('PROPS: ', node.props)
+  //         if ( node.props.length === 0 || node.props == null) {
+  //           this.optionsData[node.id] = [
+  //             {option: Strings.VAR_NAME, value: node.props['varName'] === undefined ? '' : node.props['varName']},
+  //             {option: Strings.RAW_VAR_NAME, value: node.props['rawVarName'] === undefined ? '' : node.props['rawVarName']},
+  //             {option: Strings.KEYWORDS, value: node.props['match'] === undefined ? '' : node.props['match']}
+  //           ]
+  //         } else {
+  //           this.optionsData[node.id] = node.props;
+  //         }
+  //         this.childrenData[node.id] = [];
+  //         if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
+  //           this.childrenData[node.id] = 
+  //           [
+  //             {id: node.edgeList[0].id}
+  //           ];
+  //         }
+  //         this.columnMap.set(node.id, {
+  //           options: ['option', 'value'],
+  //           children: ['id']
+  //         })
+  //         break;
+  //       }
+  //       case NodeType.SpecifierNode: {
+  //         node as SpecifierNode;
+  //         let specifierProps = new SpecifierProps();
+  //         if(node.props.length === 0 || node.props == null) {
+  //           this.optionsData[node.id] = [specifierProps];
+  //         } else {
+  //           this.optionsData[node.id] = node.props.map(item => {
+  //             specifierProps = new SpecifierProps()
+  //             specifierProps.asrOptions = item.asrOptions
+  //             specifierProps.builtinRecogAfterRepeat = item.builtinRecogAfterRepeat
+  //             specifierProps.keywords = item.keywords
+  //             specifierProps.repeat = item.repeat
+  //             specifierProps.synthText = item.synthText
+  //             specifierProps.varName = item.varName
+  //             if(item.grammar.indexOf('localhost')) {
+  //               specifierProps.selected = Strings.BUILTIN_GRAMMAR
+  //             } else {
+  //               specifierProps.selected = Strings.FILE_GRAMMAR
+  //               specifierProps.disabled = false;
+  //             }
+  //             return specifierProps;
+  //           })
+  //         }
+          
+  //         this.childrenData[node.id] = [];
+  //         if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
+  //           this.childrenData[node.id] = 
+  //           [
+  //             {id: node.edgeList[0].id}
+  //           ]
+  //         }
+  //         this.columnMap.set(node.id, {
+  //           options: ['checked', 'varName', 'synthText', 'asrOptions', 'recognizeWay','grammar', 'keywords', 'repeat'],
+  //           children: ['id']
+  //         })
+  //         break;
+  //       }
+  //       case NodeType.EndNode: {
+  //         this.optionsData[node.id] = [
+  //           {option: Strings.TEXT_FOR_SYNTHESIZE, value: node.props[0]},
+  //         ]
+  //         this.childrenData[node.id] = [];
+  //         this.columnMap.set(node.id, {
+  //           options: ['option', 'value'],
+  //           children: ['id']
+  //         })
+  //         break;
+  //       }
+  //     }
+  //   })
+  // }
 }
