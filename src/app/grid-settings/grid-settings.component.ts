@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ModelService } from '../services/model.service'
 import { NodeType, SpecifierNode, Node, ValidateNode } from '../graph/nodes/nodes';
-import { Strings } from '../graph/nodeProps/optionStrings';
+import { Strings, CellType } from '../graph/nodeProps/optionStrings';
 import { EventService } from '../services/event.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subscriber, BehaviorSubject } from 'rxjs';
@@ -228,6 +228,23 @@ export class GridSettingsComponent implements OnInit {
       this.file.nativeElement.click();
     }
   }
+
+  canItShow(element: any): boolean {
+    switch(element.type) {
+      case CellType.INPUT: return true;
+      case CellType.SELECT: {
+        if(element.hidden === 'undefined') {
+          return true;
+        } else if (element.hidden === true) {
+          return false;
+        } else {
+          return true
+        }
+      }
+      default: false
+    }
+  }
+
   uploadFile(event: any) {
     this._http.snedGrammarFile(event.target.files[0]).subscribe((response) => {
       this._grammarService.grammars.push(event.target.files[0].name)

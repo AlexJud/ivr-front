@@ -1,5 +1,8 @@
+<!-- Это поле нужно для загрузки файлов -->
 <input type="file" (change)="uploadFile($event)" accept="*/xml" #file [hidden]="true">
+<!-- Вызываем панель для SpecifierNode -->
 <app-grid-settings-panel [currentTable]="dataSource" (deleteEvent)="deleteRow($event)"></app-grid-settings-panel>
+<!-- Таблица, которая отображает опции ноды-->
     <div class="option-table" *ngIf="isOption">
       <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
           <ng-container matColumnDef="option">
@@ -82,6 +85,7 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumnsForOptions;"></tr>
     </table>
     </div>
+    <!-- Таблица, которая отображает дочерние ноды -->
     <div class="children-table" *ngIf="isChildren">
       <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
           <ng-container matColumnDef="id">

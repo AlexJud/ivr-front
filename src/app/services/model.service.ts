@@ -9,6 +9,13 @@ import { SpecifierProps } from '../graph/nodeProps/specifierProps';
 import { error } from '@angular/compiler/src/util';
 import { EventService } from './event.service';
 
+const START_DATA = [
+  new ActionNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}, [new Relation('classify')]),
+  new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
+  new SpecifierNode('specifier', [new SpecifierProps()], [new Relation('end')] ),
+  new EndNode('end', ['@name#, все понятно, до свидания!']),
+];
+
 @Injectable()
 export class ModelService {
 
@@ -20,19 +27,11 @@ export class ModelService {
   init() {
     this.requestModel()
     // const classify = new ClassifierNode('classify', []);
-    // let props = new SpecifierProps();
     // props.asrOptions = 'b=1&t=5000&nit=5000';
     // props.grammar = 'http://localhost/theme:graph';
     // props.synthText = 'Как тебя зовут?'
     // props.varName = 'name'
     // console.log(this.model);
-
-    // this._model = [
-    //   new ActionNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}, [new Relation('classify')]),
-    // //   // new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
-    // //   // new SpecifierNode('specifier', [props], [new Relation('end')] ),
-    // //   // new EndNode('end', ['@name#, все понятно, до свидания!']),
-    // ];
   }
   get model(): Node[] {
     return this._model;
@@ -137,6 +136,8 @@ export class ModelService {
       console.log(this.model);
       this._eventService._events.emit('modelReceived');
     }, error => {
+      this.model = START_DATA;
+      this._eventService.send("modelReceived")
       console.log(error);
     })
   }
