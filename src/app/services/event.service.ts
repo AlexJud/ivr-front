@@ -1,20 +1,9 @@
 import { Injectable } from '@angular/core';
+import { EventEmitter } from 'events';
 
 @Injectable()
 export class EventService {
-  private handlers = [];
+  public _events: EventEmitter = new EventEmitter();
 
-  public on(id, func) {
-    this.handlers.push({ id, func });
-  }
 
-  public send(id: string, data?: any) {
-    for (const handler of this.handlers) {
-      if (handler && handler.id && handler.id === id) {
-        setTimeout(() => {
-          handler.func(data);
-        }, 1);
-      }
-    }
-  }
 }

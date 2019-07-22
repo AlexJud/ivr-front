@@ -23,7 +23,7 @@ export class GridSettingsPanelComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._eventService.on('showProps', (data) => {
+    this._eventService._events.addListener('showProps', (data) => {
       this.showButtons(data.node);
     })
   }

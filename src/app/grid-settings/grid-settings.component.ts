@@ -113,7 +113,7 @@ export class GridSettingsComponent implements OnInit {
     } else if(element.selected === Strings.BUILTIN_GRAMMAR) {
       this.dataSource.data[this.dataSource.data.length - 1].disabled = true;
     } else if (element.selected === Strings.LOAD_GRAMMAR){
-      this.file.nativeElement.click()
+      this.file.nativeElement.click();
     }
   }
 
@@ -138,7 +138,7 @@ export class GridSettingsComponent implements OnInit {
       this._grammarService.grammars.push(event.target.files[0].name)
       this.dataSource.data.forEach(item => {
         if (item.option === Strings.GRAMMAR) {
-          item.selected = event.target.files[0].name
+          item.selected = event.target.files[0].name;
         }
       })
       this.dataSource._updateChangeSubscription();
@@ -151,7 +151,7 @@ export class GridSettingsComponent implements OnInit {
   }
 
   deleteRow(event: any) {
-    this.dataSource.data.splice(this.sRowindex, 1)
+    this.dataSource.data.splice(this.sRowindex, 1);
     this.dataSource._updateChangeSubscription();
   }
 
@@ -166,11 +166,11 @@ export class GridSettingsComponent implements OnInit {
           this.dataSource.data.forEach((item: any) => {
             switch(item.option) {
               case Strings.TEXT_FOR_SYNTHESIZE: {
-                props.synthText = item.value
+                props.synthText = item.value;
                 break;
               }
               case Strings.ASR_OPTION: {
-                props.options = item.value
+                props.options = item.value;
                 break;
               }
               case Strings.ASR_TYPE: {
