@@ -16,7 +16,7 @@ export class GridToolbarComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._eventService.on('message.test', (data) => {
+    this._eventService._events.addListener('message.test', (data) => {
       alert('I\'v got mesage ' + JSON.stringify(data));
     });
   }

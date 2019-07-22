@@ -54,6 +54,8 @@ export class GridSettingsComponent implements OnInit {
   }
 
   buildDataSource() {
+    console.log("AAAAA");
+    console.log(this._modelService.model);
     this._modelService.model.map( (node) => {
       switch(node.constructor.name) {
         case NodeType.ActionNode: {
@@ -105,7 +107,7 @@ export class GridSettingsComponent implements OnInit {
           }
           this.childrenData[node.id] = [];
           if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
-            this.childrenData[node.id] = 
+            this.childrenData[node.id] =
             [
               {id: node.edgeList[0].id}
             ];
@@ -139,10 +141,10 @@ export class GridSettingsComponent implements OnInit {
               return specifierProps;
             })
           }
-          
+
           this.childrenData[node.id] = [];
           if(node.edgeList[0] !== null && node.edgeList.length !== 0) {
-            this.childrenData[node.id] = 
+            this.childrenData[node.id] =
             [
               {id: node.edgeList[0].id}
             ]
@@ -165,30 +167,32 @@ export class GridSettingsComponent implements OnInit {
           break;
         }
       }
-    })
+    });
   }
 
   ngOnInit() {
-    this._eventService.on("modelReceived", () => {
+    this._eventService._events.addListener('modelReceived', () => {
       this.buildDataSource();
-      this.setDataSource('options', 'root')
+      this.setDataSource('options', 'root');
       this.setColumns('root');
-    })
-    this._eventService.on('showProps', (data) => {
-      this.setDataSource(data.type, data.node)
+    });
+    this._eventService._events.addListener('showProps', (data) => {
+      console.log("AAAAA");
+      console.log(data);
+      this.setDataSource(data.type, data.node);
       this.setColumns(data.node);
     });
-    this._eventService.on('addNode', () => {
+    this._eventService._events.addListener('addNode', () => {
       this.buildDataSource();
     });
-    this._eventService.on('deleteNode', () => {
+    this._eventService._events.addListener('deleteNode', () => {
       this.buildDataSource();
     });
   }
 
   private setDataSource(type: string, nodeId: string) {
     if(type === 'options') {
-      this.dataSource = new MatTableDataSource(this.optionsData[nodeId]); 
+      this.dataSource = new MatTableDataSource(this.optionsData[nodeId]);
       this.isChildren = false;
       this.isOption = true;
     }
@@ -221,7 +225,7 @@ export class GridSettingsComponent implements OnInit {
     } else if(element.selected === Strings.BUILTIN_GRAMMAR) {
       this.dataSource.data[this.dataSource.data.length - 1].disabled = true;
     } else if (element.selected === Strings.LOAD_GRAMMAR){
-      this.file.nativeElement.click()
+      this.file.nativeElement.click();
     }
   }
   uploadFile(event: any) {
@@ -229,7 +233,7 @@ export class GridSettingsComponent implements OnInit {
       this._grammarService.grammars.push(event.target.files[0].name)
       this.dataSource.data.forEach(item => {
         if (item.option === Strings.GRAMMAR) {
-          item.selected = event.target.files[0].name
+          item.selected = event.target.files[0].name;
         }
       })
       this.dataSource._updateChangeSubscription();
@@ -242,7 +246,7 @@ export class GridSettingsComponent implements OnInit {
   }
 
   deleteRow(event: any) {
-    this.dataSource.data.splice(this.sRowindex, 1)
+    this.dataSource.data.splice(this.sRowindex, 1);
     this.dataSource._updateChangeSubscription();
   }
 
@@ -257,11 +261,11 @@ export class GridSettingsComponent implements OnInit {
           this.dataSource.data.forEach((item: any) => {
             switch(item.option) {
               case Strings.TEXT_FOR_SYNTHESIZE: {
-                props.synthText = item.value
+                props.synthText = item.value;
                 break;
               }
               case Strings.ASR_OPTION: {
-                props.options = item.value
+                props.options = item.value;
                 break;
               }
               case Strings.ASR_TYPE: {

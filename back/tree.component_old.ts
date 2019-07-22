@@ -48,12 +48,12 @@ export class TreeComponent implements OnInit{
   }
 
   ngOnInit() {
-    this._eventService.on('selectNode', (id: string) => {
+    this._eventService._events.addListener('selectNode', (id: string) => {
       console.log('Event is come');
       console.log(id);
       console.log(this.flatNodeId.get(id));
       this.treeControl.expand(this.flatNodeId.get(id))
-    }); 
+    });
   }
 
   getLevel = (node: FlatNode) => node.level;
@@ -66,7 +66,7 @@ export class TreeComponent implements OnInit{
   onTreeClick(node: FlatNode) {
     const type = node.id === 'Дочерние узлы' ? 'children' : 'options'
     const nodeId = this.flatNodeMap.get(node).parent;
-    this._eventService.send('showProps', {
+    this._eventService._events.emit('showProps', {
       type: type,
       node: nodeId
     })
@@ -124,7 +124,7 @@ export class TreeComponent implements OnInit{
     if (index > -1) {
       this._modelService.model.splice(index, 1);
    }
-   this._eventService.send('deleteNode', id);
+   this._eventService._evets.emit('deleteNode', id);
   }
 
   addNodeToModel(id: string, props: any, children: [], ) {
@@ -166,6 +166,6 @@ export class TreeComponent implements OnInit{
         node.edgeList.push(relation);
       }
     });
-    this._eventService.send('addNode', {node: node, parent: this.parentNode});
+    this._eventService._events.emit('addNode', {node: node, parent: this.parentNode});
   }
 }

@@ -20,7 +20,7 @@ export class TreePanelComponent implements OnInit {
   constructor(private _modelService: ModelService,
               // private _treeComp: TreeComponent,
               private _eventService: EventService) {
-    this._eventService.on("modelReceived", () => {
+    this._eventService._events.addListener("modelReceived", () => {
       this.model = _modelService.model;
       this.updateModel();
     })
@@ -31,10 +31,12 @@ export class TreePanelComponent implements OnInit {
       this.types.push(NodeType[element]);
     });
 
-    this._eventService.on('addNode', () => {
+    this._eventService._events.addListener('addNode', () => {
       this.updateModel();
     })
-    this._eventService.on('deleteNode', () => {
+
+
+    this._eventService._events.addListener('deleteNode', () => {
       this.updateModel();
     })
   }
@@ -47,7 +49,7 @@ export class TreePanelComponent implements OnInit {
   }
 
   add(parent: string, type: NodeType) {
-    this.addEvent.emit({parent, type})
+    this.addEvent.emit({parent, type});
     // this._treeComp.addNode(parent, type);
   }
 

@@ -58,7 +58,7 @@ export class TreeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._eventService.on('selectNode', (id: string) => {
+    this._eventService._events.addListener('selectNode', (id: string) => {
       let itemNode = this.itemNodeMap.get(id)
       let flatNode = this.nestedNodeMap.get(itemNode)
       this.nestedNodeMap.forEach((v,k) => {
@@ -75,7 +75,7 @@ export class TreeComponent implements OnInit {
           flatNode = this.nestedNodeMap.get(child)
         }
       }
-      
+
       this.onTreeClick(flatNode)
       // this.checked(this.flatNodeId.get(id));
       // let itemNode = this.flatNodeMap.get(this.flatNodeId.get(id)).children[0];
@@ -94,7 +94,7 @@ export class TreeComponent implements OnInit {
   onTreeClick(node: FlatNode) {
     const type = node.id === 'Дочерние узлы' ? 'children' : 'options'
     const nodeId = this.flatNodeMap.get(node).parent;
-    this._eventService.send('showProps', {
+    this._eventService._events.emit('showProps', {
       type: type,
       node: nodeId
     })
@@ -103,7 +103,7 @@ export class TreeComponent implements OnInit {
   /**
    * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
    */
-  
+
   // transformer = (node: ItemNode, level: number) => {
   //   const existingNode = this.nestedNodeMap.get(node);
   //   const flatNode = existingNode && existingNode.id === node.id
@@ -119,7 +119,7 @@ export class TreeComponent implements OnInit {
   // }
   checked(node: FlatNode) {
     if(!node.checked) {
-      this._eventService.send('selectNode', node.id);
+      this._eventService._events.emit('selectNode', node.id);
       this.selectedNode = node;
     }
   }
@@ -128,7 +128,7 @@ export class TreeComponent implements OnInit {
     return new ItemNode(id, [/*new ItemNode('Параметры', [], id)*/])
   }
 
-  /* 
+  /*
   Show input to user for type new Node name
   Save parent and Node type to global variables
   */

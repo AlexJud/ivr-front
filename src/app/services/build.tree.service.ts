@@ -36,10 +36,17 @@ export class BuildTreeService {
   get data(): ItemNode[] { return this.dataChange.value; }
 
   constructor(private _modelService: ModelService,
-              private _eventService: EventService) {
-    _eventService.on("modelReceived", () => {
-      this.updateTree()
-    })
+    private _eventService: EventService) {
+    _eventService._events.addListener("modelReceived", () => {
+      this.updateTree();
+    });
+    _eventService._events.addListener("addNode", () => {
+      this.updateTree();
+    });
+
+    _eventService._events.addListener("nodeChanged", () => {
+      this.updateTree();
+    });
   }
 
   updateTree() {
@@ -57,7 +64,7 @@ export class BuildTreeService {
       } else if (!node.props && node.edgeList) {
         tree.push(new ItemNode(node.id, [new ItemNode('Дочерние узлы', [], node.id)]));
       }
-      if(node.edgeList) {
+      if (node.edgeList) {
         node.edgeList.forEach(child => {
           this.parentMap.set(child.id, node.id)
         })
@@ -74,56 +81,17 @@ export class BuildTreeService {
 
   removeItem(node: ItemNode) {
     const index = this.data.indexOf(node);
- 
+
     if (index > -1) {
-       this.data.splice(index, 1);
+      this.data.splice(index, 1);
     }
     this.dataChange.next(this.data);
   }
   addNodeToModel(id: string) {
-    let node: Node;
-    let relation: Relation;
-    switch(this.nodeType) {
-      case NodeType.ActionNode: {
-        node = new ActionNode(id, new ActionProps, []);
-        relation = new Relation(id)
-        break;
-      }
-      case NodeType.ClassifierNode: {
-        node = new ClassifierNode(id, []);
-        relation = new Relation(id)
-        break;
-      }
-      case NodeType.ExtractNode: {
-        node = new ExtractNode(id, new ExtractProps, [],);
-        relation = new Relation(id)
-        break;
-      }
-      case NodeType.ValidateNode: {
-        node = new ValidateNode(id, new ValidateProps);
-        relation = new Relation(id)
-        break;
-      }
-      case NodeType.SpecifierNode: {
-        node = new SpecifierNode(id, [], []);
-        relation = new Relation(id)
-        break;
-      }
-      case NodeType.EndNode: {
-        node = new EndNode(id, []);
-        relation = new Relation(id)
-        break;
-      }
-    }
-    this._modelService.model.push(node);
+    const node = this._modelService.addNodeToModel(id, this.nodeType, this.parentNode);
     this.parentMap.set(node.id, this.parentNode);
-    this._modelService.model.forEach((node) => {
-      if (node.id === this.parentNode) {
-        node.edgeList.push(relation);
-      }
-    });
     console.log('Parent MAP: ', this.parentMap);
-    this._eventService.send('addNode', {node: node, parent: this.parentNode});
+    this._eventService._events.emit('addNode', { node: node, parent: this.parentNode });
     this.updateTree();
   }
 
@@ -134,25 +102,25 @@ export class BuildTreeService {
   deleteNodeFromModel(id: string) {
     let rNode = {};
     this._modelService.model.forEach((node: Node) => {
-      if(node.id === id) {
+      if (node.id === id) {
         rNode = node;
       }
     });
     const index = this._modelService.model.indexOf(rNode as Node)
     if (index > -1) {
       this._modelService.model.splice(index, 1);
-   }
-   this.deleteChild(id);
-   this.updateTree();
-   console.log(this._modelService.model);
-   this._eventService.send('deleteNode', id);
+    }
+    this.deleteChild(id);
+    this.updateTree();
+    console.log(this._modelService.model);
+    this._eventService._events.emit('deleteNode', id);
   }
   deleteChild(id: string) {
     const nodeId = this.parentMap.get(id);
     const node: Node = this._modelService.getNode(nodeId);
     if (node) {
-      for( let i = 0; i < node.edgeList.length; i++) { 
-        if ( node.edgeList[i].id === id ) {
+      for (let i = 0; i < node.edgeList.length; i++) {
+        if (node.edgeList[i].id === id) {
           node.edgeList.splice(i, 1);
         }
       }

@@ -14,13 +14,13 @@ export class AppComponent /*implements AfterViewInit*/ {
   constructor(private _modelService: ModelService,
               private _eventService: EventService) {
     this._modelService.init();
-    _eventService.on("modelReceived", () => {
-      this._eventService.send('showProps', {
-        type: "options",
-        node: "root"
-      })
-      this._eventService.send('selectNode', 'root');
-    })
+    // _eventService._events.addListener("modelReceived", () => {
+    //   this._eventService._events.emit('showProps', {
+    //     type: "options",
+    //     node: "root"
+    //   });
+    //   this._eventService._events.emit('selectNode', 'root');
+    // })
   }
 
   // ngAfterViewInit(): void {
