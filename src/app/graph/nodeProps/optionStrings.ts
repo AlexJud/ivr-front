@@ -14,7 +14,8 @@ export enum Strings {
     BUILTIN_GRAMMAR = 'Слитное распознавание',
     FILE_GRAMMAR = 'Распознавание по грамматике',
     REPEAT = 'Количество повторений',
-    CHILDREN = 'Дочерние узлы,'
+    CHILDREN = 'Дочерние узлы',
+    PARAMETRS = 'Параметры'
 }
 export enum CellType {
     INPUT,

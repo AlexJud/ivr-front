@@ -18,14 +18,82 @@
 [
     {
         "id": "root",
-        "children": [
-            {
-                "id": "Параметры"
-            },
-            {
-                "id": "Дочерние"
-            }
+        "type": "ActionNode",
+        "childrenTree": [
+            {"id": "Параметры"},
+            {"id": "Дочерние"}
         ],
-
+        "parent": "",
+        "options": [
+            {"name": "Текст для синтеза", "value": "Text"},
+            {"name": "Опции распознавания", "value": "b=1"},
+            {"name": "Способ распознавания", "value": "Слитное распознавание"},
+            {"name": "Грамматика", "value": "grammar.xml"},
+        ],
+        "edgeList": [
+            {"id": "classify"}
+        ],
+        "optionTableView": {
+            "displayedColumn": ["name", "value"],
+            "columnData": [
+                {"columnId": "name", "columnName": "Наименование"},
+                {"columnId": "value"," columnName":"Значение"}
+            ]
+        },
+        "childrenTableView": {
+            "displayedColumn": ["child"],
+            "columnData": [
+                {"columnId": "child", "columnName": "Дочерние узлы"},
+            ]
+        }
     }
 ]
+
+const ELEMENT_DATA: PeriodicElement[] = [
+  {name: 'Текст для синтеза', value: 'Text'},
+  {name: 'Опции распознавания', value: 'b=1'},
+  {name: 'Опции распознавания', value: 'b=1'},
+  {name: 'Опции распознавания', value: 'b=1'},
+];
+
+const COLUMNS_DATA = [
+  {columnId: 'name', columnName: 'Наименование'},
+  {columnId: 'value', columnName: 'Значение'}
+]
+
+const ELEMENT_DATA_1: PeriodicElementLine[] = [
+  {
+    varName: 'name',
+    synthText: 'Привет, брат!',
+    asrOptions: 'b=1',
+    recognizeWay: 'Слитное',
+    grammar: 'grammar.xml'
+  },
+  {
+    varName: 'other',
+    synthText: 'Привет, брат!',
+    asrOptions: 'b=1',
+    recognizeWay: 'Слитное',
+    grammar: 'grammar.xml'
+  },
+];
+
+const COLUMNS_DATA_1 = [
+  {columnId: 'varName', columnName: 'Название переменной'},
+  {columnId: 'synthText', columnName: 'Текст для синтеза'},
+  {columnId: 'asrOptions', columnName: 'Опции распознавания'},
+  {columnId: 'recognizeWay', columnName: 'Способ распознавания'},
+  {columnId: 'grammar', columnName: 'Грамматика' },
+  {columnId: 'keywords', columnName: 'Ключевые слова' },
+  {columnId: 'repeatCount', columnName: 'Количество повторений'}
+]
+displayedColumns: string[] = ['name', 'value'];
+displayedColumns_1: string[] = [
+  'varName',
+  'synthText',
+  'asrOptions',
+  'recognizeWay',
+  'grammar',
+  'keywords',
+  'repeatCount'
+  ];

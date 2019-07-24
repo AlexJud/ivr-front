@@ -1,7 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import {ModelService} from './services/model.service';
+import { ModelService } from './services/model.service';
 import { EventService } from './services/event.service';
-import { NodeType } from './graph/nodes/nodes';
 
 @Component({
   selector: 'app-root',

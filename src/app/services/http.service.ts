@@ -2,10 +2,7 @@ import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http'
 import { Observable, throwError } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ModelService } from './model.service';
-import { catchError, retry } from 'rxjs/operators';
 import { Node } from '../graph/nodes/nodes';
-import { error } from 'util';
 
 @Injectable()
 export class HttpService {

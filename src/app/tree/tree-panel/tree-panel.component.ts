@@ -20,10 +20,8 @@ export class TreePanelComponent implements OnInit {
   constructor(private _modelService: ModelService,
               // private _treeComp: TreeComponent,
               private _eventService: EventService) {
-    this._eventService._events.addListener("modelReceived", () => {
       this.model = _modelService.model;
       this.updateModel();
-    })
   }
 
   ngOnInit() {

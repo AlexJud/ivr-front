@@ -1,14 +1,13 @@
-import {FlatTreeControl} from '@angular/cdk/tree';
+import {FlatTreeControl, NestedTreeControl} from '@angular/cdk/tree';
 import {Component, OnInit} from '@angular/core';
-import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
-import {ActionNode, Node, NodeType, ClassifierNode, ExtractNode, ValidateNode, SpecifierNode, EndNode} from '../graph/nodes/nodes';
-import {ModelService} from '../services/model.service';
+import {MatTreeFlatDataSource, MatTreeFlattener, MatTreeNestedDataSource} from '@angular/material/tree';
 import {EventService} from '../services/event.service';
-import { Relation } from '../graph/nodes/relation';
-import { ValidateProps } from '../graph/nodeProps/validateProps';
-import { ItemNode, FlatNode, BuildTreeService } from '../services/build.tree.service';
-import { log } from 'util';
-import { MatCheckboxChange } from '@angular/material';
+import { ModelService, NestedNode } from '../services/model.service';
+import { BehaviorSubject } from 'rxjs';
+import { ViewNode } from '../view-model-nodes/view.model-node';
+import { FlatNode } from '../services/build.tree.service';
+
+
 
 @Component({
   selector: 'app-tree',
@@ -17,106 +16,81 @@ import { MatCheckboxChange } from '@angular/material';
 })
 export class TreeComponent implements OnInit {
   addNodePressed: boolean = false;
-  activeNode: any;
-  /** Map from flat node to nested node. This helps us finding the nested node to be modified */
-  flatNodeMap = new Map<FlatNode, ItemNode>();
-  /** Map from nested node to flattened node. This helps us to keep the same object for selection */
-  nestedNodeMap = new Map<ItemNode, FlatNode>();
-  /** A selected parent node to be inserted */
+  activeNode: ViewNode;
+  flatNodeMap = new Map<FlatNode, ViewNode>();
+  nestedNodeMap = new Map<ViewNode, FlatNode>();
   selectedParent: FlatNode | null = null;
-  /** The new item's name */
-  newItemName: ItemNode;
-  /** Map from flat node to node ID */
-  itemNodeMap = new Map<string, ItemNode>();
-  // flatToItem = new Map<FlatNode, ItemNode>();
+  newItemName: ViewNode;
+  itemNodeMap = new Map<string, ViewNode>();
   checkedModel = false
-
   selectedNode: FlatNode;
-  private transformer = (node: ItemNode, level: number) => {
-    const flatNode = new FlatNode;
-    flatNode.expandable = !!node.children && node.children.length > 0;
-    flatNode.id = node.id;
-    flatNode.level= level;
-    this.flatNodeMap.set(flatNode, node);
-    this.nestedNodeMap.set(node, flatNode);
-    this.itemNodeMap.set(node.id, node);
-    return flatNode
-  }
-  treeControl = new FlatTreeControl<FlatNode>(
-    node => node.level, node => node.expandable);
-  treeFlattener = new MatTreeFlattener(
-    this.transformer, node => node.level, node => node.expandable, node => node.children);
-  dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+  parentNode: string;
+  nodeType: string;
+  
+  // private transformer = (node: ViewModel, level: number) => {
+  //   const flatNode = new FlatNode;
+  //   flatNode.expandable = level == 0;
+  //   flatNode.id = node.id;
+  //   flatNode.level= level;
+  //   this.flatNodeMap.set(flatNode, node);
+  //   this.nestedNodeMap.set(node, flatNode);
+  //   this.itemNodeMap.set(node.id, node);
+  //   return flatNode
+  // }
 
-  constructor(private _database: BuildTreeService,
-              private _eventService: EventService) {
-    // _eventService.on("modelReceived", () => {
-      _database.dataChange.subscribe(data => {
-        this.dataSource.data = data;
-      });
+  // treeControl = new FlatTreeControl<FlatNode>(node => node.level, node => node.expandable);
+  // treeFlattener = new MatTreeFlattener(this.transformer, node => node.level, node => node.expandable, node => node.childrenTree);
+  // dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+
+  treeControl = new NestedTreeControl<ViewNode>(node => node.childrenTree);
+  dataSource = new MatTreeNestedDataSource<ViewNode>();
+
+  constructor(private _eventService: EventService,
+              private _modelService: ModelService) {
+    // this.dataSource._data.subscribe(data => {
+    //   this.dataSource.data = data
     // })
+    this.dataSource.data = this._modelService.viewModel
+    console.log(this.treeControl);
+    console.log(this.dataSource);
   }
 
   ngOnInit() {
-    this._eventService._events.addListener('selectNode', (id: string) => {
-      let itemNode = this.itemNodeMap.get(id)
-      let flatNode = this.nestedNodeMap.get(itemNode)
-      this.nestedNodeMap.forEach((v,k) => {
-        v.checked = false;
-        this.treeControl.collapse(v)
-      })
-      this.treeControl.expand(flatNode)
-      flatNode.checked = true
-      for(let child of itemNode.children) {
-        if(child.id === 'Параметры') {
-          flatNode = this.nestedNodeMap.get(child)
-          break
-        } else {
-          flatNode = this.nestedNodeMap.get(child)
-        }
-      }
+    // this._eventService._events.addListener('selectNode', (id: string) => {
+    //   let itemNode = this.itemNodeMap.get(id)
+    //   let flatNode = this.nestedNodeMap.get(itemNode)
+    //   this.nestedNodeMap.forEach((v,k) => {
+    //     v.checked = false;
+    //     this.treeControl.collapse(v)
+    //   })
+    //   this.treeControl.expand(flatNode)
+    //   flatNode.checked = true
+    //   for(let child of itemNode.children) {
+    //     if(child.id === 'Параметры') {
+    //       flatNode = this.nestedNodeMap.get(child)
+    //       break
+    //     } else {
+    //       flatNode = this.nestedNodeMap.get(child)
+    //     }
+    //   }
 
-      this.onTreeClick(flatNode)
-      // this.checked(this.flatNodeId.get(id));
-      // let itemNode = this.flatNodeMap.get(this.flatNodeId.get(id)).children[0];
-      // this.activeNode = this.flatNodeId.get(itemNode.id);
-      // console.log(this.activeNode)
-    });
+    //   this.onTreeClick(flatNode)
+    // });
   }
 
-  // getLevel = (node: FlatNode) => node.level;
-  // isExpandable = (node: FlatNode) => node.expandable;
-  // getChildren = (node: ItemNode): ItemNode[] => node.children;
-  // hasNoContent = (_: number, _nodeData: FlatNode) => _nodeData.id === '';
-  isLevelMoreThenOne = (_: number, _nodeData: FlatNode) =>  {
-    return _nodeData.level === 1;
-  }
-  onTreeClick(node: FlatNode) {
+  // isLevelMoreThenOne = (_: number, _nodeData: FlatNode) =>  {
+  //   return _nodeData.level === 1;
+  // }
+  hasChild = (_: number, node: ViewNode) => !!node.childrenTree && node.childrenTree.length > 0;
+  onTreeClick(node: ViewNode) {
+    this.activeNode = node;
     const type = node.id === 'Дочерние узлы' ? 'children' : 'options'
-    const nodeId = this.flatNodeMap.get(node).parent;
     this._eventService._events.emit('showProps', {
       type: type,
-      node: nodeId
+      node: node.id
     })
-    this.activeNode = node;
   }
-  /**
-   * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
-   */
 
-  // transformer = (node: ItemNode, level: number) => {
-  //   const existingNode = this.nestedNodeMap.get(node);
-  //   const flatNode = existingNode && existingNode.id === node.id
-  //     ? existingNode
-  //     : new FlatNode();
-  //   flatNode.id = node.id;
-  //   flatNode.level = level;
-  //   flatNode.expandable = !!node.children;
-  //   this.flatNodeMap.set(flatNode, node);
-  //   this.nestedNodeMap.set(node, flatNode);
-  //   this.flatNodeId.set(node.id, flatNode);
-  //   return flatNode;
-  // }
   checked(node: FlatNode) {
     if(!node.checked) {
       this._eventService._events.emit('selectNode', node.id);
@@ -124,26 +98,22 @@ export class TreeComponent implements OnInit {
     }
   }
 
-  createItemNode(id: string): ItemNode {
-    return new ItemNode(id, [/*new ItemNode('Параметры', [], id)*/])
+  createItemNode(id: string): NestedNode {
+    return new NestedNode(id, [/*new ItemNode('Параметры', [], id)*/])
   }
 
-  /*
-  Show input to user for type new Node name
-  Save parent and Node type to global variables
-  */
+
   addNode(event: any) {
     console.log(event);
-    this._database.saveNodeData(event.parent, event.type)
-    this.addNodePressed = true;
+    this.parentNode = event.parent;
+    this.nodeType = event.type;
+    this.addNodePressed = true;  
   }
 
-  /** Save the node to database */
   saveNode(id: string) {
     if(id !== undefined && id !== '') {
-      this._database.insertItem(this.createItemNode(id));
-      this._database.addNodeToModel(id);
       this.addNodePressed = false;
+      this._modelService.addNodeToViewModel(id, this.nodeType, this.parentNode)
     } else {
       this.addNodePressed = false;
     }
@@ -153,6 +123,5 @@ export class TreeComponent implements OnInit {
     const item = this.flatNodeMap.get(this.selectedNode);
     this._database.removeItem(item);
     this._database.deleteNodeFromModel(item.id);
-    // this.deleteChild(item);
   }
 }

@@ -8,11 +8,11 @@ import { ValidateProps } from '../graph/nodeProps/validateProps';
 import { EventService } from './event.service';
 import { ActionProps } from '../graph/nodeProps/actionProps';
 
-export class ItemNode {
+export class ViewNode {
   id: string;
-  children?: ItemNode[];
+  children?: ViewNode[];
   parent?: string;
-  constructor(id: string, children?: ItemNode[], parent?: string) {
+  constructor(id: string, children?: ViewNode[], parent?: string) {
     this.id = id;
     this.children = children;
     this.parent = parent;
@@ -29,14 +29,14 @@ export class FlatNode {
 @Injectable()
 export class BuildTreeService {
   parentNode: string;
-  parentMap: Map<string, string> = new Map();
   nodeType: string;
-  dataChange = new BehaviorSubject<ItemNode[]>([]);
+  parentMap: Map<string, string> = new Map();
+  dataChange = new BehaviorSubject<ViewNode[]>([]);
 
-  get data(): ItemNode[] { return this.dataChange.value; }
+  get data(): ViewNode[] { return this.dataChange.value; }
 
   constructor(private _modelService: ModelService,
-    private _eventService: EventService) {
+              private _eventService: EventService) {
     _eventService._events.addListener("modelReceived", () => {
       this.updateTree();
     });
@@ -54,15 +54,15 @@ export class BuildTreeService {
     this.dataChange.next(data);
   }
 
-  private buildTree(): ItemNode[] {
-    let tree: ItemNode[] = [];
+  private buildTree(): ViewNode[] {
+    let tree: ViewNode[] = [];
     this._modelService.model.map((node) => {
       if (node.props && node.edgeList) {
-        tree.push(new ItemNode(node.id, [new ItemNode('Параметры', [], node.id), new ItemNode('Дочерние узлы', [], node.id)]));
+        tree.push(new ViewNode(node.id, [new ViewNode('Параметры', [], node.id), new ViewNode('Дочерние узлы', [], node.id)]));
       } else if (node.props && !node.edgeList) {
-        tree.push(new ItemNode(node.id, [new ItemNode('Параметры', [], node.id)]));
+        tree.push(new ViewNode(node.id, [new ViewNode('Параметры', [], node.id)]));
       } else if (!node.props && node.edgeList) {
-        tree.push(new ItemNode(node.id, [new ItemNode('Дочерние узлы', [], node.id)]));
+        tree.push(new ViewNode(node.id, [new ViewNode('Дочерние узлы', [], node.id)]));
       }
       if (node.edgeList) {
         node.edgeList.forEach(child => {
@@ -74,12 +74,12 @@ export class BuildTreeService {
     return tree //as ItemNode[];
   }
 
-  insertItem(node: ItemNode) {
+  insertItem(node: ViewNode) {
     this.data.push(node);
     this.dataChange.next(this.data);
   }
 
-  removeItem(node: ItemNode) {
+  removeItem(node: ViewNode) {
     const index = this.data.indexOf(node);
 
     if (index > -1) {
@@ -89,7 +89,7 @@ export class BuildTreeService {
   }
   
   addNodeToModel(id: string) {
-    const node = this._modelService.addNodeToModel(id, this.nodeType, this.parentNode);
+    const node = this._modelService.addNodeToViewModel(id, this.nodeType, this.parentNode);
     this.parentMap.set(node.id, this.parentNode);
     console.log('Parent MAP: ', this.parentMap);
     this._eventService._events.emit('addNode', { node: node, parent: this.parentNode });

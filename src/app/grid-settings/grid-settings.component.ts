@@ -60,17 +60,17 @@ export class GridSettingsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._eventService.on("modelReceived", () => {
+    this._eventService._events.addListener("modelReceived", () => {
       this.settingsModel = this._dataSource.buildDataSource();
       this.setDataSource('root')
     })
-    this._eventService.on('showProps', (data) => {
+    this._eventService._events.addListener('showProps', (data) => {
       this.setDataSource(data.node)
     });
-    this._eventService.on('addNode', () => {
+    this._eventService._events.addListener('addNode', () => {
       this._dataSource.buildDataSource();
     });
-    this._eventService.on('deleteNode', () => {
+    this._eventService._events.addListener('deleteNode', () => {
       this._dataSource.buildDataSource();
     });
   }

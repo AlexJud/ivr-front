@@ -155,20 +155,20 @@ export class MxGraphComponent implements OnInit {
 				{
 					menu.addItem('Создать ActionNode', null, function()
 				    {
-              thiz._modelService.addNodeToModel("<new>", NodeType.ActionNode, cell.value);
+              thiz._modelService.addNodeToViewModel("<new>", NodeType.ActionNode, cell.value);
 				    });
 
 					menu.addItem('Создать ClassifierNode', null, function()
 				    {
-              thiz._modelService.addNodeToModel("<new>", NodeType.ClassifierNode, cell.value);
+              thiz._modelService.addNodeToViewModel("<new>", NodeType.ClassifierNode, cell.value);
 				    });
             menu.addItem('Создать SpecifierNode', null, function()
 				    {
-              thiz._modelService.addNodeToModel("<new>", NodeType.SpecifierNode, cell.value);
+              thiz._modelService.addNodeToViewModel("<new>", NodeType.SpecifierNode, cell.value);
             });
             menu.addItem('Создать EndNode', null, function()
 				    {
-              thiz._modelService.addNodeToModel("<new>", NodeType.EndNode, cell.value);
+              thiz._modelService.addNodeToViewModel("<new>", NodeType.EndNode, cell.value);
 				    });
 
 				};
