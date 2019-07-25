@@ -2,10 +2,9 @@ import {FlatTreeControl, NestedTreeControl} from '@angular/cdk/tree';
 import {Component, OnInit} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener, MatTreeNestedDataSource} from '@angular/material/tree';
 import {EventService} from '../services/event.service';
-import { ModelService, NestedNode } from '../services/model.service';
+import { ModelService } from '../services/model.service';
 import { BehaviorSubject } from 'rxjs';
 import { ViewNode } from '../view-model-nodes/view.model-node';
-import { FlatNode } from '../services/build.tree.service';
 
 
 
@@ -17,13 +16,13 @@ import { FlatNode } from '../services/build.tree.service';
 export class TreeComponent implements OnInit {
   addNodePressed: boolean = false;
   activeNode: ViewNode;
-  flatNodeMap = new Map<FlatNode, ViewNode>();
-  nestedNodeMap = new Map<ViewNode, FlatNode>();
-  selectedParent: FlatNode | null = null;
+  // flatNodeMap = new Map<FlatNode, ViewNode>();
+  // nestedNodeMap = new Map<ViewNode, FlatNode>();
+  // selectedParent: FlatNode | null = null;
   newItemName: ViewNode;
   itemNodeMap = new Map<string, ViewNode>();
   checkedModel = false
-  selectedNode: FlatNode;
+  // selectedNode: FlatNode;
   parentNode: string;
   nodeType: string;
   
@@ -50,7 +49,7 @@ export class TreeComponent implements OnInit {
     // this.dataSource._data.subscribe(data => {
     //   this.dataSource.data = data
     // })
-    this.dataSource.data = this._modelService.viewModel
+    this.dataSource.data = [...this._modelService.viewModel.values()] 
     console.log(this.treeControl);
     console.log(this.dataSource);
   }
@@ -91,16 +90,16 @@ export class TreeComponent implements OnInit {
     })
   }
 
-  checked(node: FlatNode) {
-    if(!node.checked) {
-      this._eventService._events.emit('selectNode', node.id);
-      this.selectedNode = node;
-    }
-  }
+  // checked(node: ViewNode) {
+  //   if(!node.checked) {
+  //     this._eventService._events.emit('selectNode', node.id);
+  //     this.selectedNode = node;
+  //   }
+  // }
 
-  createItemNode(id: string): NestedNode {
-    return new NestedNode(id, [/*new ItemNode('Параметры', [], id)*/])
-  }
+  // createItemNode(id: string): NestedNode {
+  //   return new NestedNode(id, [/*new ItemNode('Параметры', [], id)*/])
+  // }
 
 
   addNode(event: any) {
@@ -119,9 +118,9 @@ export class TreeComponent implements OnInit {
     }
   }
 
-  deleteNode() {
-    const item = this.flatNodeMap.get(this.selectedNode);
-    this._database.removeItem(item);
-    this._database.deleteNodeFromModel(item.id);
-  }
+  // deleteNode() {
+  //   const item = this.flatNodeMap.get(this.selectedNode);
+  //   this._database.removeItem(item);
+  //   this._database.deleteNodeFromModel(item.id);
+  // }
 }

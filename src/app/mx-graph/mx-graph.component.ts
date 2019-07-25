@@ -1,5 +1,4 @@
 import { NodeType } from './../graph/nodes/nodes';
-import { BuildTreeService } from './../services/build.tree.service';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ModelService } from '../services/model.service';
 import { mxgraph } from 'mxgraph';

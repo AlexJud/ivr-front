@@ -31,7 +31,6 @@ import { MaterialModule } from '../material-modules'
 import { FormsModule } from '@angular/forms';
 import { GridSettingsPanelComponent } from './grid-settings/grid-settings-panel/grid-settings-panel.component';
 import { HttpService } from './services/http.service';
-import { BuildTreeService } from './services/build.tree.service';
 import { HttpClientModule } from '@angular/common/http';
 import { GrammarService } from './services/grammar.service';
 import { SettingsModelService } from './services/build.settings.model.service';
@@ -70,7 +69,7 @@ import { SettingsModelService } from './services/build.settings.model.service';
     FormsModule,
     HttpClientModule
   ],
-  providers: [ ModelService, EventService, HttpService, BuildTreeService, GrammarService, SettingsModelService ],
+  providers: [ ModelService, EventService, HttpService, GrammarService, SettingsModelService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

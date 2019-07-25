@@ -1,28 +1,18 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ModelService } from '../services/model.service'
-import { NodeType, SpecifierNode, Node, ValidateNode } from '../graph/nodes/nodes';
+import { NodeType, Node } from '../graph/nodes/nodes';
 import { Strings, CellType } from '../graph/nodeProps/optionStrings';
 import { EventService } from '../services/event.service';
 import { MatTableDataSource } from '@angular/material/table';
-import { Subscriber, BehaviorSubject } from 'rxjs';
-import { SpecifierProps } from '../graph/nodeProps/specifierProps';
 import { GrammarService } from '../services/grammar.service';
-import { Input } from '@angular/compiler/src/core';
 import { HttpService } from '../services/http.service';
 import { ActionProps } from '../graph/nodeProps/actionProps';
-import { SettingsModelService } from '../services/build.settings.model.service';
-import { SettingsModel } from './interfaces/settings.modelinterfaces';
-
-// export interface Data {
-//   option: string;
-//   value: string;
-// }
+import { ViewNode } from '../view-model-nodes/view.model-node';
 
 export interface DisplayColumn {
   options?: string[];
   children: string[];
 }
-
 
 @Component({
   selector: 'app-grid-settings',
@@ -31,7 +21,6 @@ export interface DisplayColumn {
 })
 export class GridSettingsComponent implements OnInit {
   @ViewChild("file", {static: false}) file: ElementRef
-  settingsModel: SettingsModel
   isInput: boolean  //Проверяем был ли ввод в какой-нить Input
   currentNode: Node;  //Здесь храним текущий объект
   // tableData: any;
@@ -41,18 +30,18 @@ export class GridSettingsComponent implements OnInit {
   // displayedColumnsForOptions: string[];
   // dataSource = []; //= DATA_SOURCE for table;
   dataSource: MatTableDataSource<any>
-  columnsData = {}
-  displayedColumns = {}
+  columnsData: any
+  displayedColumns: any
   // optionsData = {};
   // childrenData = {};
   // columnMap: Map<string, DisplayColumn>; //Map to store displayed columns
   sRowindex: number
+  viewNode: ViewNode
 
   constructor(private _modelService: ModelService,
               private _eventService: EventService,
               private _grammarService: GrammarService,
-              private _http: HttpService,
-              private _dataSource: SettingsModelService) {
+              private _http: HttpService) {
     this.isOption = false;
     this.isChildren = false;
     // this.columnMap = new Map();
@@ -60,41 +49,33 @@ export class GridSettingsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._eventService._events.addListener("modelReceived", () => {
-      this.settingsModel = this._dataSource.buildDataSource();
-      this.setDataSource('root')
-    })
+    this.setDataSource('root', 'options')
     this._eventService._events.addListener('showProps', (data) => {
-      this.setDataSource(data.node)
+      this.setDataSource(data.node, data.type)
     });
     this._eventService._events.addListener('addNode', () => {
-      this._dataSource.buildDataSource();
+      console.log('addNode EVENT RECIEVED')
     });
     this._eventService._events.addListener('deleteNode', () => {
-      this._dataSource.buildDataSource();
+      console.log('deleteNode EVENT RECIEVED')
     });
   }
 
-  private setDataSource(nodeId: string) {
-    this.dataSource =  new MatTableDataSource(this.settingsModel[nodeId].option.dataSource)
-    this.columnsData = this.settingsModel[nodeId].option.columnsData
-    this.displayedColumns = this.settingsModel[nodeId].option.displayedColumns
-    this.currentNode = this._modelService.getNode(nodeId);
-    // if(type === 'options') {
-    //   this.dataSource = new MatTableDataSource(this.optionsData[nodeId]); 
-    //   this.isChildren = false;
-    //   this.isOption = true;
-    // }
-    // if(type === 'children') {
-    //   this.dataSource = new MatTableDataSource(this.childrenData[nodeId]);
-    //   this.isOption = false;
-    //   this.isChildren = true;
-    // }
+  private setDataSource(nodeId: string, type: string) {
+    this.viewNode = this._modelService.viewModel.get(nodeId)
+    // this.currentNode = this._modelService.getNode(nodeId);
+    if(type === 'options') {
+      this.dataSource =  new MatTableDataSource(this.viewNode.options)
+      this.columnsData = this.viewNode.optionTableView.columnsData
+      this.displayedColumns = this.viewNode.optionTableView.displayedColumns
+    }
+    if(type === 'children') {
+      this.dataSource =  new MatTableDataSource(this.viewNode.options)
+      this.columnsData = this.viewNode.childrenTableView.columnsData
+      this.displayedColumns = this.viewNode.childrenTableView.displayedColumns
+    }
   }
-  // private setColumns(id: string) {
-  //   this.displayedColumnsForChildren = this.columnMap.get(id).children;
-  //   this.displayedColumnsForOptions = this.columnMap.get(id).options;
-  // }
+
   onChange(event: Event) {
     if (event.constructor.name === 'InputEvent') {
       this.isInput = true;
@@ -118,6 +99,7 @@ export class GridSettingsComponent implements OnInit {
   }
 
   canItShow(element: any): boolean {
+    console.log(element)
     switch(element.type) {
       case CellType.INPUT: return true;
       case CellType.SELECT: {

@@ -2,21 +2,27 @@
 <input type="file" (change)="uploadFile($event)" accept="*/xml" #file [hidden]="true">
 <!-- Вызываем панель для SpecifierNode -->
 <app-grid-settings-panel [currentTable]="dataSource" (deleteEvent)="deleteRow($event)"></app-grid-settings-panel>
-<div class="option-table" *ngIf="isOption">
+<div class="option-table">
     <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
         <ng-container *ngFor="let item of columnsData" matColumnDef={{item.columnId}}>
             <th mat-header-cell *matHeaderCellDef class="table-head"> {{item.columnName}} </th>
-            <td mat-cell *matCellDef="let element:">
+            <td mat-cell *matCellDef="let element">
+
                 <input matInput placeholder="Введите значение..." *ngIf="canItShow(element)" [(ngModel)]="element[item.columnId]"
                     (focusout)="onChange($event)" (input)="onChange($event)"/>
-                <mat-select *ngIf="canItShow(element)" [(value)] = element.selected (selectionChange) = changeGrammar(element) [hidden]="element.disabled">
+
+                <mat-select *ngIf="canItShow(element)" [(value)] = element.selected (selectionChange) = changeGrammar(element)>
                     <mat-option *ngFor="let option of element.value" [(value)]="option">{{option}}</mat-option>
                 </mat-select>
+                <!--  -->
             </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+</div>
+
+    
     <!-- <div class="option-table" *ngIf="isOption">
       <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
           <ng-container matColumnDef="option">

@@ -9,9 +9,9 @@ import { SpecifierProps } from '../graph/nodeProps/specifierProps';
 import { error } from '@angular/compiler/src/util';
 import { EventService } from './event.service';
 import { ViewNode } from '../view-model-nodes/view.model-node';
-import { Strings } from '../graph/nodeProps/optionStrings';
+import { Strings, CellType } from '../graph/nodeProps/optionStrings';
 import { GrammarService } from './grammar.service';
-import { type } from 'os';
+import { DataSource } from '@angular/cdk/table';
 
 const START_DATA = [
   new ActionNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}, [new Relation('classify')]),
@@ -20,16 +20,22 @@ const START_DATA = [
   // new EndNode('end', ['@name#, все понятно, до свидания!']),
 ];
 
+interface TableView {
+  dataSource: [],
+  optionTableView: any,
+  childrenTableView: any
+}
+
 @Injectable()
 export class ModelService {
 
   private _model: Node[];
-  private _viewModel: ViewNode[]
-
+  private _viewModel = new Map<string, ViewNode>()
+  private asrTypes: string[]
   constructor(private _http: HttpService,
               private _eventService: EventService,
               private _grammarService: GrammarService) {
-
+    this.asrTypes = ['Слитное распознавание', 'Распознавание по грамматике']
   }
 
   get model(): Node[] {
@@ -39,10 +45,10 @@ export class ModelService {
     this._model = model;
   }
 
-  get viewModel(): ViewNode[] {
+  get viewModel(): Map<string, ViewNode> {
     return this._viewModel;
   }
-  set viewModel(model: ViewNode[]) {
+  set viewModel(model: Map<string, ViewNode>) {
     this._viewModel = model;
   }
 
@@ -52,10 +58,10 @@ export class ModelService {
   }
 
   buildViewModel() {
-    this.viewModel = this.model.map(node => {
+     this.model.forEach(node => {
       switch(node.constructor.name) {
           case NodeType.ActionNode: {
-              return this.buildActionViewNodeData(node)
+              this._viewModel.set(node.id, this.buildActionViewNodeData(node))
           }
           // case NodeType.ClassifierNode: {
           //     return this.buildClassifierViewNodeData(node)
@@ -74,68 +80,95 @@ export class ModelService {
 
   private buildActionViewNodeData(node: Node): ViewNode {
     let actionViewNode = new ViewNode();
+    let tableView: TableView = this.createViewNodeOptions(node.type, node)
     actionViewNode.id = node.id;
     actionViewNode.type = node.type;
     actionViewNode.childrenTree = [new ViewNode(Strings.CHILDREN, node.id), new ViewNode(Strings.PARAMETRS, node.id)]
-    actionViewNode.options = [
-      {name: "Текст для синтеза", value: node.props.synthText},
-      {name: "Опции распознавания", value: node.props.options},
-      {name: "Способ распознавания", value: this._grammarService.parseGrammar},
-      {name: "Грамматика", value: this._grammarService.grammars}
-    ]
     actionViewNode.edgeList = node.edgeList,
-    actionViewNode.optionTableView = {
-      displayedColumn: ['name', 'value'],
-      columnData: [
-          {columnId: "name", columnName: "Наименование"},
-          {columnId: "value", columnName:"Значение"}
-      ]
-    }
-    actionViewNode.childrenTableView = {
-      childrenTableView: {
-        displayedColumn: ['child'],
-        columnData: [
-            {columnId: 'child', 'columnName': 'Дочерние узлы'},
-        ]
-      }
-    }
+    actionViewNode.options = tableView.dataSource
+    actionViewNode.optionTableView = tableView.optionTableView
+    actionViewNode.childrenTableView = tableView.childrenTableView
     return actionViewNode
   }
 
   addNodeToViewModel(id: string, nodeType: string, parentId: string) {
     let newNode = new ViewNode()
+    let tableView: TableView = this.createViewNodeOptions(nodeType)
     newNode.id = id
     newNode.type = nodeType
     newNode.parent = parentId
     newNode.childrenTree = [new ViewNode(Strings.CHILDREN, id), new ViewNode(Strings.PARAMETRS, id)]
-    switch(nodeType){
+    switch(nodeType) {
       case NodeType.ActionNode: {
-        newNode.options = [
-          {name: "Текст для синтеза", value: ''},
-          {name: "Опции распознавания", value: ''},
-          {name: "Способ распознавания", value: ''},
-          {name: "Грамматика", value: this._grammarService.grammars}
-        ]
         newNode.edgeList = []
-        newNode.optionTableView = {
-          displayedColumn: ['name', 'value'],
-          columnData: [
-              {columnId: "name", columnName: "Наименование"},
-              {columnId: "value", columnName:"Значение"}
-          ]
-        }
-        newNode.childrenTableView = {
-          childrenTableView: {
-            displayedColumn: ['child'],
-            columnData: [
-                {columnId: 'child', 'columnName': 'Дочерние узлы'},
-            ]
-          }
-        }
+        newNode.options = tableView.dataSource
+        newNode.optionTableView = tableView.optionTableView
+        newNode.childrenTableView = tableView.childrenTableView
       }
     } 
   }
 
+  createViewNodeOptions(type: string, node?: Node): TableView {
+    let dataSource;
+    let optionTableView;
+    let childrenTableView;
+    switch(type) {
+      case NodeType.ActionNode: {
+        let grammar = this._grammarService.parseGrammar(node === undefined ? node.props.grammar: '')
+        dataSource = [
+          {
+            name: "Текст для синтеза",
+            value: node === undefined ? node.props.synthText: '',
+            type: CellType.INPUT
+          },
+          {
+            name: "Опции распознавания",
+            value: node === undefined ? node.props.options: '',
+            type: CellType.INPUT
+          },
+          {
+            name: "Способ распознавания",
+            value: grammar,
+            type: CellType.SELECT,
+            selected: 
+            hidden: false
+          },
+          {
+            name: "Грамматика", 
+            value: this._grammarService.grammars, 
+            type: CellType.SELECT,
+            hidden: false
+          }
+        ]
+        optionTableView = {
+          displayedColumns: ['name', 'value'],
+          columnsData: [
+              {columnId: "name", columnName: "Наименование"},
+              {columnId: "value", columnName:"Значение"}
+          ]
+        }
+        childrenTableView = {
+          displayedColumns: ['child'],
+          columnsData: [
+              {columnId: 'child', 'columnName': 'Дочерние узлы'},
+          ]
+        }
+        return {
+          dataSource: dataSource,
+          optionTableView: optionTableView,
+          childrenTableView: childrenTableView
+        }
+      }
+    }
+  }
+
+  private parseAsrType(asrType: string): string {
+    if(asrType.indexOf('localhost') !== -1) {
+        return this.asrTypes[0]
+    } else {
+        return this.asrTypes[1]
+    }
+}
   // public addNodeToViewModel(id: string, nodeType: string, parentId: string): Node {
   //   let node: Node;
   //   let relation: Relation;

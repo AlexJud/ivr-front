@@ -2,7 +2,6 @@ import { ModelService } from './model.service';
 import { NodeType, Node } from '../graph/nodes/nodes';
 import { Strings, CellType } from '../graph/nodeProps/optionStrings';
 import { GrammarService } from './grammar.service';
-import { SettingsModel } from '../grid-settings/interfaces/settings.modelinterfaces'
 import { Injectable } from '@angular/core';
 
 @Injectable()

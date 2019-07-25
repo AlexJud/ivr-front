@@ -1,5 +1,4 @@
 import { Relation } from '../graph/nodes/relation';
-import { NestedNode } from '../services/model.service';
 import { NodeType, Node } from '../graph/nodes/nodes';
 import { Component, Inject, Injectable } from '@angular/core';
 import { GrammarService } from '../services/grammar.service';
@@ -9,10 +8,10 @@ export class ViewNode {
     parent?: string
     type?: string
     childrenTree?: ViewNode[]
-    options?: any[]//MAKE INTERFACE OR CLASS FOR THIS
     edgeList?: Relation[]
-    optionTableView?: {}//MAKE INTERFACE OR CLASS FOR THIS
-    childrenTableView?: {}//MAKE INTERFACE OR CLASS FOR THIS
+    options?: any[]//MAKE INTERFACE OR CLASS FOR THIS
+    optionTableView?: any//MAKE INTERFACE OR CLASS FOR THIS
+    childrenTableView?: any//MAKE INTERFACE OR CLASS FOR THIS
     constructor(id?: string, parent?: string, type?: string) {
       this.id = id;
       this.parent = parent;
