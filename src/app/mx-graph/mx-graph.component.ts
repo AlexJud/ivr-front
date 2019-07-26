@@ -6,6 +6,7 @@ import { collectExternalReferences } from '@angular/compiler';
 import { EventService } from '../services/event.service';
 import { Node, ActionNode } from '../graph/nodes/nodes';
 import { Relation } from '../graph/nodes/relation';
+import { ViewNode } from '../view-model-nodes/view.model-node';
 
 declare var require: any;
 const mx = require('mxgraph')({
@@ -35,21 +36,18 @@ export class MxGraphComponent implements OnInit {
   map = new Map();
   node: Node;
   constructor(private _modelService: ModelService,
-    private _eventService: EventService) {
+              private _eventService: EventService) {
 
     // console.log(`this model ${this.model}`);
   }
 
   ngOnInit() {
-    this._eventService._events.addListener("modelReceived", () => {
-      this.viewModel = this._modelService.viewModel;
-      this.buildModel();
-    })
-
     this.initializeMxGraph();
     this.initStyles();
     this.layout = new mx.mxCompactTreeLayout(this.graph);
     this.initListeners();
+    this.viewModel = this._modelService.viewModel;
+    this.buildModel();
     this._eventService._events.addListener('addNode', (data) => {
       this.addNode(data.node, data.parent);
     });
@@ -64,31 +62,31 @@ export class MxGraphComponent implements OnInit {
   }
 
   initListeners() {
-    // this.graph.setTooltips(true);
+    this.graph.setTooltips(true);
 
-    // var marker = new mx.mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
-    // this.graph.addMouseListener({
-    //   mouseDown: ((sender, me) => {
-    //     if (me.evt.button === 1) //left
-    //     {
-    //       if (me.getCell() !== null) {
-    //         // this.emitNameCell.emit(me.getCell().value);
-    //         if (me.getCell().parent.value === undefined) {
-    //           this._eventService.send('selectNode', me.getCell().children[0].value);
-    //         } else {
-    //           this._eventService.send('selectNode', me.getCell().value);
-    //         }
-    //       }
-    //     }
-    //   }),
-    //   mouseMove: function (sender, me) {
-    //     //     marker.process(me);
-    //   },
-    //   mouseUp: function () {
-    //   }
-    // });
+    var marker = new mx.mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
+    this.graph.addMouseListener({
+      mouseDown: ((sender, me) => {
+        if (me.evt.button === 1) //left
+        {
+          if (me.getCell() !== null) {
+            // this.emitNameCell.emit(me.getCell().value);
+            if (me.getCell().parent.value === undefined) {
+              this._eventService._events.emit('selectNode', me.getCell().children[0].value);
+            } else {
+              this._eventService._events.emit('selectNode', me.getCell().value);
+            }
+          }
+        }
+      }),
+      mouseMove: function (sender, me) {
+        //     marker.process(me);
+      },
+      mouseUp: function () {
+      }
+    });
 
-    // this.highlight = new mx.mxCellHighlight(this.graph, '#ff0000', 2);
+    this.highlight = new mx.mxCellHighlight(this.graph, '#ff0000', 2);
 
   }
 
@@ -150,38 +148,33 @@ export class MxGraphComponent implements OnInit {
         thiz._eventService._events.emit("nodeChanged");
       });
 
-      this.graph.popupMenuHandler.factoryMethod = function(menu, cell,evt)
+      this.graph.popupMenuHandler.factoryMethod = function(menu, cell, evt)
 				{
 					menu.addItem('Создать ActionNode', null, function()
 				    {
-              thiz._modelService.addNodeToViewModel("<new>", NodeType.ActionNode, cell.value);
+              thiz._modelService.addNewViewNode("<new>", NodeType.ActionNode, cell.value);
 				    });
-
 					menu.addItem('Создать ClassifierNode', null, function()
 				    {
-              thiz._modelService.addNodeToViewModel("<new>", NodeType.ClassifierNode, cell.value);
+              thiz._modelService.addNewViewNode("<new>", NodeType.ClassifierNode, cell.value);
 				    });
-            menu.addItem('Создать SpecifierNode', null, function()
+          menu.addItem('Создать SpecifierNode', null, function()
 				    {
-              thiz._modelService.addNodeToViewModel("<new>", NodeType.SpecifierNode, cell.value);
+              thiz._modelService.addNewViewNode("<new>", NodeType.SpecifierNode, cell.value);
             });
-            menu.addItem('Создать EndNode', null, function()
+          menu.addItem('Создать EndNode', null, function()
 				    {
-              thiz._modelService.addNodeToViewModel("<new>", NodeType.EndNode, cell.value);
+              thiz._modelService.addNewViewNode("<new>", NodeType.EndNode, cell.value);
 				    });
-
 				};
+      }
     }
-  }
 
-  private buildModel() {                                  // ОТРИСОВКА МОДЕЛЕЙ
+  private buildModel() {
     const mapNode = new Map();
-
-
     this.graph.getModel().beginUpdate();
-
     try {
-      this.model.forEach((node) => {
+      this.viewModel.forEach((node: ViewNode) => {
 
         let vObj = this.graph.insertVertex(this.parent, null, node.id, 0, 0, 120, 80, node.constructor.name);
        // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
@@ -193,7 +186,7 @@ export class MxGraphComponent implements OnInit {
         if (mapNode.get(k).edgeList.length !== 0) {
           mapNode.get(k).edgeList.forEach((nodeName) => {
             console.log(nodeName);
-            let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.id));
+            let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.child));
           });
         }
       });
@@ -237,12 +230,12 @@ export class MxGraphComponent implements OnInit {
   }
 
   // private initModel() {
-  //   const field1 = new mx.mxCell(Object.keys(this.model)[0], new mx.mxGeometry(0, 40, 140, 40),
+  //   const field1 = new mx.mxCell(Object.keys(this.viewModel)[0], new mx.mxGeometry(0, 40, 140, 40),
   //     'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0');
-  //
+  
   //   const field2 = new mx.mxCell('classify', new mx.mxGeometry(0, 40, 140, 40),
   //     'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0');
-  //
+  
   //   field1.vertex = true;
   //   field2.vertex = true;
   //   // Adds cells to the model in a single step
@@ -253,7 +246,7 @@ export class MxGraphComponent implements OnInit {
   //   style[mx.mxConstants.STYLE_FONTCOLOR] = '#774400';
   //   this.graph.getStylesheet().putCellStyle('ROUNDED', style);
   //   try {
-  //     const v1 = this.graph.insertVertex(this.parent, null, this.model['root'].constructor.name, 20, 50, 140, 80, 'ROUNDED;separatorColor=green;rounded=1;arcSize=10');
+  //     const v1 = this.graph.insertVertex(this.parent, null, this.viewModel['root'].constructor.name, 20, 50, 140, 80, 'ROUNDED;separatorColor=green;rounded=1;arcSize=10');
   //     const v2 = this.graph.insertVertex(this.parent, null, 'CLASSIFIER', 300, 120, 140, 80, 'ROUNDED;separatorColor=green;rounded=1;arcSize=10');
   //     v1.insert(field1);
   //     v2.insert(field2);
