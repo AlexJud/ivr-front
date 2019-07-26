@@ -37,7 +37,7 @@ export class SettingsModelService {
     }
 
     private buildActionNodeData(node: Node) {
-        let selectedAsrType = this.parseAsrType(node.props.grammar)
+        let selectedAsrType = 'this.parseAsrType(node.props.grammar)'
         let selectedGrammar = this._grammarService.parseGrammar(node.props.grammar)
         this.settingsModel[node.id].option.dataSource = [
             {name: Strings.TEXT_FOR_SYNTHESIZE, value: node.props.synthText, type: CellType.INPUT},
@@ -122,11 +122,5 @@ export class SettingsModelService {
         this.settingsModel[node.id].options.displayedColumns = ['name']
     }
 
-    private parseAsrType(asrType: string): string {
-        if(asrType.indexOf('localhost') !== -1) {
-            return this.asrTypes[0]
-        } else {
-            return this.asrTypes[1]
-        }
-    }
+
 }

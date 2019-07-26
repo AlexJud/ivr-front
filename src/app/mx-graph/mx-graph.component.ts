@@ -23,7 +23,7 @@ export class MxGraphComponent implements OnInit {
 
   @Output('getNameCellByClick') emitNameCell = new EventEmitter();
 
-  model;
+  viewModel;
   graph: any;
   parent: any;
   styleSheet = {};
@@ -42,7 +42,7 @@ export class MxGraphComponent implements OnInit {
 
   ngOnInit() {
     this._eventService._events.addListener("modelReceived", () => {
-      this.model = this._modelService.model;
+      this.viewModel = this._modelService.viewModel;
       this.buildModel();
     })
 

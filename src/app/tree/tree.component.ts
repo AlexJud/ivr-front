@@ -5,6 +5,7 @@ import {EventService} from '../services/event.service';
 import { ModelService } from '../services/model.service';
 import { BehaviorSubject } from 'rxjs';
 import { ViewNode } from '../view-model-nodes/view.model-node';
+import { Strings } from '../graph/nodeProps/optionStrings';
 
 
 
@@ -83,10 +84,10 @@ export class TreeComponent implements OnInit {
   hasChild = (_: number, node: ViewNode) => !!node.childrenTree && node.childrenTree.length > 0;
   onTreeClick(node: ViewNode) {
     this.activeNode = node;
-    const type = node.id === 'Дочерние узлы' ? 'children' : 'options'
+    const type = node.id === Strings.CHILDREN ? 'children' : 'options'
     this._eventService._events.emit('showProps', {
       type: type,
-      node: node.id
+      node: node.parent
     })
   }
 
@@ -112,10 +113,13 @@ export class TreeComponent implements OnInit {
   saveNode(id: string) {
     if(id !== undefined && id !== '') {
       this.addNodePressed = false;
-      this._modelService.addNodeToViewModel(id, this.nodeType, this.parentNode)
+      this._modelService.addNewViewNode(id, this.nodeType, this.parentNode)
     } else {
       this.addNodePressed = false;
     }
+    this.dataSource._data.next([...this._modelService.viewModel.values()]);
+    console.log(this._modelService.viewModel);
+    console.log(this.dataSource);
   }
 
   // deleteNode() {

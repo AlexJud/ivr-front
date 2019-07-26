@@ -1,8 +1,9 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { EventService } from 'src/app/services/event.service';
-import { ModelService } from 'src/app/services/model.service';
+import { ModelService, TableView } from 'src/app/services/model.service';
 import { Node, NodeType } from 'src/app/graph/nodes/nodes';
 import { SpecifierProps } from 'src/app/graph/nodeProps/specifierProps';
+import { ViewNode } from 'src/app/view-model-nodes/view.model-node';
 
 @Component({
   selector: 'app-grid-settings-panel',
@@ -29,21 +30,23 @@ export class GridSettingsPanelComponent implements OnInit {
   }
 
   addRow() {
-    this.currentTable.data.push(new SpecifierProps());
+    let tableView = this._modelService.createSpecifierViewNodeOptions()
+    this.currentTable.data.push(tableView.optionsDataSource[0]);
     this.currentTable._updateChangeSubscription();
+    console.log(this._modelService.viewModel);
   }
   deleteRow() {
     this.deleteEvent.emit()
   }
 
   private showButtons(nodeId: string) {
-    let currentNode: Node;
-    this._modelService.model.forEach((node) => {
+    let currentNode: ViewNode;
+    this._modelService.viewModel.forEach((node) => {
       if(node.id === nodeId) {
         currentNode = node;
       }
     });
-    switch (currentNode.constructor.name) {
+    switch (currentNode.type) {
       case NodeType.SpecifierNode: {
         this.showAdd = true;
         this.showDelete = true;

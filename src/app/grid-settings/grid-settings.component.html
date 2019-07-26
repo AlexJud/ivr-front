@@ -6,22 +6,28 @@
     <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
         <ng-container *ngFor="let item of columnsData" matColumnDef={{item.columnId}}>
             <th mat-header-cell *matHeaderCellDef class="table-head"> {{item.columnName}} </th>
-            <td mat-cell *matCellDef="let element">
-
-                <input matInput placeholder="Введите значение..." *ngIf="canItShow(element)" [(ngModel)]="element[item.columnId]"
-                    (focusout)="onChange($event)" (input)="onChange($event)"/>
-
-                <mat-select *ngIf="canItShow(element)" [(value)] = element.selected (selectionChange) = changeGrammar(element)>
-                    <mat-option *ngFor="let option of element.value" [(value)]="option">{{option}}</mat-option>
-                </mat-select>
-                <!--  -->
+            <td mat-cell *matCellDef="let element; let i = index">
+                <div [ngSwitch]="element.type[item.columnId]">
+                    <ng-template ngSwitchCase="0">
+                        <span>{{element[item.columnId]}}​</span>
+                    </ng-template>
+                    <ng-template ngSwitchCase="1">
+                        <input matInput placeholder="Введите значение..." [(ngModel)]="element[item.columnId]"/>
+                    </ng-template>
+                    <ng-template ngSwitchCase="2">
+                        <mat-select [(value)] = "element[item.columnId].selected" (selectionChange) = "changeGrammar(element, item.columnId, i)" 
+                            [disabled]="element[item.columnId].selected === null">
+                            <mat-option *ngFor="let option of element[item.columnId].value" [(value)]="option">{{option}}</mat-option>
+                        </mat-select>
+                    </ng-template>
+                </div>
             </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
 </div>
-
+<!-- (focusout)="onChange($event)" (input)="onChange($event)" -->
     
     <!-- <div class="option-table" *ngIf="isOption">
       <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">

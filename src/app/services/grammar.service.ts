@@ -17,7 +17,7 @@ export class GrammarService {
             if(grammarPath.indexOf(grammar) !== -1) {
                 return grammar
             } else {
-                return grammarPath
+                return null
             }
        }
    }
