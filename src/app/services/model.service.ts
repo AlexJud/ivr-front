@@ -12,10 +12,11 @@ import { ViewNode } from '../view-model-nodes/view.model-node';
 import { Strings, CellType } from '../graph/nodeProps/optionStrings';
 import { GrammarService } from './grammar.service';
 import { DataSource } from '@angular/cdk/table';
+import { EndProps } from '../graph/nodeProps/endProps';
 
 const START_DATA = [
-  new ActionNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}, [new Relation('classify')]),
-  new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
+  new ActionNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}, []),
+  // new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
   // new SpecifierNode('specifier', [new SpecifierProps()], [new Relation('end')] ),
   // new EndNode('end', ['@name#, все понятно, до свидания!']),
 ];
@@ -60,7 +61,7 @@ export class ModelService {
 
   buildViewModel() {
      this.model.forEach(node => {
-      switch(node.constructor.name) {
+      switch(node.type) {
           case NodeType.ActionNode: {
             this._viewModel.set(node.id, this.buildViewNodeData(node, false))
             break;
@@ -73,9 +74,10 @@ export class ModelService {
             this._viewModel.set(node.id, this.buildViewNodeData(node, false))
             break;
           }
-          // case NodeType.EndNode: {
-          //     return this.buildEndViewNodeData(node)
-          // }
+          case NodeType.EndNode: {
+            this._viewModel.set(node.id, this.buildViewNodeData(node, false))
+            break;
+          }
       }
   })
   // console.log('MODEL IS HERE!!!!!!', this.settingsModel);
@@ -107,7 +109,7 @@ export class ModelService {
       }
       case NodeType.EndNode: {
         tableView = this.createEndViewNodeOptions(isNew ? undefined : node)
-        viewNode.childrenTree = [new ViewNode(Strings.CHILDREN, node.id), new ViewNode(Strings.PARAMETRS, node.id)]
+        viewNode.childrenTree = [new ViewNode(Strings.PARAMETRS, node.id)]
         break;
       }
     }
@@ -122,6 +124,28 @@ export class ModelService {
     let node = {id: id, type: type, parent: parent}
     let newNode: ViewNode = this.buildViewNodeData(node, true)
     this._viewModel.set(newNode.id, newNode);
+    // this._eventService._events.emit('addNode', newNode)
+    this.addChildrenToParent(id, parent)
+    console.log(this.viewModel);
+  }
+
+  addChildrenToParent(child: string, parent: string) {
+    let parentViewNode = this.viewModel.get(parent)
+    parentViewNode.edgeList.push(
+      {
+        id: child,
+        match: '',
+        type: {
+          id: CellType.INPUT,
+          match: CellType.INPUT
+        }
+      }
+    )
+    console.log(parentViewNode);
+  }
+
+  deleteViewNode(id: string) {
+    this.viewModel.delete(id)
   }
 
   createActionViewNodeOptions(node?: Node): TableView {
@@ -141,7 +165,7 @@ export class ModelService {
       },
       {
         name: "Опции распознавания",
-        value: node === undefined ? '' : node.props.options,
+        value: node === undefined ? 'b=1&t=5000&nit=5000' : node.props.options,
         type: {
           name: CellType.SPAN,
           value: CellType.INPUT
@@ -179,16 +203,16 @@ export class ModelService {
     }
     childrenDataSource = [
       {
-        child: node === undefined ? '' : node.edgeList.map(child => child.id).join(),
+        id: node === undefined ? undefined : node.edgeList.map(child => child.id).join(),
         type: {
-          child: CellType.INPUT
+          id: CellType.INPUT
         }
       }
     ]
     childrenTableView = {
-      displayedColumns: ['child'],
+      displayedColumns: ['id'],
       columnsData: [
-          {columnId: 'child', 'columnName': Strings.CHILDREN},
+          {columnId: 'id', 'columnName': Strings.CHILDREN},
       ]
     }
     return {
@@ -211,19 +235,19 @@ export class ModelService {
     for(let i = 0; i < length; i++) {
       childrenDataSource.push(
         {
-          child: node === undefined ? '' : node.edgeList[i].id,
+          id: node === undefined ? '' : node.edgeList[i].id,
           match: node === undefined ? '' : node.edgeList[i].match.join(),
           type: {
-            child: CellType.INPUT,
+            id: CellType.INPUT,
             match: CellType.INPUT
           }
         }
       );
     }
     childrenTableView = {
-      displayedColumns: ['child', 'match'],
+      displayedColumns: ['id', 'match'],
       columnsData: [
-          {columnId: 'child', 'columnName': Strings.CHILDREN},
+          {columnId: 'id', 'columnName': Strings.CHILDREN},
           {columnId: 'match', 'columnName': Strings.KEYWORDS},
       ]
     }
@@ -251,7 +275,7 @@ export class ModelService {
         {
           varName: node === undefined ? '' : node.props[i].varName,
           synthText: node === undefined ? '' : node.props[i].synthText,
-          asrOptions: node === undefined ? '' : node.props[i].asrOptions,
+          asrOptions: node === undefined ? 'b=1&t=5000&nit=5000' : node.props[i].asrOptions,
           asrType: {
             value: this.asrTypes,
             selected: asrType
@@ -285,16 +309,16 @@ export class ModelService {
     }
     childrenDataSource = [
       {
-        child: node === undefined ? '' : node.edgeList.map(child => child.id).join(),
+        id: node === undefined ? '' : node.edgeList.map(child => child.id).join(),
         type: {
-          child: CellType.INPUT
+          id: CellType.INPUT
         }
       }
     ]
     childrenTableView = {
-      displayedColumns: ['child'],
+      displayedColumns: ['id'],
       columnsData: [
-          {columnId: 'child', 'columnName': Strings.CHILDREN},
+          {columnId: 'id', 'columnName': Strings.CHILDREN},
       ]
     }
     return {
@@ -308,7 +332,6 @@ export class ModelService {
   createEndViewNodeOptions(node?: Node): TableView {
     let optionsDataSource
     let optionTableView
-    let grammar = this._grammarService.parseGrammar(node === undefined ? '' : node.props.grammar)
     optionsDataSource = [
       {
         name: "Текст для синтеза",
@@ -317,36 +340,6 @@ export class ModelService {
           name: CellType.SPAN,
           value: CellType.INPUT
         }
-      },
-      {
-        name: "Опции распознавания",
-        value: node === undefined ? '' : node.props.options,
-        type: {
-          name: CellType.SPAN,
-          value: CellType.INPUT
-        }
-      },
-      {
-        name: "Способ распознавания",
-        value: {
-          value: this.asrTypes,
-          selected: this.parseAsrType(node === undefined ? '' : node.props.grammar)
-        },
-        type: {
-          name: CellType.SPAN,
-          value: CellType.SELECT
-        }
-      },
-      {
-        name: "Грамматика", 
-        value: {
-          value: this._grammarService.grammars, 
-          selected: grammar
-        },
-        type: {
-          name: CellType.SPAN,
-          value: CellType.SELECT
-        },
       },
     ]
     optionTableView = {
@@ -369,105 +362,109 @@ export class ModelService {
         return this.asrTypes[1]
     }
 }
-  // public addNodeToViewModel(id: string, nodeType: string, parentId: string): Node {
-  //   let node: Node;
-  //   let relation: Relation;
-  //   switch (nodeType) {
-  //     case NodeType.ActionNode: {
-  //       node = new ActionNode(id, new ActionProps(), []);
-  //       relation = new Relation(id);
-  //       break;
-  //     }
-  //     case NodeType.ClassifierNode: {
-  //       node = new ClassifierNode(id, []);
-  //       relation = new Relation(id);
-  //       break;
-  //     }
-  //     case NodeType.ExtractNode: {
-  //       node = new ExtractNode(id, new ExtractProps(), []);
-  //       relation = new Relation(id);
-  //       break;
-  //     }
-  //     case NodeType.ValidateNode: {
-  //       node = new ValidateNode(id, new ValidateProps());
-  //       relation = new Relation(id);
-  //       break;
-  //     }
-  //     case NodeType.SpecifierNode: {
-  //       node = new SpecifierNode(id, [], []);
-  //       relation = new Relation(id);
-  //       break;
-  //     }
-  //     case NodeType.EndNode: {
-  //       node = new EndNode(id, []);
-  //       relation = new Relation(id);
-  //       break;
-  //     }
-  //     default:
-  //       console.warn("Unknown node TYPE!!!");
-  //   }
-  //   this.model.push(node);
-  //   this.model.forEach((node) => {
-  //     if (node.id === parentId) {
-  //       node.edgeList.push(relation);
-  //     }
-  //   });
 
-  //   this._eventService._events.emit('addNode', {node: node, parent: parentId});
-  //   return node;
-  // }
+  convertModel() {
+    this.model = []
+    const viewArray = [...this.viewModel.values()]
+    viewArray.forEach((node) => {
+      let newNode: Node
+      switch(node.type) {
+        case NodeType.ActionNode: {
+          let actionProps = new ActionProps();
+          node.options.forEach((prop) => {
+            switch(prop.name) {
+              case Strings.TEXT_FOR_SYNTHESIZE: {
+                actionProps.synthText = prop.value
+                break
+              }
+              case Strings.ASR_OPTION: {
+                actionProps.options = prop.value
+                break
+              }
+              case Strings.ASR_TYPE: {
+                if(prop.value.selected === Strings.BUILTIN_GRAMMAR) {
+                  actionProps.grammar = 'http://localhost/theme:graph'
+                  break
+                }
+              }
+              case Strings.GRAMMAR: {
+                if (prop.value.selected === Strings.FILE_GRAMMAR) {
+                  actionProps.grammar = '/etc/asterisk/' + prop.value.selected
+                  break
+                }
+              }
+            }
+          })
+          let edgeList: Relation[] = []
+          node.edgeList.forEach((child) => {
+            edgeList.push(new Relation(child.id))
+          })
+          newNode = new ActionNode(node.id, actionProps, edgeList)
+          this.model.push(newNode)
+          break
+        }
 
-  getNode(nodeId: string): Node {
-    let currentNode: Node;
-    this.model.forEach((node) => {
-      if (node.id === nodeId) {
-        currentNode = node;
+        case NodeType.ClassifierNode: {
+          let edgeList: Relation[] = []
+          node.edgeList.forEach((child) => {
+            edgeList.push(new Relation(child.id, child.match.split(',')))
+          })
+          newNode = new ClassifierNode(node.id, edgeList)
+          this.model.push(newNode)
+          break
+        }
+
+        case NodeType.SpecifierNode: {
+          let specifierPropsArray: SpecifierProps[] = []
+          node.options.forEach((prop) => {
+            let specifierProps = new SpecifierProps()
+            specifierProps.varName = prop.varName
+            specifierProps.synthText = prop.synthText
+            specifierProps.asrOptions = prop.asrOptions
+            if(prop.asrType.selected === Strings.BUILTIN_GRAMMAR) {
+              specifierProps.grammar = 'http://localhost/theme:graph'
+            } else {
+              specifierProps.grammar = prop.grammar.value.selected
+            }
+            specifierProps.keywords = prop.keywords.split(',')
+            specifierPropsArray.push(specifierProps)
+          })
+          let edgeList: Relation[] = []
+          node.edgeList.forEach((child) => {
+            edgeList.push(new Relation(child.id))
+          })
+          newNode = new SpecifierNode(node.id, specifierPropsArray, edgeList)
+          this.model.push(newNode)
+          break
+        }
+        case NodeType.EndNode: {
+          let endProps = new EndProps()
+          endProps.synthText = node.options[0].value
+          newNode = new EndNode(node.id, endProps)
+          this.model.push(newNode)
+          break
+        }
       }
-    });
-    return currentNode;
+    })
+    console.log(this.model);
   }
 
   saveToJson() {
+    this.convertModel();
     this._http.sendModel(this.model).subscribe((data: any) => { console.log('OPA') },
       error => console.log(error));
     console.log(this.model);
   }
 
-  private requestModel() {
+  requestModel() {
     this._http.requestModel().subscribe((response: any) => {
-      this.model = response.map(node => {
-        switch (node.type) {
-          case NodeType.ActionNode: {
-            node = new ActionNode(node.id, node.props, node.edgeList);
-            return node;
-          }
-          case NodeType.ClassifierNode: {
-            node = new ClassifierNode(node.id, node.edgeList);
-            return node;
-          }
-          case NodeType.EndNode: {
-            node = new EndNode(node.id, node.props);
-            return node;
-          }
-          case NodeType.ExtractNode: {
-            node = new ExtractNode(node.id, node.props, node.edgeList);
-            return node;
-          }
-          case NodeType.SpecifierNode: {
-            node = new SpecifierNode(node.id, node.props, node.edgeList);
-            return node;
-          }
-          case NodeType.ValidateNode: {
-            node = new ValidateNode(node.id, node.props);
-            return node;
-          }
-        }
-      });
-      console.log(this.model);
-      this._eventService._events.emit('modelReceived');
+      this.model = response
+      console.log(response);
+      this.buildViewModel()
+      this._eventService._events.emit('updateModel');
     }, error => {
-      this.model = START_DATA;
-      this._eventService._events.emit("modelReceived")
+      // this.model = START_DATA;
+      // this._eventService._events.emit("modelReceived")
       console.log(error);
     })
   }

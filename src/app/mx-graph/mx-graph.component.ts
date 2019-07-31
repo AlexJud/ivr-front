@@ -48,17 +48,19 @@ export class MxGraphComponent implements OnInit {
     this.initListeners();
     this.viewModel = this._modelService.viewModel;
     this.buildModel();
-    this._eventService._events.addListener('addNode', (data) => {
-      this.addNode(data.node, data.parent);
+    this._eventService._events.addListener('addNode', (id) => {
+      this.addNode(id);
     });
     this._eventService._events.addListener('deleteNode', (id: string) => {
       this.deleteNode(id)
     });
-
+    this._eventService._events.addListener('updateModel', () => {
+      this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()))
+      this.buildModel()
+    })
     // Подписаться на получение Node для подстветки =>
     // this.highlightCellOn(NodeName); подсветка
     // this.highlightCellReset();  сброс
-
   }
 
   initListeners() {
@@ -67,12 +69,12 @@ export class MxGraphComponent implements OnInit {
     var marker = new mx.mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
     this.graph.addMouseListener({
       mouseDown: ((sender, me) => {
-        if (me.evt.button === 1) //left
+        if (me.evt.button === 0) //left
         {
           if (me.getCell() !== null) {
             // this.emitNameCell.emit(me.getCell().value);
             if (me.getCell().parent.value === undefined) {
-              this._eventService._events.emit('selectNode', me.getCell().children[0].value);
+              this._eventService._events.emit('selectNode', me.getCell().value);
             } else {
               this._eventService._events.emit('selectNode', me.getCell().value);
             }
@@ -90,9 +92,7 @@ export class MxGraphComponent implements OnInit {
 
   }
 
-  initStyles() {                                          // СТИЛИ КОМПОНЕНТОВ
-
-    //ACT NODE
+  initStyles() {
     let actNodeStyle = {};
     actNodeStyle[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_RECTANGLE;
     actNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
@@ -139,12 +139,22 @@ export class MxGraphComponent implements OnInit {
       this.graph.graphHandler.setRemoveCellsFromParent(false);
       this.graph.resetEdgesOnMove = true;
       this.graph.graphHandler.setSelectEnabled(false);
+      this.graph.enterStopsCellEditing = true
 
       const thiz = this;
 
       this.graph.addListener(mx.mxEvent.LABEL_CHANGED,  function (sender, evt) {
         const id = evt.properties.cell.value;
-        thiz._modelService.getNode("<new>").id = id;
+        const parent = evt.properties.cell.edges[0].source.value
+        thiz.map.set(id, evt.properties.cell);
+        let viewNode = thiz._modelService.viewModel.get(id)
+        console.log(evt);
+        console.log(sender);
+        if ( viewNode !== undefined) {
+          viewNode.id = id
+        } else {
+          thiz._modelService.addNewViewNode(id, evt.properties.cell.style, parent)
+        }
         thiz._eventService._events.emit("nodeChanged");
       });
 
@@ -152,20 +162,29 @@ export class MxGraphComponent implements OnInit {
 				{
 					menu.addItem('Создать ActionNode', null, function()
 				    {
-              thiz._modelService.addNewViewNode("<new>", NodeType.ActionNode, cell.value);
+              thiz.addNewNode('Укажите название', NodeType.ActionNode, cell.value)
 				    });
 					menu.addItem('Создать ClassifierNode', null, function()
 				    {
-              thiz._modelService.addNewViewNode("<new>", NodeType.ClassifierNode, cell.value);
+              thiz.addNewNode('Укажите название', NodeType.ClassifierNode, cell.value)
+              // thiz._modelService.addNewViewNode("<new>", NodeType.ClassifierNode, cell.value);
 				    });
           menu.addItem('Создать SpecifierNode', null, function()
 				    {
-              thiz._modelService.addNewViewNode("<new>", NodeType.SpecifierNode, cell.value);
+              thiz.addNewNode('Укажите название', NodeType.SpecifierNode, cell.value)
+              // thiz._modelService.addNewViewNode("<new>", NodeType.SpecifierNode, cell.value);
             });
           menu.addItem('Создать EndNode', null, function()
 				    {
-              thiz._modelService.addNewViewNode("<new>", NodeType.EndNode, cell.value);
-				    });
+              thiz.addNewNode('Укажите название', NodeType.EndNode, cell.value)
+              // thiz._modelService.addNewViewNode("<new>", NodeType.EndNode, cell.value);
+            });
+          menu.addItem('Удалить', null, function()
+				    {
+              thiz.deleteNode(cell.value)
+              // thiz._modelService.addNewViewNode("<new>", NodeType.EndNode, cell.value);
+            });
+            
 				};
       }
     }
@@ -176,26 +195,24 @@ export class MxGraphComponent implements OnInit {
     try {
       this.viewModel.forEach((node: ViewNode) => {
 
-        let vObj = this.graph.insertVertex(this.parent, null, node.id, 0, 0, 120, 80, node.constructor.name);
+        let vObj = this.graph.insertVertex(this.parent, null, node.id, 0, 0, 120, 80, node.type);
        // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
         this.map.set(node.id, vObj);
         mapNode.set(node.id, node);
       });
 
       this.map.forEach((v, k) => {
-        if (mapNode.get(k).edgeList.length !== 0) {
+        if (mapNode.get(k).edgeList !== undefined && mapNode.get(k).edgeList.length !== 0) {
           mapNode.get(k).edgeList.forEach((nodeName) => {
-            console.log(nodeName);
-            let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.child));
+            let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.id));
           });
         }
       });
     } catch (e) {
-      console.error(`Erorr: ${e}`);
+      console.error(`mx-graph.component Erorr: ${e}`);
     } finally {
       this.layout.execute(this.parent);
       this.graph.getModel().endUpdate();
-      // this.graph.setCellsLocked(true);
     }
   }
   // ПОДСВЕТКА ЯЧЕКИ
@@ -206,16 +223,34 @@ export class MxGraphComponent implements OnInit {
     this.highlight.resetHandler();
   }
 
-  public addNode(node?: Node, parent?: string) {
+  public addNode(id: string) {
+    const viewNode = this._modelService.viewModel.get(id)
     this.graph.getModel().beginUpdate();
     try {
-      let vObj = this.graph.insertVertex(this.parent, null, node.id, 0, 0, 120, 80, node.constructor.name);
+      let vObj = this.graph.insertVertex(this.parent, null, viewNode.id, 0, 0, 120, 80, viewNode.type);
       //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
-      this.map.set(node.id, vObj);
+      this.map.set(viewNode.id, vObj);
+      this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj);
+    } finally {
+      this.layout.execute(this.parent);
+      this.graph.getModel().endUpdate();
+    }
+  }
+
+  private addNewNode(id: string, type: string, parent: string) {
+    this.graph.getModel().beginUpdate();
+    let vObj
+    try {
+      vObj = this.graph.insertVertex(this.parent, null, id, 0, 0, 120, 80, type);
+      this.map.set(id, vObj);
       this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj);
     } finally {
       this.layout.execute(this.parent);
       this.graph.getModel().endUpdate();
+      let element = this.graph.view.getState(vObj).shape.node
+      var clickEvent  = document.createEvent ('MouseEvents');
+      clickEvent.initEvent ('dblclick', true, true);
+      element.dispatchEvent (clickEvent);
     }
   }
 
@@ -227,6 +262,8 @@ export class MxGraphComponent implements OnInit {
     } finally {
       this.graph.getModel().endUpdate();
     }
+    this._modelService.deleteViewNode(id)
+    this._eventService._events.emit("nodeChanged");
   }
 
   // private initModel() {

@@ -56,26 +56,27 @@ export class TreeComponent implements OnInit {
   }
 
   ngOnInit() {
-    // this._eventService._events.addListener('selectNode', (id: string) => {
-    //   let itemNode = this.itemNodeMap.get(id)
-    //   let flatNode = this.nestedNodeMap.get(itemNode)
-    //   this.nestedNodeMap.forEach((v,k) => {
-    //     v.checked = false;
-    //     this.treeControl.collapse(v)
-    //   })
-    //   this.treeControl.expand(flatNode)
-    //   flatNode.checked = true
-    //   for(let child of itemNode.children) {
-    //     if(child.id === 'Параметры') {
-    //       flatNode = this.nestedNodeMap.get(child)
-    //       break
-    //     } else {
-    //       flatNode = this.nestedNodeMap.get(child)
-    //     }
-    //   }
-
-    //   this.onTreeClick(flatNode)
-    // });
+    this._eventService._events.addListener('nodeChanged', () => {
+      this.dataSource._data.next([...this._modelService.viewModel.values()]);
+    })
+    this._eventService._events.addListener('updateModel', () => {
+      this.dataSource._data.next([...this._modelService.viewModel.values()]);
+    })
+    this._eventService._events.addListener('selectNode', (id: string) => {
+      const viewNode = this._modelService.viewModel.get(id)
+      this._modelService.viewModel.forEach((node) => {
+        this.treeControl.collapse(node)
+      })
+      this.treeControl.expand(viewNode)
+      for(const child of viewNode.childrenTree) {
+        if(child.id === 'Параметры') {
+          this.onTreeClick(child)
+          break
+        } else {
+          this.onTreeClick(child)
+        }
+      }
+    });
   }
 
   // isLevelMoreThenOne = (_: number, _nodeData: FlatNode) =>  {
@@ -118,8 +119,7 @@ export class TreeComponent implements OnInit {
       this.addNodePressed = false;
     }
     this.dataSource._data.next([...this._modelService.viewModel.values()]);
-    console.log(this._modelService.viewModel);
-    console.log(this.dataSource);
+    this._eventService._events.emit('addNode', id);
   }
 
   // deleteNode() {

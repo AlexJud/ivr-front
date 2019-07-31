@@ -8,7 +8,7 @@ export class ViewNode {
     parent?: string
     type?: string
     childrenTree?: ViewNode[]
-    edgeList?: Relation[]
+    edgeList?: any[]
     options?: any[]//MAKE INTERFACE OR CLASS FOR THIS
     optionTableView?: any//MAKE INTERFACE OR CLASS FOR THIS
     childrenTableView?: any//MAKE INTERFACE OR CLASS FOR THIS

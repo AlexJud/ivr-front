@@ -3,6 +3,7 @@ import { ExtractProps } from '../nodeProps/extractProps';
 import { ValidateProps } from '../nodeProps/validateProps';
 import { SpecifierProps } from '../nodeProps/specifierProps';
 import { ActionProps } from '../nodeProps/actionProps';
+import { EndProps } from '../nodeProps/endProps';
 
 export enum NodeType {
   ActionNode = "ActionNode",
@@ -23,7 +24,7 @@ export abstract class Node {
 export class ActionNode extends Node {
   props: ActionProps;
   type: NodeType = NodeType.ActionNode;
-  constructor(id: string, prop: ActionProps, child: Relation[]) {
+  constructor(id: string, prop: ActionProps, child?: Relation[]) {
     super();
     this.id = id;
     this.props = prop;
@@ -69,9 +70,9 @@ export class SpecifierNode extends Node {
 }
 
 export class EndNode extends Node {
-  props: string[];
+  props: EndProps;
   type: NodeType = NodeType.EndNode;
-  constructor(id: string, prop: string[]) {
+  constructor(id: string, prop: EndProps) {
     super();
     this.id = id;
     this.props = prop;
