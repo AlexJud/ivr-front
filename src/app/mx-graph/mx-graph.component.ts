@@ -95,30 +95,56 @@ export class MxGraphComponent implements OnInit {
   initStyles() {
     let actNodeStyle = {};
     actNodeStyle[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_RECTANGLE;
-    actNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
-    actNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#774400';
-    actNodeStyle[mx.mxConstants.STYLE_ROUNDED] = 1;
+    // actNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
+    actNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
+    actNodeStyle[mx.mxConstants.STYLE_FONTFAMILY] = 'Roboto';
+    actNodeStyle[mx.mxConstants.STYLE_FONTSIZE] = 16;
+    actNodeStyle[mx.mxConstants.STYLE_ROUNDED] = 0;
     actNodeStyle[mx.mxConstants.STYLE_ARCSIZE] = 10;
+    actNodeStyle[mx.mxConstants.STYLE_STROKECOLOR] = '#757575';
+    actNodeStyle[mx.mxConstants.STYLE_STROKEWIDTH] = 2;
+    actNodeStyle[mx.mxConstants.STYLE_FILLCOLOR] = '#09af00';
     this.graph.getStylesheet().putCellStyle('ActionNode', actNodeStyle);
 
     let classNodeStyle = {};
     classNodeStyle[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_RHOMBUS;
-    classNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
-    classNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#774400';
+    // classNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
+    classNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
+    classNodeStyle[mx.mxConstants.STYLE_FONTFAMILY] = 'Roboto';
+    classNodeStyle[mx.mxConstants.STYLE_FONTSIZE] = 16;
+    // classNodeStyle[mx.mxConstants.STYLE_ROUNDED] = 0;
+    // classNodeStyle[mx.mxConstants.STYLE_ARCSIZE] = 10;
+    classNodeStyle[mx.mxConstants.STYLE_STROKECOLOR] = '#757575';
+    classNodeStyle[mx.mxConstants.STYLE_STROKEWIDTH] = 2;
+    classNodeStyle[mx.mxConstants.STYLE_FILLCOLOR] = '#ee6002';
     this.graph.getStylesheet().putCellStyle('ClassifierNode', classNodeStyle);
 
     let specNodeStyle = {};
     specNodeStyle[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_HEXAGON;
-    specNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
-    specNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#774400';
+    // specNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
+    specNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
+    specNodeStyle[mx.mxConstants.STYLE_FONTFAMILY] = 'Roboto';
+    specNodeStyle[mx.mxConstants.STYLE_FONTSIZE] = 16;
+    specNodeStyle[mx.mxConstants.STYLE_STROKECOLOR] = '#757575';
+    specNodeStyle[mx.mxConstants.STYLE_STROKEWIDTH] = 2;
+    specNodeStyle[mx.mxConstants.STYLE_FILLCOLOR] = '#2196F3';
     this.graph.getStylesheet().putCellStyle('SpecifierNode', specNodeStyle);
 
     let endNodeStyle = {};
     endNodeStyle[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_ELLIPSE;
-    endNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
+    // endNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
     endNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#ffffff';
-    endNodeStyle[mx.mxConstants.STYLE_FILLCOLOR] = '#ff0000';
+    endNodeStyle[mx.mxConstants.STYLE_FONTFAMILY] = 'Roboto';
+    endNodeStyle[mx.mxConstants.STYLE_FONTSIZE] = 16;
+    endNodeStyle[mx.mxConstants.STYLE_STROKECOLOR] = '#757575';
+    endNodeStyle[mx.mxConstants.STYLE_STROKEWIDTH] = 2;
+    endNodeStyle[mx.mxConstants.STYLE_FILLCOLOR] = '#FF4081';
     this.graph.getStylesheet().putCellStyle('EndNode', endNodeStyle);
+
+    let edgeStyle = {};
+    edgeStyle[mx.mxConstants.STYLE_STROKECOLOR] = '#757575';
+    edgeStyle[mx.mxConstants.STYLE_STROKEWIDTH] = 2;
+    this.graph.getStylesheet().putCellStyle('Edge', edgeStyle);
 
     //this.styleCell = 'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0';
     //this.styleVertex = 'ROUNDED;separatorColor=green;rounded=1;arcSize=10';
@@ -141,15 +167,28 @@ export class MxGraphComponent implements OnInit {
       this.graph.graphHandler.setSelectEnabled(false);
       this.graph.enterStopsCellEditing = true
 
-      const thiz = this;
+      // this.graph.setCellsMovable(false);
+      // this.graph.setAutoSizeCells(true);
+      this.graph.setPanning(true);
+      this.graph.centerZoom = false;
+      this.graph.panningHandler.useLeftButtonForPanning = true;
 
+      const thiz = this;
+      mx.mxEvent.addMouseWheelListener(function (evt, up) {
+        mx.Print = false;
+        if (evt.altKey && up) {
+          thiz.graph.zoomIn();
+            mx.mxEvent.consume(evt);
+        } else if (evt.altKey) {
+          thiz.graph.zoomOut();
+            mx.mxEvent.consume(evt);
+        }
+    });
       this.graph.addListener(mx.mxEvent.LABEL_CHANGED,  function (sender, evt) {
         const id = evt.properties.cell.value;
         const parent = evt.properties.cell.edges[0].source.value
         thiz.map.set(id, evt.properties.cell);
         let viewNode = thiz._modelService.viewModel.get(id)
-        console.log(evt);
-        console.log(sender);
         if ( viewNode !== undefined) {
           viewNode.id = id
         } else {
@@ -204,7 +243,7 @@ export class MxGraphComponent implements OnInit {
       this.map.forEach((v, k) => {
         if (mapNode.get(k).edgeList !== undefined && mapNode.get(k).edgeList.length !== 0) {
           mapNode.get(k).edgeList.forEach((nodeName) => {
-            let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.id));
+            let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.id), 'Edge');
           });
         }
       });
@@ -230,7 +269,7 @@ export class MxGraphComponent implements OnInit {
       let vObj = this.graph.insertVertex(this.parent, null, viewNode.id, 0, 0, 120, 80, viewNode.type);
       //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
       this.map.set(viewNode.id, vObj);
-      this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj);
+      this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'Edge');
     } finally {
       this.layout.execute(this.parent);
       this.graph.getModel().endUpdate();
@@ -243,7 +282,7 @@ export class MxGraphComponent implements OnInit {
     try {
       vObj = this.graph.insertVertex(this.parent, null, id, 0, 0, 120, 80, type);
       this.map.set(id, vObj);
-      this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj);
+      this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'Edge');
     } finally {
       this.layout.execute(this.parent);
       this.graph.getModel().endUpdate();

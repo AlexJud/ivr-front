@@ -15,7 +15,7 @@ import { DataSource } from '@angular/cdk/table';
 import { EndProps } from '../graph/nodeProps/endProps';
 
 const START_DATA = [
-  new ActionNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}, []),
+  new ActionNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}),
   // new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
   // new SpecifierNode('specifier', [new SpecifierProps()], [new Relation('end')] ),
   // new EndNode('end', ['@name#, все понятно, до свидания!']),
@@ -201,14 +201,18 @@ export class ModelService {
           {columnId: "value", columnName: "Значение"}
       ]
     }
-    childrenDataSource = [
-      {
-        id: node === undefined ? undefined : node.edgeList.map(child => child.id).join(),
-        type: {
-          id: CellType.INPUT
+    if(node === undefined || node.edgeList === undefined) {
+      childrenDataSource = []  
+    } else {
+      childrenDataSource = [
+        {
+          id: node === undefined ? undefined : node.edgeList.map(child => child.id).join(),
+          type: {
+            id: CellType.INPUT
+          }
         }
-      }
-    ]
+      ]
+    }
     childrenTableView = {
       displayedColumns: ['id'],
       columnsData: [
@@ -230,7 +234,7 @@ export class ModelService {
     if(node !== undefined) {
       length = node.edgeList.length
     } else {
-      length = 1
+      length = 0
     }
     for(let i = 0; i < length; i++) {
       childrenDataSource.push(
@@ -307,14 +311,18 @@ export class ModelService {
         ]
       }
     }
-    childrenDataSource = [
-      {
-        id: node === undefined ? '' : node.edgeList.map(child => child.id).join(),
-        type: {
-          id: CellType.INPUT
+    if(node === undefined) {
+      childrenDataSource = []  
+    } else {
+      childrenDataSource = [
+        {
+          id: node === undefined ? undefined : node.edgeList.map(child => child.id).join(),
+          type: {
+            id: CellType.INPUT
+          }
         }
-      }
-    ]
+      ]
+    }
     childrenTableView = {
       displayedColumns: ['id'],
       columnsData: [
