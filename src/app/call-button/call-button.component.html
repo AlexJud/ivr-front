@@ -1,5 +1,17 @@
-<div class="call-reg-buttons">
-  <button id="reg" mat-raised-button color="primary" (click)="login()">Зарегистрироваться</button>
-  <button id="call" mat-raised-button color="warn" (click)="makeCall()">Позвонить</button>
+<div class="head" color="primary">
+  <mat-button-toggle appearance="standart" 
+    (click)="login()" 
+    [ngClass]="{'connected': bttns.asteriskButton.color}">{{bttns.asteriskButton.value}}</mat-button-toggle>
+  <mat-button-toggle 
+    appearance="legacy"
+    [(checked)]="bttns.socketButton.checked"
+    (click)="toggleWebSocket()"
+    [ngClass]="{'connected': bttns.socketButton.color}">{{bttns.socketButton.value}}</mat-button-toggle>
   <audio id="audio_remote" autoplay="autoplay"></audio>
 </div>
+<mat-progress-bar mode="indeterminate" *ngIf="isProgress"></mat-progress-bar>
+<br/>
+<div class="buttons">
+  <button mat-raised-button color="primary" (click)="makeCall()" [(disabled)]="bttns.callButton.disabled">Позвонить</button>
+</div>
+<app-call-viewer></app-call-viewer>

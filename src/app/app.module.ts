@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 // import { RingButtonComponent } from './ring-button/ring-button.component';
@@ -34,6 +34,14 @@ import { HttpService } from './services/http.service';
 import { HttpClientModule } from '@angular/common/http';
 import { GrammarService } from './services/grammar.service';
 import { SettingsModelService } from './services/build.settings.model.service';
+import { SidnavTestComponent } from './sidnav-test/sidnav-test.component';
+import { Routes, RouterModule } from '@angular/router';
+import { WebSocketAPI } from './services/WebSocketAPI';
+import { CallViewerComponent } from './call-viewer/call-viewer.component';
+
+const appRoutes: Routes =[
+  { path: 'sidenav', component: SidnavTestComponent }
+];
 
 @NgModule({
   declarations: [
@@ -45,10 +53,13 @@ import { SettingsModelService } from './services/build.settings.model.service';
     TreeComponent,
     TreePanelComponent,
     GridSettingsComponent,
-    GridSettingsPanelComponent
+    GridSettingsPanelComponent,
+    SidnavTestComponent,
+    CallViewerComponent
   ],
   imports: [
     BrowserModule,
+    RouterModule.forRoot(appRoutes),
     BrowserAnimationsModule,
     MatToolbarModule,
     MatGridListModule,
@@ -69,7 +80,8 @@ import { SettingsModelService } from './services/build.settings.model.service';
     FormsModule,
     HttpClientModule
   ],
-  providers: [ ModelService, EventService, HttpService, GrammarService, SettingsModelService ],
-  bootstrap: [AppComponent]
+  providers: [ ModelService, EventService, HttpService, GrammarService, SettingsModelService, WebSocketAPI ],
+  bootstrap: [AppComponent],
+  exports: [RouterModule]
 })
 export class AppModule { }

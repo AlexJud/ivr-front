@@ -1,0 +1,42 @@
+// .example-container {
+//     position: absolute;
+//     top: 0;
+//     bottom: 0;
+//     left: 0;
+//     right: 0;
+//     background: #eee;
+//   }
+//   mat-sidenav {
+//     width: 200px;
+//   }
+//   mat-drawer-inner-container {
+//     display: block;
+//   }
+//   .drawerHeader {
+//     display: block;
+//   }
+// mat-sidenav-content {
+//     background-color: transparent;
+//     opacity: 0.1;
+//   }
+mat-drawer-container {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    position: absolute;
+  }
+  
+  mat-drawer, mat-drawer-content {
+    padding: 16px;
+  }
+
+  mat-drawer {
+    background-color: lightgrey;
+    width: 25rem;
+
+  }
+  button {
+      margin-left: 500px
+  }

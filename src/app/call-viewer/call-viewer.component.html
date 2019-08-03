@@ -1,0 +1,4 @@
+<div>
+    <mat-card class="userMessage" [(ngModel)]="userMessage" *ngFor="let message of userMessages">Привет</mat-card>
+    <mat-card class="serverMessage" [(ngModel)]="serverMessage" *ngFor="let message of serverMessages">{{message}}</mat-card>
+</div>

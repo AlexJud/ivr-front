@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { WebSocketAPI } from '../services/WebSocketAPI';
+import { EventService } from '../services/event.service';
 declare var SIPml: any;
 
 @Component({
@@ -14,14 +16,39 @@ export class CallButtonComponent implements OnInit {
   callSession;
   registerSession;
   create;
-
-  constructor() {
+  bttns: any
+  isProgress = false
+  events: any
+  constructor(private _webSocket: WebSocketAPI,
+              private _eventService: EventService) {
+    this.bttns = {
+      socketButton: {
+        color: false,
+        checked: false,
+        value: 'Сервер: соединить',
+      },
+      asteriskButton: {
+        color: false,
+        checked: false,
+        value: 'Asterisk: соединить',
+      },
+      callButton: {
+        color: 'primary',
+        disabled: false,
+      }
+    }
+    this.events = this.eventsListener
   }
 
   ngOnInit() {
     //Initialize the engine
     SIPml.init(/*this.readyCallback, this.errorCallback*/);
-    
+    this._eventService._events.addListener('socketConnected', () => {
+      this.bttns.socketButton.color = true;
+      this.bttns.socketButton.value = 'Сервер: установлено';
+      this.isProgress = false;
+      this.bttns.socketButton.checked = true
+    })
     // this.oConfigCall = {
     //   audio_remote: document.getElementById('audio_remote'),
     //   bandwidth: { audio: undefined, video: undefined },
@@ -31,6 +58,18 @@ export class CallButtonComponent implements OnInit {
     //     { name: 'language', value: '\"en,fr\"' }
     //   ]
     // };
+  }
+  
+  toggleWebSocket() {
+    if(!this.bttns.socketButton.checked) {
+      this.isProgress = true
+      this._webSocket._connect()
+    } else {
+      this._webSocket._disconnect()
+      this.bttns.socketButton.color = ''
+      this.bttns.socketButton.value = 'Сервер: соединить'
+      this.bttns.socketButton.checked = false
+    }
   }
 
   createSipStack() {
@@ -43,7 +82,7 @@ export class CallButtonComponent implements OnInit {
       websocket_proxy_url: 'wss://192.168.1.87:8089/ws', // optional
       ice_servers: '[{ url: \'stun:stun.l.google.com:19302\'}]',
       // enable_rtcweb_breaker: false, // optional
-      events_listener: { events: '*', listener: this.eventsListener }, // optional: '*' means all events
+      events_listener: { events: '*', listener: this.events }, // optional: '*' means all events
       sip_headers: [ // optional
         { name: 'User-Agent', value: 'IM-client/OMA1.0 sipML5-v1.0.0.0' },
         { name: 'Organization', value: 'Doubango Telecom' }
@@ -80,7 +119,9 @@ export class CallButtonComponent implements OnInit {
   }
 
   login() {
+    this.isProgress = true
     this.createSipStack();
+    this.isProgress = false
   }
 
   makeCall = function(){
@@ -128,6 +169,8 @@ export class CallButtonComponent implements OnInit {
   //   }
   // }
 
+
+  
   fastCall() {
     SIPml.init(
       function(e){

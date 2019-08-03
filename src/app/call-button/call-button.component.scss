@@ -1,6 +1,25 @@
-.call-reg-buttons {
+.buttons {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
   width: 100%;
+  padding: 10px 10px 10px 10px
+}
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
+  padding: 10px 10px 10px 10px;
+  background-color: #3f51b5;
+  height: 44px;
+}
+mat-button-toggle {
+  font-weight: bold;
+  background-color: #f44336;
+  color: white;
+}
+
+.connected {
+  background-color:#43A047;
 }

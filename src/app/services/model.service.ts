@@ -1,7 +1,7 @@
 import { ExtractProps } from './../graph/nodeProps/extractProps';
 import { ActionProps } from './../graph/nodeProps/actionProps';
 import { Injectable } from '@angular/core';
-import { ExtractNode, ActionNode, Node, ClassifierNode, NodeType, ValidateNode, SpecifierNode, EndNode } from '../graph/nodes/nodes';
+import { ActionNode, Node, ClassifierNode, NodeType, SpecifierNode, EndNode } from '../graph/nodes/nodes';
 import { Relation } from '../graph/nodes/relation';
 import { HttpService } from './http.service';
 import { ValidateProps } from '../graph/nodeProps/validateProps';

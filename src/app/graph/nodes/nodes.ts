@@ -8,8 +8,8 @@ import { EndProps } from '../nodeProps/endProps';
 export enum NodeType {
   ActionNode = "ActionNode",
   ClassifierNode = "ClassifierNode",
-  ExtractNode = "ExtractNode",
-  ValidateNode = "ValidateNode",
+  // ExtractNode = "ExtractNode",
+  // ValidateNode = "ValidateNode",
   SpecifierNode = "SpecifierNode",
   EndNode = "EndNode"
 }
@@ -31,16 +31,16 @@ export class ActionNode extends Node {
     this.edgeList = child;
   }
 }
-export class ExtractNode extends Node {
-  props: ExtractProps;
-  type: NodeType = NodeType.ExtractNode;
-  constructor(id: string, prop: ExtractProps, child: Relation[]) {
-    super();
-    this.id = id;
-    this.edgeList = child;
-    this.props = prop;
-  }
-}
+// export class ExtractNode extends Node {
+//   props: ExtractProps;
+//   type: NodeType = NodeType.ExtractNode;
+//   constructor(id: string, prop: ExtractProps, child: Relation[]) {
+//     super();
+//     this.id = id;
+//     this.edgeList = child;
+//     this.props = prop;
+//   }
+// }
 export class ClassifierNode extends Node {
   type: NodeType = NodeType.ClassifierNode;
   constructor(id: string, child: Relation[]) {
@@ -49,15 +49,15 @@ export class ClassifierNode extends Node {
     this.edgeList = child;
   }
 }
-export class ValidateNode extends Node {
-  props: ValidateProps;
-  type: NodeType = NodeType.ValidateNode;
-  constructor(id: string, props: ValidateProps) {
-    super();
-    this.id = id;
-    this.props = props;
-  }
-}
+// export class ValidateNode extends Node {
+//   props: ValidateProps;
+//   type: NodeType = NodeType.ValidateNode;
+//   constructor(id: string, props: ValidateProps) {
+//     super();
+//     this.id = id;
+//     this.props = props;
+//   }
+// }
 export class SpecifierNode extends Node {
   props: SpecifierProps[];
   type: NodeType = NodeType.SpecifierNode;
