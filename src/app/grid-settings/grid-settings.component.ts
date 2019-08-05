@@ -121,7 +121,7 @@ export class GridSettingsComponent implements OnInit {
   }
 
   uploadFile(event: any) {
-    this._http.snedGrammarFile(event.target.files[0]).subscribe((response) => {
+    this._http.sendGrammarFile(event.target.files[0]).subscribe((response) => {
       this._grammarService.grammars.push(event.target.files[0].name)
       this.dataSource.data.forEach(item => {
         if (item.option === Strings.GRAMMAR) {

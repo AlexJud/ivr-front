@@ -36,7 +36,7 @@ export class HttpService {
           'Something bad happened; please try again later.');
     }
 
-    snedGrammarFile(file: any): Observable<HttpResponse<Object>> {
+    sendGrammarFile(file: any): Observable<HttpResponse<Object>> {
       const headers = new HttpHeaders({
         'Authorization': 'Basic dXNlcjpwYXNzd29yZA=='
       })

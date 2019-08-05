@@ -6,7 +6,7 @@ import { EventService } from './event.service';
 
 @Injectable()
 export class WebSocketAPI {
-    webSocketEndPoint: string = 'https://192.168.1.74:8080/ws';
+    webSocketEndPoint: string = 'https://192.168.1.74:8080/wss';
     topic: string = "/topic/greetings";
     stompClient: any;
     // appComponent: AppComponent;
@@ -28,7 +28,12 @@ export class WebSocketAPI {
                 _this.onMessageReceived(sdkEvent);
             });
             //_this.stompClient.reconnect_delay = 2000;
-        }, this.errorCallBack);
+        }, (error) =>{
+            console.log("errorCallBack -> " + error)
+        if(error.indexOf('Lost connection') !== -1) {
+            _this._eventService._events.emit('socketLost')
+        }
+        });
     };
 
     _disconnect() {
@@ -39,12 +44,16 @@ export class WebSocketAPI {
     }
 
     // on error, schedule a reconnection attempt
-    errorCallBack(error) {
-        console.log("errorCallBack -> " + error)
-        setTimeout(() => {
-            this._connect();
-        }, 5000);
-    }
+    // errorCallBack(error) {
+    //     let _this = this
+    //     console.log("errorCallBack -> " + error)
+    //     if(error.indexOf('Lost connection') !== -1) {
+    //         _this._eventService._events.emit('socketLost')
+    //     }
+    //     setTimeout(() => {
+    //         this._connect();
+    //     }, 5000);
+    // }
 
 	/**
 	 * Send message to sever via web socket
@@ -57,7 +66,7 @@ export class WebSocketAPI {
 
     onMessageReceived(message) {
         console.log("Message Recieved from Server :: " + message);
-        this._eventService._events.emit('serverMessage', message)
+        this._eventService._events.emit('messageRecieved', message)
         // this.appComponent.handleMessage(JSON.stringify(message.body));
     }
 }

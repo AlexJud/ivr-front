@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { ModelService } from './services/model.service';
 import { EventService } from './services/event.service';
 
@@ -8,6 +8,7 @@ import { EventService } from './services/event.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent /*implements AfterViewInit*/ {
+
   title = 'voice-ivr-demo';
 
   constructor(private _modelService: ModelService,

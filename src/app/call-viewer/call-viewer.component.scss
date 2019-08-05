@@ -1,0 +1,50 @@
+.chat {
+    height: calc(100% - 164px);
+    background-color: #EEEEEE;
+}
+.serverMessage {
+    background-color: lightblue;
+    margin: auto 170px 7px auto;
+    padding: 5px 0 5px 10px;
+}
+
+.userMessage {
+    background-color: lightgreen;
+    margin: auto auto 7px 170px;
+    padding: 5px 0 5px 10px;
+}
+
+.systemMessageInfo {
+    background-color: lightyellow;
+    width: 15rem;
+    margin: auto auto 7px auto;
+    padding: 5px 0 5px 10px;
+    height: 28px;
+    font-weight: bold;
+}
+
+.systemMessageError {
+    background-color: lightcoral;
+}
+
+mat-card-footer {
+    font-size: 10px;
+    margin: 0px 5px 0px 0px;
+    text-align: right;
+}
+
+::ng-deep .mat-card-header-text {
+    margin: 0px !important
+}
+
+mat-card-subtitle {
+    margin-bottom: 0px;
+}
+
+mat-card-content {
+    margin-bottom: 0px;
+}
+
+mat-card-header {
+    height: 20px;
+}

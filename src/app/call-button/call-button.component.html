@@ -1,17 +1,28 @@
 <div class="head" color="primary">
   <mat-button-toggle appearance="standart" 
-    (click)="login()" 
-    [ngClass]="{'connected': bttns.asteriskButton.color}">{{bttns.asteriskButton.value}}</mat-button-toggle>
-  <mat-button-toggle 
+    (click)="toggleAsterisk()"
+    [ngClass]="{'connected': bttns.asteriskButton.color}">
+      {{bttns.asteriskButton.value}}
+  </mat-button-toggle>
+  <mat-button-toggle appearance="standart"  
     appearance="legacy"
     [(checked)]="bttns.socketButton.checked"
     (click)="toggleWebSocket()"
-    [ngClass]="{'connected': bttns.socketButton.color}">{{bttns.socketButton.value}}</mat-button-toggle>
+    [ngClass]="{'connected': bttns.socketButton.color}">
+      {{bttns.socketButton.value}}
+  </mat-button-toggle>
   <audio id="audio_remote" autoplay="autoplay"></audio>
 </div>
 <mat-progress-bar mode="indeterminate" *ngIf="isProgress"></mat-progress-bar>
-<br/>
 <div class="buttons">
-  <button mat-raised-button color="primary" (click)="makeCall()" [(disabled)]="bttns.callButton.disabled">Позвонить</button>
+  <button mat-raised-button
+    (click)="toggleCall()"
+    [(disabled)]="bttns.callButton.disabled"
+    [ngClass]="{'calling': bttns.callButton.color}">
+      <mat-icon>{{bttns.callButton.icon}}</mat-icon>&nbsp;{{bttns.callButton.value}}
+  </button>
+  <button mat-raised-button *ngIf="!bttns.callButton.disabled" (click)="callView.clear()">
+      <mat-icon>delete</mat-icon>&nbsp;Очистить Диалог
+  </button>
 </div>
-<app-call-viewer></app-call-viewer>
+<app-call-viewer #callView></app-call-viewer>

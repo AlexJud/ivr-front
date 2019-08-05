@@ -1,4 +1,18 @@
-<div>
-    <mat-card class="userMessage" [(ngModel)]="userMessage" *ngFor="let message of userMessages">Привет</mat-card>
-    <mat-card class="serverMessage" [(ngModel)]="serverMessage" *ngFor="let message of serverMessages">{{message}}</mat-card>
+<div id="chat" class="chat" #scroll>
+    <mat-card [ngClass]="{'serverMessage': message.style.isServerMessage,
+                          'userMessage': message.style.isUserMessage,
+                          'systemMessageInfo': message.style.isSystemMessageInfo,
+                          'systemMessageError': message.style.isSysytemMessageError}"
+              
+              *ngFor="let message of messages">
+      <mat-card-header *ngIf="message.name !== undefined">
+        <mat-card-subtitle>{{message.name}}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        {{message.message}}
+      </mat-card-content>
+      <mat-card-footer>
+        {{message.header}}
+      </mat-card-footer>
+    </mat-card>
 </div>

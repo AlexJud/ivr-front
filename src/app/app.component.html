@@ -1,25 +1,25 @@
 <mat-drawer-container class="example-container" hasBackdrop= "false">
-    <mat-drawer #sideNav mode="side" opened="false" position="end">
-      <app-call-button class="app-call-button" ></app-call-button>
-    </mat-drawer>
-    <mat-drawer-content>
-      <div class="wrapper">
-        <div class="content">
-          <app-header></app-header>
-          <app-grid-toolbar #data (toggleDrawer)="sideNav.toggle()"></app-grid-toolbar>
-            <div class="tree-container">
-              <app-tree class="tree"></app-tree>
-            </div>
-            <div class="mx-graph">
-              <app-mx-graph (getNameCellByClick)="data.showData($event)" class="mxGraph"></app-mx-graph>
-            </div>
-        </div>
-          <div class="footer">
-          <app-grid-settings></app-grid-settings>
-        </div>
+  <mat-drawer #sideNav mode="side" opened="false" position="end">
+    <app-call-button class="app-call-button"></app-call-button>
+  </mat-drawer>
+  <mat-drawer-content>
+    <div class="wrapper">
+      <div class="content">
+        <app-header></app-header>
+        <app-grid-toolbar #data (toggleDrawer)="sideNav.toggle()"></app-grid-toolbar>
+          <div class="tree-container">
+            <app-tree class="tree"></app-tree>
+          </div>
+          <div class="mx-graph">
+            <app-mx-graph (getNameCellByClick)="data.showData($event)" class="mxGraph"></app-mx-graph>
+          </div>
       </div>
-      <!-- <button (click)="sideNav.toggle()" mat-button>Toggle SideNav</button> -->
-      <!-- <button (click)="onTogglePosition(nav_position)" mat-button>Toggle Position {{ nav_position }}</button> -->
-    </mat-drawer-content>
-  </mat-drawer-container>
+        <div class="footer">
+        <app-grid-settings></app-grid-settings>
+      </div>
+    </div>
+    <!-- <button (click)="sideNav.toggle()" mat-button>Toggle SideNav</button> -->
+    <!-- <button (click)="onTogglePosition(nav_position)" mat-button>Toggle Position {{ nav_position }}</button> -->
+  </mat-drawer-content>
+</mat-drawer-container>
 <!-- <router-outlet></router-outlet> -->
