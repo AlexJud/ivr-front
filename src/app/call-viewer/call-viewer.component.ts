@@ -35,7 +35,7 @@ export class CallViewerComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this._eventService._events.addListener('messageRecieved', (message) => {
+    this._eventService._events.addListener('messageReceived', (message) => {
       console.log('%c Message recieved', this.logStyle);
       console.log(JSON.parse(message.body));
       this.messageHandler(JSON.parse(message.body))

@@ -112,9 +112,9 @@ export class CallButtonComponent implements OnInit {
   toggleWebSocket() {
     if (!this.bttns.socketButton.checked) {
       this.isProgress = true
-      this._webSocket._connect()
+      this._webSocket.connect()
     } else {
-      this._webSocket._disconnect()
+      this._webSocket.disconnect()
       this.bttns.socketButton.color = ''
       this.bttns.socketButton.value = 'Сервер: соединить'
       this.bttns.socketButton.checked = false
@@ -149,7 +149,8 @@ export class CallButtonComponent implements OnInit {
       impu: 'sip:1060@192.168.1.87', // mandatory: valid SIP Uri (IMS Public Identity)
       password: 'password', // optional
       websocket_proxy_url: 'wss://192.168.1.87:8089/ws', // optional
-      ice_servers: '[{ url: \'stun:stun.l.google.com:19302\'}]',
+      // ice_servers: '[{ url: \'stun:stun.l.google.com:19302\'}]',
+      ice_servers: '[]',
       // enable_rtcweb_breaker: false, // optional
       events_listener: { events: '*', listener: (e) => {
         if (e.type == 'started') {
