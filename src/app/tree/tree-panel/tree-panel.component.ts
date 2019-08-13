@@ -1,7 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ModelService } from '../../services/model.service';
 import { NodeType } from 'src/app/graph/nodes/nodes';
-import { TreeComponent } from '../tree.component';
 import { EventService } from 'src/app/services/event.service';
 
 

@@ -20,7 +20,7 @@ import { HeaderComponent } from './header/header.component';
 import { GridToolbarComponent } from './grid-toolbar/grid-toolbar.component';
 import { CallButtonComponent } from './call-button/call-button.component';
 import { MxGraphComponent } from './mx-graph/mx-graph.component';
-import { TreeComponent } from './tree/tree.component';
+// import { TreeComponent } from './tree/tree.component';
 import { TreePanelComponent } from './tree/tree-panel/tree-panel.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ModelService } from './services/model.service';
@@ -34,14 +34,13 @@ import { HttpService } from './services/http.service';
 import { HttpClientModule } from '@angular/common/http';
 import { GrammarService } from './services/grammar.service';
 import { SettingsModelService } from './services/build.settings.model.service';
-import { SidnavTestComponent } from './sidnav-test/sidnav-test.component';
 import { Routes, RouterModule } from '@angular/router';
 import { WebSocketAPI } from './services/WebSocketAPI';
 import { CallViewerComponent } from './call-viewer/call-viewer.component';
 
-const appRoutes: Routes =[
-  { path: 'sidenav', component: SidnavTestComponent }
-];
+// const appRoutes: Routes =[
+//   { path: 'sidenav', component: SidnavTestComponent }
+// ];
 
 @NgModule({
   declarations: [
@@ -50,16 +49,15 @@ const appRoutes: Routes =[
     GridToolbarComponent,
     CallButtonComponent,
     MxGraphComponent,
-    TreeComponent,
+    // TreeComponent,
     TreePanelComponent,
     GridSettingsComponent,
     GridSettingsPanelComponent,
-    SidnavTestComponent,
     CallViewerComponent
   ],
   imports: [
     BrowserModule,
-    RouterModule.forRoot(appRoutes),
+    // RouterModule.forRoot(appRoutes),
     BrowserAnimationsModule,
     MatToolbarModule,
     MatGridListModule,

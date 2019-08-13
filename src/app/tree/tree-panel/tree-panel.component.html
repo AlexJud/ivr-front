@@ -7,9 +7,7 @@
 
   <mat-menu #nodeNames="matMenu">
     <ng-template matMenuContent let-typeName="typeName">
-    <!-- <div *ngFor="let type of types"> -->
       <button *ngFor="let node of nodes" mat-menu-item (click)="add(node, typeName)">{{node}}</button>
-    <!-- </div> -->
   </ng-template>
   </mat-menu>
   <button mat-icon-button (click)="delete()"><mat-icon>delete</mat-icon></button>
