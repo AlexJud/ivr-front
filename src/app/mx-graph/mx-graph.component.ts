@@ -5,6 +5,7 @@ import { EventService } from '../services/event.service';
 import { Node } from '../graph/nodes/nodes';
 import { ViewNode } from '../view-model-nodes/view.model-node';
 
+
 declare var require: any;
 const mx = require('mxgraph')({
   mxImageBasePath: 'assets/mxgraph/images',
