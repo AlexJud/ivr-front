@@ -1,11 +1,8 @@
 import { NodeType } from './../graph/nodes/nodes';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ModelService } from '../services/model.service';
-import { mxgraph } from 'mxgraph';
-import { collectExternalReferences } from '@angular/compiler';
 import { EventService } from '../services/event.service';
-import { Node, ActionNode } from '../graph/nodes/nodes';
-import { Relation } from '../graph/nodes/relation';
+import { Node } from '../graph/nodes/nodes';
 import { ViewNode } from '../view-model-nodes/view.model-node';
 
 declare var require: any;
