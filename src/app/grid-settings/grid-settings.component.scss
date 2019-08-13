@@ -20,7 +20,11 @@
     display: none;
 }
 input {
-    overflow-y: auto
+    overflow-y: auto;
+    width: 100%;
+    border: none;
+    height: 22px;
+    outline: none;
 }
 table {
     width: 100%;
@@ -54,4 +58,11 @@ tr.mat-header-row {
     vertical-align: middle;
     padding-bottom: 2px;
     padding-left: 0px !important;
+}
+::ng-deep .mat-select-trigger { 
+    height: 29px !important;
+}
+
+::ng-deep .mat-select-value {
+   padding-top: 5px; 
 }

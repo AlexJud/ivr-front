@@ -74,9 +74,13 @@ export class MxGraphComponent implements OnInit {
           if (me.getCell() !== null) {
             // this.emitNameCell.emit(me.getCell().value);
             if (me.getCell().parent.value === undefined) {
-              this._eventService._events.emit('selectNode', me.getCell().value);
+              // this._eventService._events.emit('selectNode', {node: me.getCell().value, type: me.getCell().value});
+              this._eventService._events.emit('showProps', {node: me.getCell().value, type: 'options'});
+              console.log('Select node', me.getCell().value);
             } else {
-              this._eventService._events.emit('selectNode', me.getCell().value);
+              this._eventService._events.emit('showProps', {node: me.getCell().value, type: 'options'});
+              // this._eventService._events.emit('selectNode', me.getCell().value);
+              console.log('Select node', me.getCell().value);
             }
           }
         }

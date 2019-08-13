@@ -64,10 +64,10 @@ export class TreeComponent implements OnInit {
     })
     this._eventService._events.addListener('selectNode', (id: string) => {
       const viewNode = this._modelService.viewModel.get(id)
-      this._modelService.viewModel.forEach((node) => {
-        this.treeControl.collapse(node)
-      })
-      this.treeControl.expand(viewNode)
+      // this._modelService.viewModel.forEach((node) => {
+      //   this.treeControl.collapse(node)
+      // })
+      // this.treeControl.expand(viewNode)
       for(const child of viewNode.childrenTree) {
         if(child.id === 'Параметры') {
           this.onTreeClick(child)
@@ -78,11 +78,12 @@ export class TreeComponent implements OnInit {
       }
     });
   }
-
+   
   // isLevelMoreThenOne = (_: number, _nodeData: FlatNode) =>  {
   //   return _nodeData.level === 1;
   // }
   hasChild = (_: number, node: ViewNode) => !!node.childrenTree && node.childrenTree.length > 0;
+  
   onTreeClick(node: ViewNode) {
     this.activeNode = node;
     const type = node.id === Strings.CHILDREN ? 'children' : 'options'

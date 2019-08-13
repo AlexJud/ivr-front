@@ -1,6 +1,6 @@
 <div class="grid-toolbar">
-  <div class="nodeSelector">
-    <!-- <mat-form-field>
+  <!-- <div class="nodeSelector">
+    <mat-form-field>
       <mat-label>Выберите узел</mat-label>
       <mat-select [(value)]="selected" (selectionChange)="onSelectChange(selected)" >
         <mat-option *ngFor="let option of nodeTypes" value="{{option}}">{{option}}</mat-option>
@@ -19,6 +19,7 @@
   <div class="toggleDrawer">
       <button id="toggle" mat-button (click)="onToggleDrawer()"><mat-icon [ngStyle]="{'color': '#fff'}">menu</mat-icon> Меню</button>
   </div>
+  <app-tree-panel></app-tree-panel>
 </div>
 <!-- <mat-grid-list cols="3" rowHeight="100px">
   <mat-grid-tile [colspan]="2">
