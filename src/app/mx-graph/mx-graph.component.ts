@@ -7,7 +7,7 @@ import { ViewNode } from '../view-model-nodes/view.model-node';
 
 
 declare var require: any;
-const mx = require('mxgraph123123123123')({
+const mx = require('mxgraph')({
   mxImageBasePath: 'assets/mxgraph/images',
   mxBasePath: 'assets/mxgraph'
 });
