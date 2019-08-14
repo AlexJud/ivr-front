@@ -1,16 +1,27 @@
 import { NodeType } from './../graph/nodes/nodes';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { ModelService } from '../services/model.service';
 import { EventService } from '../services/event.service';
 import { Node } from '../graph/nodes/nodes';
 import { ViewNode } from '../view-model-nodes/view.model-node';
+declare var mxClient: any;
+// mxClient.mxBasePath = 'assets/mxgraph'
+declare var mxCompactTreeLayout: any;
+declare var mxCellMarker: any;
+declare var mxCellHighlight: any;
+declare var mxConstants: any;
+declare var mxUtils: any;
+declare var mxEvent: any;
+declare var mxGraph: any;
+declare var mxBasePath: any;
+declare var mxImageBasePath: any;
 
-
-declare var require: any;
-const mx = require('mxgraph')({
-  mxImageBasePath: 'assets/mxgraph/images',
-  mxBasePath: 'assets/mxgraph'
-});
+// declare var require: any;
+// const mx = require('mxgraph')
+// // ({
+// //   mxImageBasePath: 'assets/mxgraph/images',
+// //   mxBasePath: 'assets/mxgraph'
+// // });
 
 @Component({
   selector: 'app-mx-graph',
@@ -18,7 +29,7 @@ const mx = require('mxgraph')({
   styleUrls: ['./mx-graph.component.scss']
 })
 
-export class MxGraphComponent implements OnInit {
+export class MxGraphComponent implements OnInit, AfterViewInit {
 
   @Output('getNameCellByClick') emitNameCell = new EventEmitter();
 
@@ -35,14 +46,17 @@ export class MxGraphComponent implements OnInit {
   node: Node;
   constructor(private _modelService: ModelService,
               private _eventService: EventService) {
+  }
 
-    // console.log(`this model ${this.model}`);
+  ngAfterViewInit() {
+    console.log('mxBasePath is: ' + mxBasePath)
+    console.log('mxImageBasePath is: ' + mxImageBasePath)
   }
 
   ngOnInit() {
     this.initializeMxGraph();
     this.initStyles();
-    this.layout = new mx.mxCompactTreeLayout(this.graph);
+    this.layout = new mxCompactTreeLayout(this.graph);
     this.initListeners();
     this.viewModel = this._modelService.viewModel;
     this.buildModel();
@@ -64,7 +78,7 @@ export class MxGraphComponent implements OnInit {
   initListeners() {
     this.graph.setTooltips(true);
 
-    var marker = new mx.mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
+    var marker = new mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
     this.graph.addMouseListener({
       mouseDown: ((sender, me) => {
         if (me.evt.button === 0) //left
@@ -90,62 +104,62 @@ export class MxGraphComponent implements OnInit {
       }
     });
 
-    this.highlight = new mx.mxCellHighlight(this.graph, '#ff0000', 2);
+    this.highlight = new mxCellHighlight(this.graph, '#ff0000', 2);
 
   }
 
   initStyles() {
     let actNodeStyle = {};
-    actNodeStyle[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_RECTANGLE;
-    // actNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
-    actNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
-    actNodeStyle[mx.mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    actNodeStyle[mx.mxConstants.STYLE_FONTSIZE] = 16;
-    actNodeStyle[mx.mxConstants.STYLE_ROUNDED] = 0;
-    actNodeStyle[mx.mxConstants.STYLE_ARCSIZE] = 10;
-    actNodeStyle[mx.mxConstants.STYLE_STROKECOLOR] = '#757575';
-    actNodeStyle[mx.mxConstants.STYLE_STROKEWIDTH] = 2;
-    actNodeStyle[mx.mxConstants.STYLE_FILLCOLOR] = '#09af00';
+    actNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
+    // actNodeStyle[mxConstants.STYLE_OPACITY] = 50;
+    actNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
+    actNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
+    actNodeStyle[mxConstants.STYLE_FONTSIZE] = 16;
+    actNodeStyle[mxConstants.STYLE_ROUNDED] = 0;
+    actNodeStyle[mxConstants.STYLE_ARCSIZE] = 10;
+    actNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
+    actNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
+    actNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#09af00';
     this.graph.getStylesheet().putCellStyle('ActionNode', actNodeStyle);
 
     let classNodeStyle = {};
-    classNodeStyle[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_RHOMBUS;
-    // classNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
-    classNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
-    classNodeStyle[mx.mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    classNodeStyle[mx.mxConstants.STYLE_FONTSIZE] = 16;
-    // classNodeStyle[mx.mxConstants.STYLE_ROUNDED] = 0;
-    // classNodeStyle[mx.mxConstants.STYLE_ARCSIZE] = 10;
-    classNodeStyle[mx.mxConstants.STYLE_STROKECOLOR] = '#757575';
-    classNodeStyle[mx.mxConstants.STYLE_STROKEWIDTH] = 2;
-    classNodeStyle[mx.mxConstants.STYLE_FILLCOLOR] = '#ee6002';
+    classNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RHOMBUS;
+    // classNodeStyle[mxConstants.STYLE_OPACITY] = 50;
+    classNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
+    classNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
+    classNodeStyle[mxConstants.STYLE_FONTSIZE] = 16;
+    // classNodeStyle[mxConstants.STYLE_ROUNDED] = 0;
+    // classNodeStyle[mxConstants.STYLE_ARCSIZE] = 10;
+    classNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
+    classNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
+    classNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#ee6002';
     this.graph.getStylesheet().putCellStyle('ClassifierNode', classNodeStyle);
 
     let specNodeStyle = {};
-    specNodeStyle[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_HEXAGON;
-    // specNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
-    specNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
-    specNodeStyle[mx.mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    specNodeStyle[mx.mxConstants.STYLE_FONTSIZE] = 16;
-    specNodeStyle[mx.mxConstants.STYLE_STROKECOLOR] = '#757575';
-    specNodeStyle[mx.mxConstants.STYLE_STROKEWIDTH] = 2;
-    specNodeStyle[mx.mxConstants.STYLE_FILLCOLOR] = '#2196F3';
+    specNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_HEXAGON;
+    // specNodeStyle[mxConstants.STYLE_OPACITY] = 50;
+    specNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
+    specNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
+    specNodeStyle[mxConstants.STYLE_FONTSIZE] = 16;
+    specNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
+    specNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
+    specNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#2196F3';
     this.graph.getStylesheet().putCellStyle('SpecifierNode', specNodeStyle);
 
     let endNodeStyle = {};
-    endNodeStyle[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_ELLIPSE;
-    // endNodeStyle[mx.mxConstants.STYLE_OPACITY] = 50;
-    endNodeStyle[mx.mxConstants.STYLE_FONTCOLOR] = '#ffffff';
-    endNodeStyle[mx.mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    endNodeStyle[mx.mxConstants.STYLE_FONTSIZE] = 16;
-    endNodeStyle[mx.mxConstants.STYLE_STROKECOLOR] = '#757575';
-    endNodeStyle[mx.mxConstants.STYLE_STROKEWIDTH] = 2;
-    endNodeStyle[mx.mxConstants.STYLE_FILLCOLOR] = '#FF4081';
+    endNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_ELLIPSE;
+    // endNodeStyle[mxConstants.STYLE_OPACITY] = 50;
+    endNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#ffffff';
+    endNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
+    endNodeStyle[mxConstants.STYLE_FONTSIZE] = 16;
+    endNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
+    endNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
+    endNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#FF4081';
     this.graph.getStylesheet().putCellStyle('EndNode', endNodeStyle);
 
     let edgeStyle = {};
-    edgeStyle[mx.mxConstants.STYLE_STROKECOLOR] = '#757575';
-    edgeStyle[mx.mxConstants.STYLE_STROKEWIDTH] = 2;
+    edgeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
+    edgeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
     this.graph.getStylesheet().putCellStyle('Edge', edgeStyle);
 
     //this.styleCell = 'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0';
@@ -155,13 +169,13 @@ export class MxGraphComponent implements OnInit {
   private initializeMxGraph() {
     const container = document.getElementById('graphContainer');
 
-    if (!mx.mxClient.isBrowserSupported()) {
-      mx.mxUtils.error('Browser is not supported!', 200, false);
+    if (!mxClient.isBrowserSupported()) {
+      mxUtils.error('Browser is not supported!', 200, false);
     } else {
-      mx.mxEvent.disableContextMenu(container);
+      mxEvent.disableContextMenu(container);
 
 
-      this.graph = new mx.mxGraph(container);
+      this.graph = new mxGraph(container);
       // const mxRubberband1 = new mx.mxRubberband(this.graph);
       this.parent = this.graph.getDefaultParent();
       this.graph.graphHandler.setRemoveCellsFromParent(false);
@@ -176,17 +190,17 @@ export class MxGraphComponent implements OnInit {
       this.graph.panningHandler.useLeftButtonForPanning = true;
 
       const thiz = this;
-      mx.mxEvent.addMouseWheelListener(function (evt, up) {
-        mx.Print = false;
+      mxEvent.addMouseWheelListener(function (evt, up) {
+        // mx.Print = false;
         if (evt.altKey && up) {
           thiz.graph.zoomIn();
-            mx.mxEvent.consume(evt);
+            mxEvent.consume(evt);
         } else if (evt.altKey) {
           thiz.graph.zoomOut();
-            mx.mxEvent.consume(evt);
+            mxEvent.consume(evt);
         }
     });
-      this.graph.addListener(mx.mxEvent.LABEL_CHANGED,  function (sender, evt) {
+      this.graph.addListener(mxEvent.LABEL_CHANGED,  function (sender, evt) {
         const id = evt.properties.cell.value;
         const parent = evt.properties.cell.edges[0].source.value
         thiz.map.set(id, evt.properties.cell);
@@ -319,9 +333,9 @@ export class MxGraphComponent implements OnInit {
   //   // Adds cells to the model in a single step
   //   this.graph.getModel().beginUpdate();
   //   const style = {};
-  //   style[mx.mxConstants.STYLE_SHAPE] = mx.mxConstants.SHAPE_SWIMLANE;
-  //   style[mx.mxConstants.STYLE_OPACITY] = 50;
-  //   style[mx.mxConstants.STYLE_FONTCOLOR] = '#774400';
+  //   style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_SWIMLANE;
+  //   style[mxConstants.STYLE_OPACITY] = 50;
+  //   style[mxConstants.STYLE_FONTCOLOR] = '#774400';
   //   this.graph.getStylesheet().putCellStyle('ROUNDED', style);
   //   try {
   //     const v1 = this.graph.insertVertex(this.parent, null, this.viewModel['root'].constructor.name, 20, 50, 140, 80, 'ROUNDED;separatorColor=green;rounded=1;arcSize=10');
