@@ -3,7 +3,7 @@ import { EventService } from 'src/app/services/event.service';
 import { ModelService, TableView } from 'src/app/services/model.service';
 import { Node, NodeType } from 'src/app/graph/nodes/nodes';
 import { SpecifierProps } from 'src/app/graph/nodeProps/specifierProps';
-import { ViewNode } from 'src/app/view-model-nodes/view.model-node';
+import { ViewNode } from 'src/app/view-model-nodes/viewNode';
 
 @Component({
   selector: 'app-grid-settings-panel',
@@ -30,8 +30,8 @@ export class GridSettingsPanelComponent implements OnInit {
   }
 
   addRow() {
-    let tableView = this._modelService.createSpecifierViewNodeOptions()
-    this.currentTable.data.push(tableView.optionsDataSource[0]);
+    // let tableView = this._modelService.createSpecifierViewNodeOptions()
+    // this.currentTable.data.push(tableView.optionsDataSource[0]);
     this.currentTable._updateChangeSubscription();
     console.log(this._modelService.viewModel);
   }

@@ -15,7 +15,7 @@ export enum Strings {
     FILE_GRAMMAR = 'Распознавание по грамматике',
     REPEAT = 'Количество повторений',
     CHILDREN = 'Дочерние узлы',
-    PARAMETRS = 'Параметры'
+    PARAMETRS = 'Параметры',
 }
 export enum CellType {
     SPAN,

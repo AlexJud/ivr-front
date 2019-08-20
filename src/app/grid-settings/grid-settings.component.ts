@@ -7,7 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { GrammarService } from '../services/grammar.service';
 import { HttpService } from '../services/http.service';
 import { ActionProps } from '../graph/nodeProps/actionProps';
-import { ViewNode } from '../view-model-nodes/view.model-node';
+import { ViewNode } from '../view-model-nodes/viewNode';
 import { MatSelect } from '@angular/material';
 
 export interface DisplayColumn {
@@ -63,32 +63,32 @@ export class GridSettingsComponent implements OnInit {
   }
 
   private setDataSource(nodeId: string, type: string) {
+    console.log(this._modelService.viewModel);
     this.viewNode = this._modelService.viewModel.get(nodeId)
     // this.currentNode = this._modelService.getNode(nodeId);
-    if(type === 'options') {
+    // if(type === 'options') {
       this.dataSource =  new MatTableDataSource(this.viewNode.options)
-      this.columnsData = this.viewNode.optionTableView.columnsData
-      this.displayedColumns = this.viewNode.optionTableView.displayedColumns
-    }
-    if(type === 'children') {
-      this.dataSource = new MatTableDataSource(this.viewNode.edgeList)
-      this.columnsData = this.viewNode.childrenTableView.columnsData
-      this.displayedColumns = this.viewNode.childrenTableView.displayedColumns
-    }
+      this.columnsData = this.viewNode.tableView.columnsData
+      this.displayedColumns = this.viewNode.tableView.displayedColumns
+    // }
+    // if(type === 'children') {
+    //   this.dataSource = new MatTableDataSource(this.viewNode.edgeList)
+    //   this.columnsData = this.viewNode.childrenTableView.columnsData
+    //   this.displayedColumns = this.viewNode.childrenTableView.displayedColumns
+    // }
   }
 
-  // onChange(event: Event) {
-  //   if (event.type === 'input') {
-  //     this.isInput = true;
-  //   }
-  //   if (event.type.indexOf('focus') !== -1) {
-  //     if(this.isInput) {
-  //       this.changeNode();
-  //       this.isInput = false;
-  //     }
-  //   }
-  //   console.log(this._modelService.viewModel);
-  // }
+  onChange(event: Event) {
+    if (event.type === 'input') {
+      this.isInput = true;
+    }
+    if (event.type.indexOf('focus') !== -1) {
+      if(this.isInput) {
+        this._eventService._events.emit('updateGraph', this.viewNode.id)
+        this.isInput = false;
+      }
+    }
+  }
 
   changeGrammar(element: any, colomnId: string, index: number) {
     if(element[colomnId].selected === Strings.FILE_GRAMMAR) {

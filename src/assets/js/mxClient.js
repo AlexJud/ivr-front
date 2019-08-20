@@ -56806,6 +56806,9 @@ mxGraph.prototype.labelChanged = function(cell, value, evt)
 		this.fireEvent(new mxEventObject(mxEvent.LABEL_CHANGED,
 			'cell', cell, 'value', value, 'old', old, 'event', evt));
 	}
+	catch (e){
+		console.log(e)
+	}
 	finally
 	{
 		this.model.endUpdate();

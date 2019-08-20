@@ -2,6 +2,7 @@
 <input type="file" (change)="uploadFile($event)" accept="*/xml" #file [hidden]="true">
 <!-- Вызываем панель для SpecifierNode -->
 <app-grid-settings-panel [currentTable]="dataSource" (deleteEvent)="deleteRow($event)"></app-grid-settings-panel>
+<!-- Таблица с параметрами -->
 <div class="option-table">
     <table mat-table [dataSource]="dataSource" class="example-container mat-elevation-z8">
         <ng-container *ngFor="let item of columnsData" matColumnDef={{item.columnId}}>
@@ -12,7 +13,7 @@
                         <span>{{element[item.columnId]}}​</span>
                     </ng-template>
                     <ng-template ngSwitchCase="1">
-                        <input matInput placeholder="Введите значение..." [(ngModel)]="element[item.columnId]"/>
+                        <input matInput placeholder="Введите значение..." [(ngModel)]="element[item.columnId]" (focusout)="onChange($event)" (input)="onChange($event)"/>
                     </ng-template>
                     <ng-template ngSwitchCase="2">
                         <mat-select [(value)] = "element[item.columnId].selected" (selectionChange) = "changeGrammar(element, item.columnId, i)" 
