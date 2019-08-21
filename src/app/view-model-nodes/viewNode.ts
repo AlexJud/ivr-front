@@ -2,13 +2,15 @@ import { Relation } from '../graph/nodes/relation';
 import { Node } from '../graph/nodes/nodes';
 import { CellType } from '../graph/nodeProps/optionStrings';
 
-export class ViewNode {
+export abstract class ViewNode {
     id: string
     parent?: string
     type?: string
     edgeList?: Relation[]
-    options?: any[]//MAKE INTERFACE OR CLASS FOR THIS
-    tableView?: any//MAKE INTERFACE OR CLASS FOR THIS
+    options?: any[]
+    tableView?: TableView
+
+    abstract addChildren(child: string);
 }
 
 export class RowType {

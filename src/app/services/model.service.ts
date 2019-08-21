@@ -122,7 +122,7 @@ export class ModelService {
     switch(type) {
       case NodeType.ActionNode: {
         this._viewModel.set(id, ActionViewNode.createNewNode(id, type, parent));   
-        break 
+        break
       }
       case NodeType.ClassifierNode: {
         this._viewModel.set(id, ClassifierViewNode.createNewNode(id, type, parent));
@@ -141,25 +141,7 @@ export class ModelService {
   }
 
   addChildrenToParent(child: string, parent: string) {
-    let parentViewNode = this.viewModel.get(parent)
-    switch(parentViewNode.type) {
-      case NodeType.ClassifierNode: {
-        parentViewNode.options.push(
-          {
-            id: child,
-            match: '',
-            type: {
-              id: CellType.INPUT,
-              match: CellType.INPUT
-            }
-          }
-        )
-      }
-      default: {
-        parentViewNode.edgeList.push(new Relation(child))
-      }
-    }
-    console.log('Model', this.viewModel);
+    this.viewModel.get(parent).addChildren(child)
   }
 
   deleteViewNode(id: string) {

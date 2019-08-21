@@ -37,6 +37,7 @@ export class ClassifierViewNode extends ViewNode {
         let rowType: RowType
         let rowID: string
         let rowMatch: string
+        let rowName: string
         this.options = []
 
         rowType = RowType.getInstance(CellType.INPUT)
@@ -47,22 +48,32 @@ export class ClassifierViewNode extends ViewNode {
         }
         for(let i = 0; i < length; i++) {
             rowID = node === undefined ? '' : node.edgeList[i].id
+            rowName = 'Разветвление №' + i 
             rowMatch = node === undefined ? '' : node.edgeList[i].match.join()
-            this.options.push(this.createRow(rowType, rowID, rowMatch));
+            this.options.push(this.createRow(rowType, rowID, rowName, rowMatch));
         }
 
         this.tableView = new TableView()
-        this.tableView.displayedColumns = ['id', 'match']
-        this.tableView.columnsData.push(new ColumsData("id", Strings.CHILDREN))
-        this.tableView.columnsData.push(new ColumsData("match", Strings.KEYWORDS))
+        this.tableView.displayedColumns = ['name', 'value']
+        this.tableView.columnsData.push(new ColumsData("name", 'Направление'))
+        this.tableView.columnsData.push(new ColumsData("value", Strings.KEYWORDS))
     }
 
-    private createRow(type: RowType, id: string, match: string): ClassifierRowPresent {
+    private createRow(type: RowType, id: string, name: string, match: string): ClassifierRowPresent {
         let row: ClassifierRowPresent = new ClassifierRowPresent()
         row.id = id
-        row.match = match
+        row.name = name
+        row.value = match
         row.type = type
 
         return row
+    }
+    public addChildren(child: string): void {
+        const length = this.options.length
+        const rowType = RowType.getInstance(CellType.INPUT)
+        const rowName = 'Разветвеление №' + (length + 1)
+        const rowId = child
+        const rowMatch = ''
+        this.options.push(this.createRow(rowType, rowId, rowName, rowMatch))
     }
 }

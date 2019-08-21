@@ -88,4 +88,8 @@ export class ActionViewNode extends ViewNode {
         }
         return row
     }
+
+    public addChildren(child: string): void {
+        this.edgeList.push(new Relation(child))
+    }
 }

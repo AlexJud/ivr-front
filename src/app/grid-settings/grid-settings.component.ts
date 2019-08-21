@@ -23,7 +23,7 @@ export interface DisplayColumn {
 export class GridSettingsComponent implements OnInit {
   @ViewChild("file", {static: false}) file: ElementRef
   isInput: boolean  //Проверяем был ли ввод в какой-нить Input
-  currentNode: Node;  //Здесь храним текущий объект
+  currentNode: ViewNode;  //Здесь храним текущий объект
   // tableData: any;
   isOption: boolean;
   isChildren: boolean;
@@ -65,7 +65,7 @@ export class GridSettingsComponent implements OnInit {
   private setDataSource(nodeId: string, type: string) {
     console.log(this._modelService.viewModel);
     this.viewNode = this._modelService.viewModel.get(nodeId)
-    // this.currentNode = this._modelService.getNode(nodeId);
+    // this.currentNode = this._modelService.viewModel.get(nodeId);
     // if(type === 'options') {
       this.dataSource =  new MatTableDataSource(this.viewNode.options)
       this.columnsData = this.viewNode.tableView.columnsData
@@ -76,6 +76,9 @@ export class GridSettingsComponent implements OnInit {
     //   this.columnsData = this.viewNode.childrenTableView.columnsData
     //   this.displayedColumns = this.viewNode.childrenTableView.displayedColumns
     // }
+    console.log('dataSource', this.dataSource)
+    console.log('columnsData', this.columnsData)
+    console.log('displayedColumns', this.displayedColumns)
   }
 
   onChange(event: Event) {
@@ -88,6 +91,11 @@ export class GridSettingsComponent implements OnInit {
         this.isInput = false;
       }
     }
+  }
+
+  onHover(item) {
+    console.log(item)
+    this._eventService._events.emit('highlight', item.id)
   }
 
   changeGrammar(element: any, colomnId: string, index: number) {

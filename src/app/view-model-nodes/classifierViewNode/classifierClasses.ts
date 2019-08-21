@@ -2,6 +2,7 @@ import { RowType } from '../viewNode';
 
 export class ClassifierRowPresent {
     id: string
-    match: string
+    name: string
+    value: string
     type: RowType
 }

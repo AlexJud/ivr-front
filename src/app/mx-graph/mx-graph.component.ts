@@ -77,9 +77,13 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       this.graph.model.setValue(this.map.get(id), node.options[0].value)
 
     })
+    this._eventService._events.addListener('highlight', (id) => {
+      let name = this.map.get(id)
+      this.highlightCellOn(name);
+    })
     // Подписаться на получение Node для подстветки =>
-    // this.highlightCellOn(NodeName); подсветка
-    // this.highlightCellReset();  сброс
+    // this.highlightCellOn(NodeName); //подсветка
+    // this.highlightCellReset();  //сброс
   }
 
   initListeners() {
@@ -111,7 +115,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       }
     });
 
-    this.highlight = new mxCellHighlight(this.graph, '#ff0000', 2);
+    this.highlight = new mxCellHighlight(this.graph, '#ff0000', 5);
 
   }
 
@@ -121,12 +125,13 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     // actNodeStyle[mxConstants.STYLE_OPACITY] = 50;
     actNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
     actNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    actNodeStyle[mxConstants.STYLE_FONTSIZE] = 16;
+    actNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
     actNodeStyle[mxConstants.STYLE_ROUNDED] = 0;
     actNodeStyle[mxConstants.STYLE_ARCSIZE] = 10;
     actNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
     actNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
-    actNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#09af00';
+    actNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#C2C923';
+    // actNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#09af00';
     actNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
     actNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
     // actNodeStyle[mxConstants.WORD_WRAP] = 'break-word';
@@ -138,13 +143,17 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     // classNodeStyle[mxConstants.STYLE_OPACITY] = 50;
     classNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
     classNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    classNodeStyle[mxConstants.STYLE_FONTSIZE] = 16;
-    // classNodeStyle[mxConstants.STYLE_ROUNDED] = 0;
-    // classNodeStyle[mxConstants.STYLE_ARCSIZE] = 10;
-    classNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
+    classNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
+    classNodeStyle[mxConstants.STYLE_ROUNDED] = 0;
+    classNodeStyle[mxConstants.STYLE_ARCSIZE] = 10;
+    // classNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
+    classNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#FCB414';
     classNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
     classNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#ee6002';
     classNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
+    classNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
+    classNodeStyle[mxConstants.STYLE_WHITE_SPACE] = 'wrap';
+    classNodeStyle[mxConstants.STYLE_SPACING] = '10px';
     this.graph.getStylesheet().putCellStyle('ClassifierNode', classNodeStyle);
 
     let specNodeStyle = {};
@@ -152,11 +161,15 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     // specNodeStyle[mxConstants.STYLE_OPACITY] = 50;
     specNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
     specNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    specNodeStyle[mxConstants.STYLE_FONTSIZE] = 16;
+    specNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
     specNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
     specNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
-    specNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#2196F3';
+    // specNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#2196F3';
+    specNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#16A5C7';
     specNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
+    specNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
+    specNodeStyle[mxConstants.STYLE_WHITE_SPACE] = 'wrap';
+    specNodeStyle[mxConstants.STYLE_SPACING] = '10px';
     this.graph.getStylesheet().putCellStyle('SpecifierNode', specNodeStyle);
 
     let endNodeStyle = {};
@@ -164,11 +177,14 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     // endNodeStyle[mxConstants.STYLE_OPACITY] = 50;
     endNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#ffffff';
     endNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    endNodeStyle[mxConstants.STYLE_FONTSIZE] = 16;
+    endNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
     endNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
     endNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
-    endNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#FF4081';
+    // endNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#FF4081';
+    endNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#F04E63';
     endNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
+    endNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
+    endNodeStyle[mxConstants.STYLE_WHITE_SPACE] = 'wrap';
     this.graph.getStylesheet().putCellStyle('EndNode', endNodeStyle);
 
     let edgeStyle = {};
@@ -295,7 +311,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     try {
       this.viewModel.forEach((node: ViewNode) => {
 
-        let vObj = this.graph.insertVertex(this.parent, node.id, 'Я ебал меня сосали. Хуй пизда собака джунгли', 0, 0, 120, 80, node.type);
+        let vObj = this.graph.insertVertex(this.parent, node.id, node.options[0].value, 0, 0, 120, 80, node.type);
        // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
         this.map.set(node.id, vObj);
         mapNode.set(node.id, node);
@@ -317,7 +333,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   }
   // ПОДСВЕТКА ЯЧЕКИ
   highlightCellOn(cell) {
-    this.highlight.highlight(this.graph.view.getState(this.map.get(cell)));
+    this.highlight.highlight(this.graph.view.getState(cell));
   }
   highlightCellReset() {
     this.highlight.resetHandler();

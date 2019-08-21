@@ -55,4 +55,8 @@ export class EndViewNode extends ViewNode {
             row.type = type
         return row
     }
+    
+    public addChildren(child: string): void {
+        this.edgeList.push(new Relation(child))
+    }
 }
