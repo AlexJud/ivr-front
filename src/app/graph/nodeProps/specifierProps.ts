@@ -1,21 +1,19 @@
-import { Strings } from './optionStrings';
-import { GrammarService } from 'src/app/services/grammar.service';
+import { ValidatePropsVarNameItem } from './validatePropsVarListItem';
 
 export class SpecifierProps {
     varName: string;
     synthText: string;
     asrOptions: string;
-    grammar: string
+    grammar: string;
     keywords: string[];
-    repeat: string;
-    builtinRecogAfterRepeat: boolean;
+    repeatMax: string;
+    vaildateItems: ValidatePropsVarNameItem[]
     constructor() {
         this.varName = '';
         this.synthText = '';
         this.asrOptions = ''
         this.grammar = ''
         this.keywords = [];
-        this.repeat = '';
-        this.builtinRecogAfterRepeat = false;
+        this.repeatMax = '';
     }
 }
