@@ -37,6 +37,8 @@ import { SettingsModelService } from './services/build.settings.model.service';
 import { Routes, RouterModule } from '@angular/router';
 import { WebSocketAPI } from './services/WebSocketAPI';
 import { CallViewerComponent } from './call-viewer/call-viewer.component';
+import { NodeSettingsPanelComponent } from './node-settings-panel/node-settings-panel.component';
+import {MatExpansionModule} from '@angular/material/expansion';
 
 // const appRoutes: Routes =[
 //   { path: 'sidenav', component: SidnavTestComponent }
@@ -53,7 +55,8 @@ import { CallViewerComponent } from './call-viewer/call-viewer.component';
     TreePanelComponent,
     GridSettingsComponent,
     GridSettingsPanelComponent,
-    CallViewerComponent
+    CallViewerComponent,
+    NodeSettingsPanelComponent
   ],
   imports: [
     BrowserModule,
@@ -75,6 +78,7 @@ import { CallViewerComponent } from './call-viewer/call-viewer.component';
     MatCheckboxModule,
     MatTableModule,
     MaterialModule,
+    MatExpansionModule,
     FormsModule,
     HttpClientModule
   ],

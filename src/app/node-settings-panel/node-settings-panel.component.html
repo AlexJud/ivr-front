@@ -1,0 +1,132 @@
+<mat-accordion class="example-headers-align">
+    <mat-expansion-panel [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Вопрос:
+        </mat-panel-title>
+        <mat-panel-description>
+          Воспроизведение №1
+          <mat-icon>account_circle</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <div class="elements">
+        <mat-form-field>
+          <input matInput placeholder="Текст для синтеза">
+        </mat-form-field>
+  
+        <mat-form-field>
+          <mat-label>Тип рспознавания</mat-label>
+          <mat-select>
+            <mat-option *ngFor="let asr of asrType" [value]="asr">
+              {{asr}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field>
+            <mat-label>Ключевые слова</mat-label>
+          <mat-select >
+            <mat-option value="list">Указать список</mat-option>
+            <mat-option value="file">Выбрать из файла</mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field class="example-full-width">
+          <textarea matInput placeholder="Укажите список ключевых слов"></textarea>
+        </mat-form-field>
+      </div>
+  
+      <mat-action-row>
+        <button mat-button color="primary" (click)="nextStep()">Next</button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  
+    <mat-expansion-panel [expanded]="step === 1" (opened)="setStep(1)" hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+            Вопрос:
+        </mat-panel-title>
+        <mat-panel-description>
+          Воспроизведение №2
+          <mat-icon>map</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+  
+      <div class="elements">
+        <mat-form-field>
+          <input matInput placeholder="Текст для синтеза">
+        </mat-form-field>
+  
+        <mat-form-field>
+          <mat-label>Тип рспознования</mat-label>
+          <mat-select>
+            <mat-option *ngFor="let asr of asrType" [value]="asr">
+              {{asr}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field>
+            <mat-label>Ключевые слова</mat-label>
+          <mat-select >
+            <mat-option value="list">Указать список</mat-option>
+            <mat-option value="file">Выбрать из файла</mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field class="example-full-width">
+          <textarea matInput placeholder="Укажите список ключевых слов"></textarea>
+        </mat-form-field>
+      </div>
+  
+      <mat-action-row>
+        <button mat-button color="warn" (click)="prevStep()">Previous</button>
+        <button mat-button color="primary" (click)="nextStep()">Next</button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  
+    <mat-expansion-panel [expanded]="step === 2" (opened)="setStep(2)" hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+            Вопрос:
+        </mat-panel-title>
+        <mat-panel-description>
+          Воспроизведение №3
+          <mat-icon>date_range</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+  
+  <div class="elements">
+        <mat-form-field>
+          <input matInput placeholder="Текст для синтеза">
+        </mat-form-field>
+  
+        <mat-form-field>
+          <mat-label>Тип рспознования</mat-label>
+          <mat-select>
+            <mat-option *ngFor="let asr of asrType" [value]="asr">
+              {{asr}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field>
+            <mat-label>Ключевые слова</mat-label>
+          <mat-select >
+            <mat-option value="list">Указать список</mat-option>
+            <mat-option value="file">Выбрать из файла</mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field class="example-full-width">
+          <textarea matInput placeholder="Укажите список ключевых слов"></textarea>
+        </mat-form-field>
+      </div>
+  
+      <mat-action-row>
+        <button mat-button color="warn" (click)="prevStep()">Previous</button>
+        <button mat-button color="primary" (click)="nextStep()">End</button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  
+  </mat-accordion>

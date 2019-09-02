@@ -1,5 +1,7 @@
+import { Relation } from '../nodes/relation';
+
 export class ValidatePropsVarNameItem {
     varName: string;
-    rawVarName: string;
-    edgeIfEmpty: string;
+    repeatMax: number;
+    edgeIfEmpty: Relation[];
 }

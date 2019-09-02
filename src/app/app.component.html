@@ -10,9 +10,11 @@
           <!-- <div class="tree-container">
             <app-tree class="tree"></app-tree>
           </div> -->
-          <div class="mx-graph">
-            <app-mx-graph (getNameCellByClick)="data.showData($event)" class="mxGraph"></app-mx-graph>
-          </div>
+        <div class="mx-graph">
+          <app-mx-graph (getNameCellByClick)="data.showData($event)" class="mxGraph"></app-mx-graph>
+        </div>
+        <app-node-settings-panel></app-node-settings-panel>
+
       </div>
         <div class="footer">
         <app-grid-settings></app-grid-settings>

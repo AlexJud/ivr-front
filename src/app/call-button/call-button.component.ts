@@ -144,11 +144,11 @@ export class CallButtonComponent implements OnInit {
   //Создаём SipStack, указываем кто слушает события
   createSipStack() {
     this.sipStack = new SIPml.Stack({
-      realm: '192.168.1.87', // mandatory: domain name
+      realm: '192.168.1.86', // mandatory: domain name
       impi: '1060', // mandatory: authorization name (IMS Private Identity)
-      impu: 'sip:1060@192.168.1.87', // mandatory: valid SIP Uri (IMS Public Identity)
+      impu: 'sip:1060@192.168.1.86', // mandatory: valid SIP Uri (IMS Public Identity)
       password: 'password', // optional
-      websocket_proxy_url: 'wss://192.168.1.87:8089/ws', // optional
+      websocket_proxy_url: 'wss://192.168.1.86:8089/ws', // optional
       // ice_servers: '[{ url: \'stun:stun.l.google.com:19302\'}]',
       ice_servers: '[]',
       // enable_rtcweb_breaker: false, // optional
