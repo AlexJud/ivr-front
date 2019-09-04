@@ -253,26 +253,26 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
                 thiz.addNewNode(id, NodeType.BranchNode, cell.id)
                 thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id)
               });
-            menu.addItem('Создать ClassifierNode', null, function()
+            menu.addItem('Создать ClassifierNode', 'assets/images/split.png', function()
               {
                 const id = uuid.v4()
                 thiz.addNewNode(id, NodeType.ClassifierNode, cell.id)
                 thiz._modelService.addNewViewNode(id, NodeType.ClassifierNode, cell.id)
               });
-            menu.addItem('Создать SpecifierNode', null, function()
+            menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function()
               {
                 const id = uuid.v4()
                 thiz.addNewNode(id, NodeType.SpecifierNode, cell.id)
                 thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id)
               });
-            menu.addItem('Создать EndNode', null, function()
+            menu.addItem('Создать EndNode', 'assets/images/done.png', function()
               {
                 const id = uuid.v4()
                 thiz.addNewNode(id, NodeType.EndNode, cell.id)
                 thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id)
               });
             }
-          menu.addItem('Удалить', null, function()
+          menu.addItem('Удалить', 'assets/images/delete.png', function()
             {
               thiz.deleteNode(cell.id)
             });
@@ -342,7 +342,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     const viewNode = this._modelService.viewModel.get(id)
     this.graph.getModel().beginUpdate();
     try {
-      let vObj = this.graph.insertVertex(this.parent, viewNode.id, 'Ну вот он текст, ебать', 0, 0, 120, 80, viewNode.type);
+      let vObj = this.graph.insertVertex(this.parent, viewNode.id, 'Ну вот он текст', 0, 0, 120, 80, viewNode.type);
       //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
       this.map.set(viewNode.id, vObj);
       this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'Edge');
@@ -358,7 +358,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     try {
       vObj = this.graph.insertVertex(this.parent, id, 'Ну вот он текст, ебать', 0, 0, 120, 80, type);
       this.map.set(id, vObj);
-      this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'Edge');
+      // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'Edge');
+      this.graph.insertEdge(this.parent, null, 'test', this.map.get(parent), vObj, 'verticalLabelPosition=top;verticalAlign=bottom');
     } finally {
       this.layout.execute(this.parent);
       this.graph.getModel().endUpdate();
