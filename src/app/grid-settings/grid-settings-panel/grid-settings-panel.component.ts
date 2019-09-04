@@ -33,7 +33,6 @@ export class GridSettingsPanelComponent implements OnInit {
     // let tableView = this._modelService.createSpecifierViewNodeOptions()
     // this.currentTable.data.push(tableView.optionsDataSource[0]);
     this.currentTable._updateChangeSubscription();
-    console.log(this._modelService.viewModel);
   }
   deleteRow() {
     this.deleteEvent.emit()

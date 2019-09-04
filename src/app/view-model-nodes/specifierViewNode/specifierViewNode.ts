@@ -10,7 +10,7 @@ export class SpecifierViewNode extends ViewNode {
     parent: string
     type: string
     edgeList: Relation[]
-    options: SpecifierRowPresent[]
+    props: SpecifierRowPresent[]
     tableView: TableView
 
     public static createFromNode(node: Node): SpecifierViewNode {
@@ -42,7 +42,7 @@ export class SpecifierViewNode extends ViewNode {
         let rowAsrType: ColumnWithSelect
         let rowGrammar: ColumnWithSelect
         let rowKeywords: string
-        this.options = []
+        this.props = []
         let length
         if(node !== undefined) {
             length = node.props.length
@@ -58,7 +58,7 @@ export class SpecifierViewNode extends ViewNode {
                 Utils.parseAsrType(node === undefined ? '' : node.props.grammar))
             rowGrammar = new ColumnWithSelect([Strings.LOAD_GRAMMAR, 'grammar.xml'], '')
             rowKeywords = node === undefined ? '' : node.props[i].keywords.join()
-            this.options.push(this.createRow({rowType, rowVarName, rowSynthText, rowAsrOptions, rowAsrType, rowGrammar, rowKeywords}))
+            this.props.push(this.createRow({rowType, rowVarName, rowSynthText, rowAsrOptions, rowAsrType, rowGrammar, rowKeywords}))
         }
 
         this.tableView = new TableView()

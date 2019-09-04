@@ -3,19 +3,19 @@ import { Node } from '../../graph/nodes/nodes';
 import { Utils } from '../../utils/utils';
 import { Relation } from '../../graph/nodes/relation';
 import { ViewNode, RowType, TableView, ColumsData } from '../viewNode';
-import { ActionRowPresent, RowWithSelectValue, RowWithInput, RowWithSelect } from './actionClasses';
+import { ActionRowPresent, RowWithSelectValue, RowWithInput, RowWithSelect } from './branchClasses';
 
-export class ActionViewNode extends ViewNode {
+export class BranchViewNode extends ViewNode {
 
     id: string
     parent: string
     type: string
     edgeList: Relation[]
-    options: ActionRowPresent[]
+    props: ActionRowPresent[]
     tableView: TableView
     
-    public static createFromNode(node: Node): ActionViewNode {
-        let newNode = new ActionViewNode()
+    public static createFromNode(node: Node): BranchViewNode {
+        let newNode = new BranchViewNode()
         newNode.id = node.id
         newNode.type = node.type
         newNode.edgeList = node.edgeList
@@ -24,8 +24,8 @@ export class ActionViewNode extends ViewNode {
         return newNode
     }
 
-    public static createNewNode(id: string, type: string, parent: string): ActionViewNode {
-        let newNode = new ActionViewNode()
+    public static createNewNode(id: string, type: string, parent: string): BranchViewNode {
+        let newNode = new BranchViewNode()
         newNode.id = id
         newNode.type = type
         newNode.parent = parent
@@ -38,29 +38,29 @@ export class ActionViewNode extends ViewNode {
     private initializeData(node?: Node) {
         let rowType: RowType
         let rowValue: any
-        this.options = []
+        this.props = []
 
         rowType = RowType.getInstance(CellType.INPUT)
         rowValue = node === undefined ? '' : node.props.synthText
-        this.options.push(this.createRow(rowType, Strings.TEXT_FOR_SYNTHESIZE, rowValue))
+        this.props.push(this.createRow(rowType, Strings.TEXT_FOR_SYNTHESIZE, rowValue))
         
         rowType = RowType.getInstance(CellType.INPUT)
         rowValue = node === undefined ? 'b=1&t=5000&nit=5000' : node.props.options
-        this.options.push(this.createRow(rowType, Strings.ASR_OPTION, rowValue))
+        this.props.push(this.createRow(rowType, Strings.ASR_OPTION, rowValue))
 
         rowType = RowType.getInstance(CellType.SELECT)
         rowValue = new RowWithSelectValue (
                 [Strings.BUILTIN_GRAMMAR, Strings.FILE_GRAMMAR],
                 Utils.parseAsrType(node === undefined ? '' : node.props.grammar)
             )
-        this.options.push(this.createRow(rowType, Strings.ASR_TYPE, rowValue))
+        this.props.push(this.createRow(rowType, Strings.ASR_TYPE, rowValue))
 
         rowType = RowType.getInstance(CellType.SELECT)
         rowValue = new RowWithSelectValue (
             [Strings.LOAD_GRAMMAR, 'grammar.xml'],
             ''
         )
-        this.options.push(this.createRow(rowType, Strings.GRAMMAR, { value: '', selected: ''}))
+        this.props.push(this.createRow(rowType, Strings.GRAMMAR, { value: '', selected: ''}))
         
         this.tableView = new TableView()
         this.tableView.displayedColumns = ['name', 'value']

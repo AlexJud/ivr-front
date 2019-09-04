@@ -6,7 +6,6 @@ import { EventService } from '../services/event.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { GrammarService } from '../services/grammar.service';
 import { HttpService } from '../services/http.service';
-import { ActionProps } from '../graph/nodeProps/actionProps';
 import { ViewNode } from '../view-model-nodes/viewNode';
 import { MatSelect } from '@angular/material';
 
@@ -63,22 +62,10 @@ export class GridSettingsComponent implements OnInit {
   }
 
   private setDataSource(nodeId: string, type: string) {
-    console.log(this._modelService.viewModel);
     this.viewNode = this._modelService.viewModel.get(nodeId)
-    // this.currentNode = this._modelService.viewModel.get(nodeId);
-    // if(type === 'options') {
-      this.dataSource =  new MatTableDataSource(this.viewNode.options)
-      this.columnsData = this.viewNode.tableView.columnsData
-      this.displayedColumns = this.viewNode.tableView.displayedColumns
-    // }
-    // if(type === 'children') {
-    //   this.dataSource = new MatTableDataSource(this.viewNode.edgeList)
-    //   this.columnsData = this.viewNode.childrenTableView.columnsData
-    //   this.displayedColumns = this.viewNode.childrenTableView.displayedColumns
-    // }
-    console.log('dataSource', this.dataSource)
-    console.log('columnsData', this.columnsData)
-    console.log('displayedColumns', this.displayedColumns)
+    this.dataSource =  new MatTableDataSource(this.viewNode.props)
+    this.columnsData = this.viewNode.tableView.columnsData
+    this.displayedColumns = this.viewNode.tableView.displayedColumns
   }
 
   onChange(event: Event) {
@@ -94,31 +81,30 @@ export class GridSettingsComponent implements OnInit {
   }
 
   onHover(item) {
-    console.log(item)
     this._eventService._events.emit('highlight', item.id)
   }
 
   changeGrammar(element: any, colomnId: string, index: number) {
     if(element[colomnId].selected === Strings.FILE_GRAMMAR) {
-      for(let i = 0; i < this.viewNode.options.length; i++) {
+      for(let i = 0; i < this.viewNode.props.length; i++) {
         switch(this,this.viewNode.type) {
           case NodeType.EndNode:
-          case NodeType.ActionNode: {
-            if(this.viewNode.options[i].name === 'Грамматика') {
-              this.viewNode.options[i].value.selected = ''
+          case NodeType.BranchNode: {
+            if(this.viewNode.props[i].name === 'Грамматика') {
+              this.viewNode.props[i].value.selected = ''
             }
             break;
           }
           case NodeType.SpecifierNode: {
             if(i === index) {
-              this.viewNode.options[i].grammar.selected = ''
+              this.viewNode.props[i].grammar.selected = ''
             }
             break;
           }
         }
       }
     } else if(element[colomnId].selected === Strings.BUILTIN_GRAMMAR) {
-      this.viewNode.options.forEach( node => {
+      this.viewNode.props.forEach( node => {
         if(node.name === 'Грамматика') {
           node[colomnId].selected = null
         }
