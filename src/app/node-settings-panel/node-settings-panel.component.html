@@ -1,21 +1,52 @@
-<mat-accordion class="example-headers-align">
-    <mat-expansion-panel [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+<mat-accordion class="example-headers-align"> 
+    <mat-expansion-panel> 
       <mat-expansion-panel-header>
         <mat-panel-title>
-          Вопрос:
+         <!-- <input type="text" placeholder="Задайте вопрос"> -->
+         <!-- <mat-form-field> -->
+          <!-- <input matInput> -->
+        <!-- </mat-form-field> -->
+        <label for="">Вопрос</label>
         </mat-panel-title>
-        <mat-panel-description>
+        <!-- <mat-panel-description>
           Воспроизведение №1
           <mat-icon>account_circle</mat-icon>
-        </mat-panel-description>
+        </mat-panel-description> -->
       </mat-expansion-panel-header>
-      <div class="elements">
+      
+      <!-- <div class="elements"> -->
         <mat-form-field>
-          <input matInput placeholder="Текст для синтеза">
+          <input matInput placeholder="Задать вопрос...">
         </mat-form-field>
-  
+        <mat-divider></mat-divider>
+<!-- <hr> -->
+        <!-- <mat-form-field class="example-full-width">
+          <textarea matInput placeholder="Укажите список ключевых слов"></textarea>
+        </mat-form-field> -->
+        <mat-chip-list #chipList aria-label="Fruit selection">
+          <mat-chip *ngFor="let fruit of fruits" [selectable]="selectable"
+                   [removable]="removable" (removed)="remove(fruit)">
+            {{fruit.name}}
+            <mat-icon matChipRemove *ngIf="removable">o</mat-icon>
+          </mat-chip>
+          <input placeholder="Ключевые слова..." matInput
+                 [matChipInputFor]="chipList"
+                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                 [matChipInputAddOnBlur]="addOnBlur"
+                 (matChipInputTokenEnd)="add($event)">
+        </mat-chip-list>
+        <mat-divider></mat-divider>
+        <!-- <hr> -->
+        <!-- <mat-form-field>
+          <mat-label>Ключевые слова</mat-label>
+        <mat-select >
+          <mat-option value="list">Указать список</mat-option>
+          <mat-option value="file">Выбрать из файла</mat-option>
+        </mat-select>
+      </mat-form-field> -->
+
         <mat-form-field>
-          <mat-label>Тип рспознавания</mat-label>
+          <mat-label>Тип распознавания</mat-label>
           <mat-select>
             <mat-option *ngFor="let asr of asrType" [value]="asr">
               {{asr}}
@@ -23,25 +54,17 @@
           </mat-select>
         </mat-form-field>
   
-        <mat-form-field>
-            <mat-label>Ключевые слова</mat-label>
-          <mat-select >
-            <mat-option value="list">Указать список</mat-option>
-            <mat-option value="file">Выбрать из файла</mat-option>
-          </mat-select>
-        </mat-form-field>
+        
   
-        <mat-form-field class="example-full-width">
-          <textarea matInput placeholder="Укажите список ключевых слов"></textarea>
-        </mat-form-field>
-      </div>
+        
+      <!-- </div> -->
   
-      <mat-action-row>
+      <!-- <mat-action-row>
         <button mat-button color="primary" (click)="nextStep()">Next</button>
-      </mat-action-row>
+      </mat-action-row> -->
     </mat-expansion-panel>
   
-    <mat-expansion-panel [expanded]="step === 1" (opened)="setStep(1)" hideToggle>
+    <!-- <mat-expansion-panel [expanded]="step === 1" (opened)="setStep(1)" hideToggle>
       <mat-expansion-panel-header>
         <mat-panel-title>
             Вопрос:
@@ -101,7 +124,7 @@
           <input matInput placeholder="Текст для синтеза">
         </mat-form-field>
   
-        <mat-form-field>
+        <mat-form-field> 
           <mat-label>Тип рспознования</mat-label>
           <mat-select>
             <mat-option *ngFor="let asr of asrType" [value]="asr">
@@ -128,5 +151,5 @@
         <button mat-button color="primary" (click)="nextStep()">End</button>
       </mat-action-row>
     </mat-expansion-panel>
-  
+   -->
   </mat-accordion>
