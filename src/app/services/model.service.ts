@@ -9,7 +9,6 @@ import { BranchViewNode } from '../view-model-nodes/branchViewNode/branchViewNod
 import { Strings, CellType } from '../graph/nodeProps/optionStrings';
 import { GrammarService } from './grammar.service';
 import { EndProps } from '../graph/nodeProps/endProps';
-import { ClassifierViewNode } from '../view-model-nodes/classifierViewNode/classifierViewNode';
 import { SpecifierViewNode } from '../view-model-nodes/specifierViewNode/specifierViewNode';
 import { EndViewNode } from '../view-model-nodes/endViewNode/endViewNode';
 
@@ -63,7 +62,7 @@ export class ModelService {
             break;
           }
           case NodeType.ClassifierNode: {
-            this._viewModel.set(node.id, ClassifierViewNode.createFromNode(node))
+            // this._viewModel.set(node.id, ClassifierViewNode.createFromNode(node))
             break;
           }
           case NodeType.SpecifierNode: {
@@ -76,6 +75,7 @@ export class ModelService {
           }
       }
   })
+  console.log(this.viewModel);
   }
 
   addNewViewNode(id: string, type: string, parent:string) {
@@ -85,7 +85,7 @@ export class ModelService {
         break
       }
       case NodeType.ClassifierNode: {
-        this._viewModel.set(id, ClassifierViewNode.createNewNode(id, type, parent));
+        // this._viewModel.set(id, ClassifierViewNode.createNewNode(id, type, parent));
         break
       }
       case NodeType.SpecifierNode: {

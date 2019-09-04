@@ -1,17 +1,10 @@
 import { RowType } from '../viewNode';
+import { CellType } from 'src/app/graph/nodeProps/optionStrings';
 
-export abstract class ActionRowPresent {
+export class BranchPropsPresent {
     name: string
     value: any
-    type: RowType
-}
-
-export class RowWithInput extends ActionRowPresent{
-    value: string
-}
-
-export class RowWithSelect extends ActionRowPresent{
-    value: RowWithSelectValue
+    type: CellType
 }
 
 export class RowWithSelectValue {

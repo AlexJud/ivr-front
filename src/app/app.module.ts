@@ -25,7 +25,7 @@ import { TreePanelComponent } from './tree/tree-panel/tree-panel.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ModelService } from './services/model.service';
 import { EventService } from './services/event.service';
-import { GridSettingsComponent } from './grid-settings/grid-settings.component';
+// import { GridSettingsComponent } from './grid-settings/grid-settings.component';
 import { MatTableModule } from '@angular/material/table';
 import { MaterialModule } from '../material-modules'
 import { FormsModule } from '@angular/forms';
@@ -53,7 +53,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
     MxGraphComponent,
     // TreeComponent,
     TreePanelComponent,
-    GridSettingsComponent,
+    // GridSettingsComponent,
     GridSettingsPanelComponent,
     CallViewerComponent,
     NodeSettingsPanelComponent

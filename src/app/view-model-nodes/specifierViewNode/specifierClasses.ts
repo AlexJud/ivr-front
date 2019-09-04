@@ -3,13 +3,9 @@ import { CellType } from 'src/app/graph/nodeProps/optionStrings';
 import { RowType } from '../viewNode';
 
 export class SpecifierRowPresent {
-    varName: string
-    synthText: string
-    asrOptions: string
-    asrType: ColumnWithSelect
-    grammar: ColumnWithSelect
-    keywords: string
-    type: string
+    name: string
+    value: any
+    type: CellType
 }
 
 export class ColumnWithSelect {

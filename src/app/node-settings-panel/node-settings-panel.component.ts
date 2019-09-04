@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ModelService } from '../services/model.service';
+import { EventService } from '../services/event.service';
+import { ViewNode } from '../view-model-nodes/viewNode';
 
 @Component({
   selector: 'app-node-settings-panel',
@@ -9,10 +11,8 @@ import { ModelService } from '../services/model.service';
   styleUrls: ['./node-settings-panel.component.scss']
 })
 export class NodeSettingsPanelComponent implements OnInit {
-
-
-
-  asrType = ['Слитное распознавание', 'Распознавание по грамматике']
+  currentNode: ViewNode
+  // asrType = this.currentNode['Слитное распознавание', 'Распознавание по грамматике']
   // step = 0;
   model;
 
@@ -29,12 +29,21 @@ export class NodeSettingsPanelComponent implements OnInit {
 
   panelOpenState = false;
 
-  constructor(private modelService: ModelService) { }
+  constructor(private _modelService: ModelService,
+              private _eventService: EventService) { }
 
   ngOnInit() {
-    this.model = this.modelService.model;
-    console.log('TEST', this.model);
+    this.setDataSource({node:'root'})
+    this._eventService._events.addListener('showProps', (data) => {
+      this.setDataSource(data)
+    });
+    this.model = this._modelService.model;
     
+  }
+
+  setDataSource(data: any) {
+    this.currentNode = this._modelService.viewModel.get(data.node)
+    console.log(this.currentNode)
   }
 
   // setStep(index: number) {
@@ -66,7 +75,7 @@ export class NodeSettingsPanelComponent implements OnInit {
   }
 
   remove(fruit: any): void {
-    console.log('TEST', this.modelService.model);
+    console.log('TEST', this._modelService.model);
     const index = this.fruits.indexOf(fruit);
 
     if (index >= 0) {
@@ -74,7 +83,7 @@ export class NodeSettingsPanelComponent implements OnInit {
     }
     
     
-    console.log('UpDATe',this.modelService.model );
+    console.log('UpDATe',this._modelService.model );
   }
 
 }

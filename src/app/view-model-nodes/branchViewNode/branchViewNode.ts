@@ -3,7 +3,7 @@ import { Node } from '../../graph/nodes/nodes';
 import { Utils } from '../../utils/utils';
 import { Relation } from '../../graph/nodes/relation';
 import { ViewNode, RowType, TableView, ColumsData } from '../viewNode';
-import { ActionRowPresent, RowWithSelectValue, RowWithInput, RowWithSelect } from './branchClasses';
+import { BranchPropsPresent, RowWithSelectValue } from './branchClasses';
 
 export class BranchViewNode extends ViewNode {
 
@@ -11,7 +11,7 @@ export class BranchViewNode extends ViewNode {
     parent: string
     type: string
     edgeList: Relation[]
-    props: ActionRowPresent[]
+    props: BranchPropsPresent[]
     tableView: TableView
     
     public static createFromNode(node: Node): BranchViewNode {
@@ -36,56 +36,49 @@ export class BranchViewNode extends ViewNode {
     }
 
     private initializeData(node?: Node) {
-        let rowType: RowType
+        let rowType: CellType
         let rowValue: any
         this.props = []
 
-        rowType = RowType.getInstance(CellType.INPUT)
+        rowType = CellType.TEXTAREA
         rowValue = node === undefined ? '' : node.props.synthText
         this.props.push(this.createRow(rowType, Strings.TEXT_FOR_SYNTHESIZE, rowValue))
         
-        rowType = RowType.getInstance(CellType.INPUT)
-        rowValue = node === undefined ? 'b=1&t=5000&nit=5000' : node.props.options
+        rowType = CellType.INPUT
+        rowValue = node === undefined ? 'b=1&t=5000&nit=5000' : node.props.asrOptions
         this.props.push(this.createRow(rowType, Strings.ASR_OPTION, rowValue))
 
-        rowType = RowType.getInstance(CellType.SELECT)
+        rowType = CellType.SELECT
         rowValue = new RowWithSelectValue (
                 [Strings.BUILTIN_GRAMMAR, Strings.FILE_GRAMMAR],
                 Utils.parseAsrType(node === undefined ? '' : node.props.grammar)
             )
         this.props.push(this.createRow(rowType, Strings.ASR_TYPE, rowValue))
 
-        rowType = RowType.getInstance(CellType.SELECT)
+        rowType = CellType.SELECT
         rowValue = new RowWithSelectValue (
             [Strings.LOAD_GRAMMAR, 'grammar.xml'],
-            ''
+            ''    public createRow(type: CellType, name: string, value: any): BranchPropsPresent {
+                const row = new BranchPropsPresent()
+                row.name = name
+                row.value = value 
+                row.type = type
+                return row
+            }
         )
-        this.props.push(this.createRow(rowType, Strings.GRAMMAR, { value: '', selected: ''}))
-        
+        this.props.push(this.createRow(rowType, Strings.GRAMMAR, rowValue))
+
         this.tableView = new TableView()
         this.tableView.displayedColumns = ['name', 'value']
         this.tableView.columnsData.push(new ColumsData("name", "Наименование"))
         this.tableView.columnsData.push(new ColumsData("value", "Значение"))
     }
 
-    public createRow(type: RowType, name: string, value: any): ActionRowPresent {
-        let row: ActionRowPresent
-        switch(type.value) {
-            case CellType.INPUT: {
-                row = new RowWithInput()
-                row.name = name
-                row.value = value 
-                row.type = type
-                break
-            }
-            case CellType.SELECT: {
-                row = new RowWithSelect()
-                row.name = name
-                row.value = new RowWithSelectValue(value.value, value.selected)
-                row.type = type
-                break
-            }
-        }
+    public createRow(type: CellType, name: string, value: any): BranchPropsPresent {
+        const row = new BranchPropsPresent()
+        row.name = name
+        row.value = value 
+        row.type = type
         return row
     }
 

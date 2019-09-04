@@ -20,5 +20,7 @@ export enum Strings {
 export enum CellType {
     SPAN,
     INPUT,
-    SELECT
+    TEXTAREA,
+    SELECT,
+    CARD
 }
