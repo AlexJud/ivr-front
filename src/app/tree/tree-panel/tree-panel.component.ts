@@ -54,10 +54,10 @@ export class TreePanelComponent implements OnInit {
     this.deleteEvent.emit()
     // this._treeComp.deleteNode();
   }
-  save() {
-    this._modelService.saveToJson();
-  // this._modelService.convertModel()
-  }
+  // save() {
+  //   this._modelService.saveToJson();
+  // // this._modelService.convertModel()
+  // }
   load() {
     this._modelService.requestModel()
   }

@@ -15,7 +15,7 @@ export class SettingsModelService {
     buildDataSource(): any {
         this._modelService.model.forEach(node => {
             switch(node.constructor.name) {
-                case NodeType.ActionNode: {
+                case NodeType.BranchNode: {
                     this.buildActionNodeData(node)
                     break;
                 }
@@ -32,7 +32,6 @@ export class SettingsModelService {
                 }
             }
         })
-        console.log('MODEL IS HERE!!!!!!', this.settingsModel);
         return this.settingsModel;
     }
 

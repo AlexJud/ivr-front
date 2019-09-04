@@ -9,7 +9,7 @@ export class EndViewNode extends ViewNode {
     parent: string
     type: string
     edgeList: Relation[]
-    options: EndRowPresent[]
+    props: EndRowPresent[]
     tableView: TableView
 
     public static createFromNode(node: Node): EndViewNode {
@@ -36,11 +36,11 @@ export class EndViewNode extends ViewNode {
     private initializeData(node?: Node) {
         let rowType: RowType
         let rowValue: any
-        this.options = []
+        this.props = []
 
         rowType = RowType.getInstance(CellType.INPUT)
         rowValue = node === undefined ? '' : node.props.synthText
-        this.options.push(this.createRow(rowType, Strings.TEXT_FOR_SYNTHESIZE, rowValue))
+        this.props.push(this.createRow(rowType, Strings.TEXT_FOR_SYNTHESIZE, rowValue))
 
         this.tableView = new TableView()
         this.tableView.displayedColumns = ['name', 'value']

@@ -51,8 +51,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    console.log('mxBasePath is: ' + mxBasePath)
-    console.log('mxImageBasePath is: ' + mxImageBasePath)
+    // console.log('mxBasePath is: ' + mxBasePath)
+    // console.log('mxImageBasePath is: ' + mxImageBasePath)
   }
 
   ngOnInit() {
@@ -74,7 +74,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     })
     this._eventService._events.addListener('updateGraph', (id) => {
       const node = this._modelService.viewModel.get(id)
-      this.graph.model.setValue(this.map.get(id), node.options[0].value)
+      this.graph.model.setValue(this.map.get(id), node.props[0].value)
 
     })
     this._eventService._events.addListener('highlight', (id) => {
@@ -120,23 +120,23 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   }
 
   initStyles() {
-    let actNodeStyle = {};
-    actNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
+    let branchNodeStyle = {};
+    branchNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
     // actNodeStyle[mxConstants.STYLE_OPACITY] = 50;
-    actNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
-    actNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    actNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
-    actNodeStyle[mxConstants.STYLE_ROUNDED] = 0;
-    actNodeStyle[mxConstants.STYLE_ARCSIZE] = 10;
-    actNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
-    actNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
-    actNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#C2C923';
+    branchNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
+    branchNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
+    branchNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
+    branchNodeStyle[mxConstants.STYLE_ROUNDED] = 0;
+    branchNodeStyle[mxConstants.STYLE_ARCSIZE] = 10;
+    branchNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
+    branchNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
+    branchNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#C2C923';
     // actNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#09af00';
-    actNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
-    actNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
+    branchNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
+    branchNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
     // actNodeStyle[mxConstants.WORD_WRAP] = 'break-word';
-    actNodeStyle[mxConstants.STYLE_WHITE_SPACE] = 'wrap';
-    this.graph.getStylesheet().putCellStyle('ActionNode', actNodeStyle);
+    branchNodeStyle[mxConstants.STYLE_WHITE_SPACE] = 'wrap';
+    this.graph.getStylesheet().putCellStyle('BranchNode', branchNodeStyle);
 
     let classNodeStyle = {};
     classNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RHOMBUS;
@@ -247,11 +247,11 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       this.graph.popupMenuHandler.factoryMethod = function(menu, cell, evt)
 				{
           if (thiz.canAddNewNode(cell)) {
-            menu.addItem('Создать ActionNode', null, function()
+            menu.addItem('Создать BranchNode', null, function()
               {
                 const id = uuid.v4()
-                thiz.addNewNode(id, NodeType.ActionNode, cell.id)
-                thiz._modelService.addNewViewNode(id, NodeType.ActionNode, cell.id)
+                thiz.addNewNode(id, NodeType.BranchNode, cell.id)
+                thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id)
               });
             menu.addItem('Создать ClassifierNode', null, function()
               {
@@ -282,8 +282,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     canAddNewNode(cell: any) {
       const viewNode = this._modelService.viewModel.get(cell.id)
       switch(viewNode.type) {
-        case NodeType.ActionNode: {
-          console.log(viewNode.edgeList);
+        case NodeType.BranchNode: {
           if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
             return true
           } else {
@@ -311,7 +310,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     try {
       this.viewModel.forEach((node: ViewNode) => {
 
-        let vObj = this.graph.insertVertex(this.parent, node.id, node.options[0].value, 0, 0, 120, 80, node.type);
+        let vObj = this.graph.insertVertex(this.parent, node.id, node.props[0].value, 0, 0, 120, 80, node.type);
        // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
         this.map.set(node.id, vObj);
         mapNode.set(node.id, node);

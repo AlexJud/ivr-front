@@ -1,4 +1,4 @@
-export class ActionProps {
+export class BranchProps {
     synthText: string
     grammar: string
     options: string

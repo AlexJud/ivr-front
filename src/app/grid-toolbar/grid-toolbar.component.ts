@@ -17,7 +17,7 @@ export class GridToolbarComponent implements OnInit {
   description: string
   constructor(private _eventService: EventService) {
     this.nodeDescription = new Map<string, string>()
-    this.nodeDescription.set(NodeType.ActionNode,
+    this.nodeDescription.set(NodeType.BranchNode,
       'Задаёт вопрос, распознаёт и сохраняет ответ от пользователя для дальнейшей обработки.')
     this.nodeDescription.set(NodeType.ClassifierNode,
       'Считывает распознанный ответ от пользователя и, в зависимости от совпадения ключевых слов, выбирает переход на следующий Узел.')
@@ -31,14 +31,12 @@ export class GridToolbarComponent implements OnInit {
   ngOnInit() {
     this.nodeTypes = Object.keys(NodeType)
     this.selected = this.nodeTypes[0]
-    console.log('NODE TYPES',this.nodeTypes);
     this.onSelectChange(this.selected)
   }
 
   onSelectChange(element: string) {
-    console.log(element);
     switch(element) {
-      case NodeType.ActionNode: {
+      case NodeType.BranchNode: {
         this.description = this.nodeDescription.get(element)
         break
       }
