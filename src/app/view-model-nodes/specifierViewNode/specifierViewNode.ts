@@ -1,6 +1,6 @@
 import { ViewNode, TableView, RowType, ColumsData } from '../viewNode';
 import { Relation } from 'src/app/graph/nodes/relation';
-import { Node } from '../../graph/nodes/nodes';
+import { Node, SpecifierNode } from '../../graph/nodes/nodes';
 import { SpecifierRowPresent, SpecifierRowType, ColumnWithSelect } from './specifierClasses';
 import { Strings, CellType } from 'src/app/graph/nodeProps/optionStrings';
 import { Utils } from 'src/app/utils/utils';
@@ -10,6 +10,7 @@ export class SpecifierViewNode extends ViewNode {
     id: string
     parent: string
     type: string
+    edgeIfEpmty: Relation[]
     edgeList: Relation[]
     props: SpecifierRowPresent[]
     tableView: TableView
@@ -18,6 +19,7 @@ export class SpecifierViewNode extends ViewNode {
         let newNode = new SpecifierViewNode()
         newNode.id = node.id
         newNode.type = node.type
+        newNode.edgeIfEpmty = node.edgeIfEmpty
         newNode.edgeList = node.edgeList
         newNode.initializeData(node)
 
@@ -29,7 +31,8 @@ export class SpecifierViewNode extends ViewNode {
         newNode.id = id
         newNode.type = type
         newNode.parent = parent
-        newNode.edgeList = []
+        newNode.edgeList = [new Relation('')]
+        newNode.edgeIfEpmty = [new Relation('')]
         newNode.initializeData()
 
         return newNode

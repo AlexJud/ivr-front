@@ -29,7 +29,7 @@ export class BranchViewNode extends ViewNode {
         newNode.id = id
         newNode.type = type
         newNode.parent = parent
-        newNode.edgeList = []
+        newNode.edgeList = [new Relation('', [''])]
         newNode.initializeData()
 
         return newNode
@@ -58,13 +58,7 @@ export class BranchViewNode extends ViewNode {
         rowType = CellType.SELECT
         rowValue = new RowWithSelectValue (
             [Strings.LOAD_GRAMMAR, 'grammar.xml'],
-            ''    public createRow(type: CellType, name: string, value: any): BranchPropsPresent {
-                const row = new BranchPropsPresent()
-                row.name = name
-                row.value = value 
-                row.type = type
-                return row
-            }
+            ''
         )
         this.props.push(this.createRow(rowType, Strings.GRAMMAR, rowValue))
 

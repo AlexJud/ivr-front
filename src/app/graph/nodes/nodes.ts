@@ -18,6 +18,7 @@ export abstract class Node {
   id: string;
   type?:string;
   edgeList: Relation[];
+  edgeIfEmpty?: Relation[]
   props?: any;
 }
 
