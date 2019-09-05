@@ -8,6 +8,13 @@ export class SpecifierRowPresent {
     type: CellType
 }
 
+export class SpecifierEdgePresent {
+    id: string
+    match: any
+    name: string
+    type: CellType
+}
+
 export class ColumnWithSelect {
     value: string[]
     selected: string

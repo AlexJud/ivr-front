@@ -3,7 +3,7 @@
     <mat-expansion-panel> 
       <mat-expansion-panel-header>
         <mat-panel-title>
-        <label for="">Вопрос: 
+        <label for="">Вопрос:
           <span style="font-size: 11px">{{currentNode.props[0].value}}</span></label>
         </mat-panel-title>
       </mat-expansion-panel-header>
@@ -53,7 +53,7 @@
       </div>
     </mat-expansion-panel>
   </mat-accordion>
-  <!-- Дочерние узлы с сопоставлением слов -->
+  <!-- Дочерние узлы -->
   <mat-accordion class="example-headers-align">
       <mat-expansion-panel> 
         <mat-expansion-panel-header>
@@ -64,13 +64,13 @@
             <div *ngFor="let edge of currentNode.edgeList">
               <mat-card class="example-card">
                 <mat-card-header>
-                  <mat-card-subtitle>Слова для перехода по ветке {{edge.id}}</mat-card-subtitle>
+                  <mat-card-subtitle>{{edge.name}}</mat-card-subtitle>
                 </mat-card-header>
                 <mat-card-content>
                     <mat-form-field>
-                        <input matInput placeholder="Имя следующего узла" value="{{edge.id}}">
+                        <input matInput placeholder="Имя дочернего узла" value="{{edge.id}}">
                     </mat-form-field>
-                  <mat-chip-list #chipList aria-label="Keywords selection">
+                  <mat-chip-list *ngIf="edge.type === 4" #chipList aria-label="Keywords selection">
                       <mat-chip *ngFor="let key of edge.match" [selectable]="selectable"
                                 [removable]="removable" (removed)="remove(key)">
                         {{key}}
@@ -88,7 +88,7 @@
             </div>
       </mat-expansion-panel>
     </mat-accordion>
-    <!-- Дочерние узлы без слов -->
+    <!-- Дочерние узлы без слов
     <mat-accordion class="example-headers-align">
       <mat-expansion-panel> 
         <mat-expansion-panel-header>
@@ -121,4 +121,4 @@
               <br/>
             </div>
       </mat-expansion-panel>
-    </mat-accordion>
+    </mat-accordion> -->

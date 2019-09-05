@@ -16,11 +16,15 @@ export enum Strings {
     REPEAT = 'Количество повторений',
     CHILDREN = 'Дочерние узлы',
     PARAMETRS = 'Параметры',
+    CARDNAME = 'Слова для перехода по ветке',
+    CARD_SUCCESS = 'Переход в случае успеха',
+    CARD_FAIL = 'Переход в случае неудачи'
 }
 export enum CellType {
     SPAN,
     INPUT,
     TEXTAREA,
     SELECT,
-    CARD
+    CARD_WITH_CHIPS,
+    CARD_WITHOUT_CHIPS
 }

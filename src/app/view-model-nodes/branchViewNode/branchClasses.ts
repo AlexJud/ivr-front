@@ -7,6 +7,13 @@ export class BranchPropsPresent {
     type: CellType
 }
 
+export class BranchEdgesPresent {
+    id: string
+    match: any
+    name: string
+    type: CellType
+}
+
 export class RowWithSelectValue {
     value: string[]
     selected: string

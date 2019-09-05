@@ -7,7 +7,7 @@ export abstract class ViewNode {
     parent?: string
     type?: string
     props: any
-    edgeList?: Relation[]
+    edgeList?: any[]
     tableView?: TableView
 
     abstract addChildren(child: string);
