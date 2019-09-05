@@ -10,19 +10,19 @@
       <div *ngFor="let prop of currentNode.props">
         <div class="textarea-field" *ngIf="prop.type === 2">
           <mat-form-field>
-              <textarea matInput placeholder="{{prop.name}}" value="{{prop.value}}"></textarea>
+              <textarea matInput placeholder="{{prop.name}}" [(ngModel)]="prop.value"></textarea>
           </mat-form-field>
         </div>
         <div class="input-field" *ngIf="prop.type === 1">
           <mat-form-field>
-              <input matInput placeholder="{{prop.name}}" value="{{prop.value}}">
+              <input matInput placeholder="{{prop.name}}" [(ngModel)]="prop.value">
           </mat-form-field>
         </div>
         <div class="select-field" *ngIf="prop.type === 3">
           <mat-form-field>
             <mat-label>{{prop.name}}</mat-label>
-            <mat-select>
-              <mat-option *ngFor="let value of prop.value.value" [value]="value.selected">
+            <mat-select [(value)]="prop.value.selected">
+              <mat-option *ngFor="let value of prop.value.value" [(value)]="value">
                 {{value}}
               </mat-option>
             </mat-select>
@@ -82,18 +82,18 @@
                     <mat-form-field>
                         <input matInput placeholder="Имя дочернего узла" value="{{edge.id}}">
                     </mat-form-field>
-                  <mat-chip-list *ngIf="edge.type === 4" #chipList aria-label="Keywords selection">
-                      <mat-chip *ngFor="let key of edge.match" [selectable]="selectable"
-                                [removable]="removable" (removed)="remove(key)">
-                        {{key}}
-                        <mat-icon matChipRemove *ngIf="removable">o</mat-icon>
-                      </mat-chip>
-                      <input placeholder="Добавить слово..." matInput
-                              [matChipInputFor]="chipList"
-                              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                              [matChipInputAddOnBlur]="addOnBlur"
-                              (matChipInputTokenEnd)="add($event)">
-                    </mat-chip-list>
+                  <mat-chip-list *ngIf="edge.type === 4" #chipList aria-label="Keywords selection" [(ngModel)]="edge.match">
+                    <mat-chip *ngFor="let key of edge.match" [selectable]="selectable"
+                              [removable]="removable" (removed)="remove(key, edge.id)">
+                      {{key}}
+                      <mat-icon matChipRemove *ngIf="removable">o</mat-icon>
+                    </mat-chip>
+                    <input placeholder="Добавить слово..." matInput
+                            [matChipInputFor]="chipList"
+                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                            [matChipInputAddOnBlur]="addOnBlur"
+                            (matChipInputTokenEnd)="add($event, edge.id)">
+                  </mat-chip-list>
                 </mat-card-content>
               </mat-card>
               <br/>

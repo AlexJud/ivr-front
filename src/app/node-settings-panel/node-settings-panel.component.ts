@@ -43,26 +43,17 @@ export class NodeSettingsPanelComponent implements OnInit {
     console.log(this.currentNode)
   }
 
-  // setStep(index: number) {
-  //   this.step = index;
-  // }
-
-  // nextStep() {
-  //   this.step++;
-  // }
-
-  // prevStep() {
-  //   this.step--;
-  // }
-
-
-  add(event: MatChipInputEvent): void {
+  add(event: MatChipInputEvent, id: string): void {
     const input = event.input;
     const value = event.value;
-
+    console.log(event)
     // Add our fruit
     if ((value || '').trim()) {
-      this.fruits.push({ name: value.trim() });
+      this.currentNode.edgeList.forEach(edge => {
+        if(edge.id === id) {
+          edge.match.push(value.trim())
+        }
+      });
     }
 
     // Reset the input value
@@ -71,16 +62,19 @@ export class NodeSettingsPanelComponent implements OnInit {
     }
   }
 
-  remove(fruit: any): void {
-    console.log('TEST', this._modelService.model);
-    const index = this.fruits.indexOf(fruit);
+  remove(key: string, id: string): void {
+    let index: number
 
-    if (index >= 0) {
-      this.fruits.splice(index, 1);
-    }
+    this.currentNode.edgeList.forEach(edge => {
+      if(edge.id === id) {
+        index = edge.match.indexOf(key);
+      }
+      if (index >= 0) {
+        edge.match.splice(index, 1);
+      }
+  })
+
     
-    
-    console.log('UpDATe',this._modelService.model );
   }
 
 }
