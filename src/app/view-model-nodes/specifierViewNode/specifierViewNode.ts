@@ -96,7 +96,7 @@ export class SpecifierViewNode extends ViewNode {
 
         for(let i = 0; i < length; i++) {
             rowType = CellType.CARD_WITHOUT_CHIPS
-            rowValue = node === undefined ? '' : node.edgeList[i]
+            rowValue = node === undefined ? '' : node.edgeIfEmpty[i]
             this.edgeIfEmpty.push(this.createEdgeRow(rowType, Strings.CARD_FAIL, rowValue))
         }
     }

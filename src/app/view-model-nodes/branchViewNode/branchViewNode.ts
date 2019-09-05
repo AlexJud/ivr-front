@@ -10,7 +10,7 @@ export class BranchViewNode extends ViewNode {
     id: string
     parent: string
     type: string
-    edgeList: Relation[]
+    edgeList: BranchEdgesPresent[]
     props: BranchPropsPresent[]
     tableView: TableView
     
@@ -77,7 +77,7 @@ export class BranchViewNode extends ViewNode {
         let length: number
         this.edgeList = []
         if(node.edgeList === null) {
-            this.edgeList = [new Relation('', [''])]
+            this.edgeList = [new BranchEdgesPresent(undefined, [''], Strings.CARDNAME, CellType.CARD_WITHOUT_CHIPS)]
         } else {
             length = node.edgeList.length
         }
@@ -107,6 +107,6 @@ export class BranchViewNode extends ViewNode {
     }
 
     public addChildren(child: string): void {
-        this.edgeList.push(new Relation(child))
+        this.edgeList.push(new BranchEdgesPresent(child))
     }
 }

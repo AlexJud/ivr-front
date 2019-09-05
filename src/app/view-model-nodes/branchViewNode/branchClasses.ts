@@ -12,6 +12,13 @@ export class BranchEdgesPresent {
     match: any
     name: string
     type: CellType
+
+    constructor(id?:string, match?: string[], name?: string, type?: CellType) {
+        this.id = id;
+        this.match = match
+        this.name = name
+        this.type = type
+    }
 }
 
 export class RowWithSelectValue {
