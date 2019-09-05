@@ -28,7 +28,6 @@ import { EventService } from './services/event.service';
 // import { GridSettingsComponent } from './grid-settings/grid-settings.component';
 import { MatTableModule } from '@angular/material/table';
 import { MaterialModule } from '../material-modules'
-import { FormsModule } from '@angular/forms';
 import { GridSettingsPanelComponent } from './grid-settings/grid-settings-panel/grid-settings-panel.component';
 import { HttpService } from './services/http.service';
 import { HttpClientModule } from '@angular/common/http';
@@ -38,7 +37,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { WebSocketAPI } from './services/WebSocketAPI';
 import { CallViewerComponent } from './call-viewer/call-viewer.component';
 import { NodeSettingsPanelComponent } from './node-settings-panel/node-settings-panel.component';
-import {MatExpansionModule} from '@angular/material/expansion';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 // const appRoutes: Routes =[
 //   { path: 'sidenav', component: SidnavTestComponent }
@@ -80,7 +81,9 @@ import {MatExpansionModule} from '@angular/material/expansion';
     MaterialModule,
     MatExpansionModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    MatAutocompleteModule,
+    ReactiveFormsModule
   ],
   providers: [ ModelService, EventService, HttpService, GrammarService, SettingsModelService, WebSocketAPI ],
   bootstrap: [AppComponent],

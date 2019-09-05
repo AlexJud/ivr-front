@@ -5,12 +5,7 @@ import { Node } from '../../graph/nodes/nodes';
 import { EndRowPresent } from './endClasses';
 
 export class EndViewNode extends ViewNode {
-    id: string
-    parent: string
-    type: string
-    edgeList: Relation[]
     props: EndRowPresent[]
-    tableView: TableView
 
     public static createFromNode(node: Node): EndViewNode {
         let newNode = new EndViewNode()
@@ -34,21 +29,16 @@ export class EndViewNode extends ViewNode {
     }
 
     private initializeData(node?: Node) {
-        let rowType: RowType
+        let rowType: CellType
         let rowValue: any
         this.props = []
 
-        rowType = RowType.getInstance(CellType.INPUT)
+        rowType = CellType.TEXTAREA
         rowValue = node === undefined ? '' : node.props.synthText
         this.props.push(this.createRow(rowType, Strings.TEXT_FOR_SYNTHESIZE, rowValue))
-
-        this.tableView = new TableView()
-        this.tableView.displayedColumns = ['name', 'value']
-        this.tableView.columnsData.push(new ColumsData("name", "Наименование"))
-        this.tableView.columnsData.push(new ColumsData("value", "Значение"))
     }
 
-    public createRow(type: RowType, name: string, value: any): EndRowPresent {
+    public createRow(type: CellType, name: string, value: any): EndRowPresent {
         let row: EndRowPresent = new EndRowPresent()
             row.name = name
             row.value = value 
@@ -57,6 +47,6 @@ export class EndViewNode extends ViewNode {
     }
     
     public addChildren(child: string): void {
-        this.edgeList.push(new Relation(child))
+        // this.edgeList.push(new Relation(child))
     }
 }

@@ -11,9 +11,10 @@ import { GrammarService } from './grammar.service';
 import { EndProps } from '../graph/nodeProps/endProps';
 import { SpecifierViewNode } from '../view-model-nodes/specifierViewNode/specifierViewNode';
 import { EndViewNode } from '../view-model-nodes/endViewNode/endViewNode';
+import { SystemViewNode } from '../view-model-nodes/systemViewNode/systemViewNode';
 
 const START_DATA = [
-  new BranchNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}, []),
+  new BranchNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}),
   // new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
   // new SpecifierNode('specifier', [new SpecifierProps()], [new Relation('end')] ),
   // new EndNode('end', ['@name#, все понятно, до свидания!']),
@@ -84,8 +85,8 @@ export class ModelService {
         this._viewModel.set(id, BranchViewNode.createNewNode(id, type, parent));   
         break
       }
-      case NodeType.ClassifierNode: {
-        // this._viewModel.set(id, ClassifierViewNode.createNewNode(id, type, parent));
+      case NodeType.SystemNode: {
+        this._viewModel.set(id, SystemViewNode.createNewNode(id, type, parent));
         break
       }
       case NodeType.SpecifierNode: {

@@ -4,6 +4,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { ModelService } from '../services/model.service';
 import { EventService } from '../services/event.service';
 import { ViewNode } from '../view-model-nodes/viewNode';
+import {FormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-node-settings-panel',
@@ -15,17 +16,13 @@ export class NodeSettingsPanelComponent implements OnInit {
   // asrType = this.currentNode['Слитное распознавание', 'Распознавание по грамматике']
   // step = 0;
   model;
-
+  myControl = new FormControl()
   visible = true;
   selectable = true;
   removable = true;
   addOnBlur = true;
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  fruits: any[] = [
-    { name: 'Lemon' },
-    { name: 'Lime' },
-    { name: 'Apple' },
-  ];
+  fruits: any[] = ['Lemon', 'Lime', 'Apple'];
 
   panelOpenState = false;
 

@@ -26,5 +26,6 @@ export enum CellType {
     TEXTAREA,
     SELECT,
     CARD_WITH_CHIPS,
-    CARD_WITHOUT_CHIPS
+    CARD_WITHOUT_CHIPS,
+    COMBOBOX
 }

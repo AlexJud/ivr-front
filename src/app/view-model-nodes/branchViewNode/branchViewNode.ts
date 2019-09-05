@@ -76,8 +76,8 @@ export class BranchViewNode extends ViewNode {
         let rowValue: any
         let length: number
         this.edgeList = []
-        if(node.edgeList === null) {
-            this.edgeList = [new BranchEdgesPresent(undefined, [''], Strings.CARDNAME, CellType.CARD_WITHOUT_CHIPS)]
+        if(node.edgeList === undefined) {
+            this.edgeList = []
         } else {
             length = node.edgeList.length
         }
@@ -107,6 +107,6 @@ export class BranchViewNode extends ViewNode {
     }
 
     public addChildren(child: string): void {
-        this.edgeList.push(new BranchEdgesPresent(child))
+        this.edgeList.push(this.createEdgeRow(CellType.CARD_WITH_CHIPS, Strings.CARDNAME, {id: child, match: ''}))
     }
 }

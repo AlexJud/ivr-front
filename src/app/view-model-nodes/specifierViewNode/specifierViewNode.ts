@@ -10,8 +10,8 @@ export class SpecifierViewNode extends ViewNode {
     id: string
     parent: string
     type: string
-    edgeIfEmpty: Relation[]
-    edgeList: Relation[]
+    edgeIfEmpty: SpecifierEdgePresent[]
+    edgeList: SpecifierEdgePresent[]
     props: SpecifierRowPresent[]
     tableView: TableView
 
@@ -79,12 +79,12 @@ export class SpecifierViewNode extends ViewNode {
         this.edgeList = []
         this.edgeIfEmpty = []
         if(node === undefined || node.edgeList === null) {
-            this.edgeList = [new Relation('', [''])]
+            this.edgeList
         } else {
             length = node.edgeList.length
         }
         if(node === undefined || node.edgeIfEmpty === null) {
-            this.edgeIfEmpty = [new Relation('', [''])]
+            this.edgeIfEmpty
         } else {
             length = node.edgeIfEmpty.length
         }
@@ -117,6 +117,6 @@ export class SpecifierViewNode extends ViewNode {
         return row
     }
     public addChildren(child: string): void {
-        this.edgeList.push(new Relation(child))
+        this.edgeList.push(this.createEdgeRow(CellType.CARD_WITHOUT_CHIPS, Strings.CARD_SUCCESS, {id: child, match: ''}))
     }
 }

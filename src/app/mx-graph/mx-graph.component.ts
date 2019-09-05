@@ -247,17 +247,17 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       this.graph.popupMenuHandler.factoryMethod = function(menu, cell, evt)
 				{
           if (thiz.canAddNewNode(cell)) {
-            menu.addItem('Создать BranchNode', null, function()
+            menu.addItem('Создать BranchNode', 'assets/images/split.png', function()
               {
                 const id = uuid.v4()
                 thiz.addNewNode(id, NodeType.BranchNode, cell.id)
                 thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id)
               });
-            menu.addItem('Создать ClassifierNode', 'assets/images/split.png', function()
+            menu.addItem('Создать SystemNode', 'assets/images/split.png', function()
               {
                 const id = uuid.v4()
-                thiz.addNewNode(id, NodeType.ClassifierNode, cell.id)
-                thiz._modelService.addNewViewNode(id, NodeType.ClassifierNode, cell.id)
+                thiz.addNewNode(id, NodeType.SystemNode, cell.id)
+                thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id)
               });
             menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function()
               {
@@ -280,29 +280,30 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       }
     }
     canAddNewNode(cell: any) {
-      const viewNode = this._modelService.viewModel.get(cell.id)
-      switch(viewNode.type) {
-        case NodeType.BranchNode: {
-          if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
-            return true
-          } else {
-            return false
-          }
-        }
-        case NodeType.ClassifierNode: {
-          return true
-        }
-        case NodeType.EndNode: {
-          return false
-        }
-        case NodeType.SpecifierNode: {
-          if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
-            return true
-          } else {
-            return false
-          }
-        }
-      }
+      // const viewNode = this._modelService.viewModel.get(cell.id)
+      // switch(viewNode.type) {
+      //   case NodeType.BranchNode: {
+      //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
+      //       return true
+      //     } else {
+      //       return false
+      //     }
+      //   }
+      //   case NodeType.ClassifierNode: {
+      //     return true
+      //   }
+      //   case NodeType.EndNode: {
+      //     return false
+      //   }
+      //   case NodeType.SpecifierNode: {
+      //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
+      //       return true
+      //     } else {
+      //       return false
+      //     }
+      //   }
+      // }
+      return true
     }
   private buildModel() {
     const mapNode = new Map();
