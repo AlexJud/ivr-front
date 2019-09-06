@@ -61,4 +61,8 @@ export class TreePanelComponent implements OnInit {
   load() {
     this._modelService.requestModel()
   }
+
+  changeLatoyout(type:string){
+    this._eventService._events.emit('changeLayout',type)
+  }
 }
