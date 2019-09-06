@@ -41,12 +41,12 @@ export class EndViewNode extends ViewNode {
     public createRow(type: CellType, name: string, value: any): EndRowPresent {
         let row: EndRowPresent = new EndRowPresent()
             row.name = name
-            row.value = value 
+            row.value = value
             row.type = type
         return row
     }
-    
-    public addChildren(child: string): void {
+
+    public addChildren(child: string, error): void {
         // this.edgeList.push(new Relation(child))
     }
 }

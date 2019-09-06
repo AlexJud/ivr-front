@@ -70,6 +70,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     });
     this._eventService._events.addListener('updateModel', () => {
       this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()))
+      console.log('MODEL ',this.viewModel)
       this.buildModel()
     })
     this._eventService._events.addListener('updateGraph', (id) => {
@@ -92,20 +93,22 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     var marker = new mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
     this.graph.addMouseListener({
       mouseDown: ((sender, me) => {
+        console.log('MOUSE EVENT SENDER',sender)
+        console.log('MOUSE EVENT ME',me)
         if (me.evt.button === 0) //left
         {
-          if (me.getCell() !== null) {
-            // this.emitNameCell.emit(me.getCell().value);
-            if (me.getCell().parent.value === undefined) {
-              // this._eventService._events.emit('selectNode', {node: me.getCell().value, type: me.getCell().value});
-              this._eventService._events.emit('showProps', {node: me.getCell().id, type: 'options'});
-              console.log('Select node', me.getCell().value);
-            } else {
-              this._eventService._events.emit('showProps', {node: me.getCell().id, type: 'options'});
-              // this._eventService._events.emit('selectNode', me.getCell().value);
-              console.log('Select node', me.getCell().value);
-            }
-          }
+          // if (me.getCell() !== null) {
+          //   // this.emitNameCell.emit(me.getCell().value);
+          //   if (me.getCell().parent.value === undefined) {
+          //     // this._eventService._events.emit('selectNode', {node: me.getCell().value, type: me.getCell().value});
+          //     this._eventService._events.emit('showProps', {node: me.getCell().id, type: 'options'});
+          //     console.log('Select node', me.getCell().value);
+          //   } else {
+          //     this._eventService._events.emit('showProps', {node: me.getCell().id, type: 'options'});
+          //     // this._eventService._events.emit('selectNode', me.getCell().value);
+          //     console.log('Select node', me.getCell().value);
+          //   }
+          // }
         }
       }),
       mouseMove: function (sender, me) {
@@ -118,6 +121,240 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     this.highlight = new mxCellHighlight(this.graph, '#ff0000', 5);
 
   }
+
+
+  private initializeMxGraph() {
+    const container = document.getElementById('graphContainer');
+
+    if (!mxClient.isBrowserSupported()) {
+      mxUtils.error('Browser is not supported!', 200, false);
+    } else {
+      mxEvent.disableContextMenu(container);
+
+
+      this.graph = new mxGraph(container);
+      // const mxRubberband1 = new mx.mxRubberband(this.graph);
+      this.parent = this.graph.getDefaultParent();
+      this.graph.graphHandler.setRemoveCellsFromParent(false);
+      this.graph.resetEdgesOnMove = true;
+      this.graph.graphHandler.setSelectEnabled(false);
+      this.graph.enterStopsCellEditing = true
+      this.graph.setHtmlLabels(true);
+
+      // this.graph.setCellsMovable(false);
+      // this.graph.setAutoSizeCells(true);
+      this.graph.setPanning(true);
+      this.graph.centerZoom = false;
+      this.graph.panningHandler.useLeftButtonForPanning = true;
+
+      const thiz = this;
+      mxEvent.addMouseWheelListener(function (evt, up) {
+        // mx.Print = false;
+        if (evt.altKey && up) {
+          thiz.graph.zoomIn();
+            mxEvent.consume(evt);
+        } else if (evt.altKey) {
+          thiz.graph.zoomOut();
+            mxEvent.consume(evt);
+        }
+      });
+      // this.graph.addListener(mxEvent.LABEL_CHANGED,  function (sender, evt) {
+      //   const id = evt.properties.cell.value;
+      //   const parent = evt.properties.cell.edges[0].source.value
+      //   thiz.map.set(id, evt.properties.cell);
+      //   let viewNode = thiz._modelService.viewModel.get(id)
+      //   if ( viewNode !== undefined) {
+      //     viewNode.id = id
+      //   } else {
+      //     thiz._modelService.addNewViewNode(id, evt.properties.cell.style, parent)
+      //   }
+      //   thiz._eventService._events.emit("nodeChanged");
+      // });
+
+      this.graph.popupMenuHandler.factoryMethod = function(menu, cell, evt)
+				{
+          let submenu = thiz._modelService.viewModel.get(cell.id).type === NodeType.SpecifierNode
+          if (submenu) {
+            submenu = menu.addItem('Ответ получен', null, null);
+          } else {
+            submenu = null;
+          }
+          // if (thiz.canAddNewNode(cell)) {
+            menu.addItem('Создать BranchNode', 'assets/images/split.png', function()
+              {
+                const id = uuid.v4()
+                thiz.addNewNode(id, NodeType.BranchNode, cell.id)
+                thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id)
+              },submenu);
+            menu.addItem('Создать SystemNode', 'assets/images/info.png', function()
+              {
+                const id = uuid.v4()
+                thiz.addNewNode(id, NodeType.SystemNode, cell.id)
+                thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id)
+              },submenu);
+            menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function()
+              {
+                const id = uuid.v4()
+                thiz.addNewNode(id, NodeType.SpecifierNode, cell.id)
+                thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id)
+              },submenu);
+            menu.addItem('Создать EndNode', 'assets/images/done.png', function()
+              {
+                const id = uuid.v4()
+                thiz.addNewNode(id, NodeType.EndNode, cell.id)
+                thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id)
+              },submenu);
+            // }
+          if(submenu){
+            submenu = menu.addItem('Если ошибка', null, null);
+            menu.addItem('Создать BranchNode', 'assets/images/split.png', function()
+            {
+              const id = uuid.v4()
+              thiz.addNewNode(id, NodeType.BranchNode, cell.id, true)
+              thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id,true)
+            },submenu);
+            menu.addItem('Создать SystemNode', 'assets/images/info.png', function()
+            {
+              const id = uuid.v4()
+              thiz.addNewNode(id, NodeType.SystemNode, cell.id, true)
+              thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id,true)
+            },submenu);
+            menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function()
+            {
+              const id = uuid.v4()
+              thiz.addNewNode(id, NodeType.SpecifierNode, cell.id,true)
+              thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id, true)
+            },submenu);
+            menu.addItem('Создать EndNode', 'assets/images/done.png', function()
+            {
+              const id = uuid.v4()
+              thiz.addNewNode(id, NodeType.EndNode, cell.id, true)
+              thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id,true)
+            },submenu);
+          }
+          menu.addItem('Удалить', 'assets/images/delete.png', function()
+            {
+              thiz.deleteNode(cell.id)
+            });
+				};
+      }
+    }
+    canAddNewNode(cell: any) {
+      // const viewNode = this._modelService.viewModel.get(cell.id)
+      // switch(viewNode.type) {
+      //   case NodeType.BranchNode: {
+      //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
+      //       return true
+      //     } else {
+      //       return false
+      //     }
+      //   }
+      //   case NodeType.ClassifierNode: {
+      //     return true
+      //   }
+      //   case NodeType.EndNode: {
+      //     return false
+      //   }
+      //   case NodeType.SpecifierNode: {
+      //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
+      //       return true
+      //     } else {
+      //       return false
+      //     }
+      //   }
+      // }
+      return true
+    }
+  private buildModel() {
+    const mapNode = new Map();
+    this.map = new Map();
+    console.log('VIEW ',this.viewModel);
+    this.graph.getModel().beginUpdate();
+    try {
+      this.viewModel.forEach((node: ViewNode) => {
+
+        let vObj = this.graph.insertVertex(this.parent, node.id, node.props[0].value, 0, 0, 120, 80, node.type);
+       // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
+        this.map.set(node.id, vObj);
+        mapNode.set(node.id, node);
+      });
+
+      this.map.forEach((v, k) => {
+        let object = mapNode.get(k);
+        if (object.edgeList !== undefined && object.edgeList.length !== 0) {
+          object.edgeList.forEach((nodeName) => {
+            let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.id), 'Edge');
+          });
+        }
+        if(object.edgeIfEmpty && object.edgeIfEmpty.length !== 0) {
+          object.edgeIfEmpty.forEach(node => {
+            this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(node.id), 'redEdge');
+          })
+        }
+      });
+    } catch (e) {
+      console.error(`mx-graph.component Erorr: ${e}`);
+    } finally {
+      this.layout.execute(this.parent);
+      this.graph.getModel().endUpdate();
+    }
+  }
+  // ПОДСВЕТКА ЯЧЕКИ
+  highlightCellOn(cell) {
+    this.highlight.highlight(this.graph.view.getState(cell));
+  }
+  highlightCellReset() {
+    this.highlight.resetHandler();
+  }
+
+  public addNode(id: string) {
+    const viewNode = this._modelService.viewModel.get(id)
+    this.graph.getModel().beginUpdate();
+    try {
+      let vObj = this.graph.insertVertex(this.parent, viewNode.id, 'Ну вот он текст', 0, 0, 120, 80, viewNode.type);
+      //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
+      this.map.set(viewNode.id, vObj);
+      this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'Edge');
+    } finally {
+      this.layout.execute(this.parent);
+      this.graph.getModel().endUpdate();
+    }
+  }
+
+  private addNewNode(id: string, type: string, parent: string, error:boolean = false) {
+    let style = error? 'redEdge':'Edge';
+
+    this.graph.getModel().beginUpdate();
+    let vObj
+    try {
+      vObj = this.graph.insertVertex(this.parent, id, 'Тестовый текст', 0, 0, 120, 80, type);
+      this.map.set(id, vObj);
+      // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'Edge');
+      this.graph.insertEdge(this.parent, null, 'test', this.map.get(parent), vObj, style);
+    } finally {
+      this.layout.execute(this.parent);
+      this.graph.getModel().endUpdate();
+      // let element = this.graph.view.getState(vObj).shape.node
+      // var clickEvent  = document.createEvent ('MouseEvents');
+      // clickEvent.initEvent('dblclick', true, true);
+      // element.dispatchEvent(clickEvent);
+    }
+  }
+
+  public deleteNode(id: string) {
+    console.log('CIRE VIEW ',this.viewModel)
+    // this.graph.getModel().beginUpdate();
+    // try {
+    //   const rNode = this.map.get(id);
+    //   this.graph.removeCells([rNode]);
+    // } finally {
+    //   this.graph.getModel().endUpdate();
+    // }
+    this._modelService.deleteViewNode(id)
+// this.buildModel();
+    this._eventService._events.emit("updateModel");
+  }
+
 
   initStyles() {
     let branchNodeStyle = {};
@@ -188,208 +425,33 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     this.graph.getStylesheet().putCellStyle('EndNode', endNodeStyle);
 
     let edgeStyle = {};
-    edgeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
+    edgeStyle[mxConstants.STYLE_STROKECOLOR] = '#107539';
     edgeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
+    edgeStyle[mxConstants.STYLE_VERTICAL_LABEL_POSITION] = 'top'
+    edgeStyle[mxConstants.STYLE_VERTICAL_ALIGN] = 'bottom'
+
     this.graph.getStylesheet().putCellStyle('Edge', edgeStyle);
+
+    let redEdge = {
+      verticalLabelPosition : 'top',
+      verticalAlign:'bottom',
+      strokeWidth: 2,
+      strokeColor: '#ff0500'
+    };
+    this.graph.getStylesheet().putCellStyle('redEdge', redEdge);
+
 
     //this.styleCell = 'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0';
     //this.styleVertex = 'ROUNDED;separatorColor=green;rounded=1;arcSize=10';
   }
 
-  private initializeMxGraph() {
-    const container = document.getElementById('graphContainer');
-
-    if (!mxClient.isBrowserSupported()) {
-      mxUtils.error('Browser is not supported!', 200, false);
-    } else {
-      mxEvent.disableContextMenu(container);
-
-
-      this.graph = new mxGraph(container);
-      // const mxRubberband1 = new mx.mxRubberband(this.graph);
-      this.parent = this.graph.getDefaultParent();
-      this.graph.graphHandler.setRemoveCellsFromParent(false);
-      this.graph.resetEdgesOnMove = true;
-      this.graph.graphHandler.setSelectEnabled(false);
-      this.graph.enterStopsCellEditing = true
-      this.graph.setHtmlLabels(true);
-
-      // this.graph.setCellsMovable(false);
-      // this.graph.setAutoSizeCells(true);
-      this.graph.setPanning(true);
-      this.graph.centerZoom = false;
-      this.graph.panningHandler.useLeftButtonForPanning = true;
-
-      const thiz = this;
-      mxEvent.addMouseWheelListener(function (evt, up) {
-        // mx.Print = false;
-        if (evt.altKey && up) {
-          thiz.graph.zoomIn();
-            mxEvent.consume(evt);
-        } else if (evt.altKey) {
-          thiz.graph.zoomOut();
-            mxEvent.consume(evt);
-        }
-      });
-      // this.graph.addListener(mxEvent.LABEL_CHANGED,  function (sender, evt) {
-      //   const id = evt.properties.cell.value;
-      //   const parent = evt.properties.cell.edges[0].source.value
-      //   thiz.map.set(id, evt.properties.cell);
-      //   let viewNode = thiz._modelService.viewModel.get(id)
-      //   if ( viewNode !== undefined) {
-      //     viewNode.id = id
-      //   } else {
-      //     thiz._modelService.addNewViewNode(id, evt.properties.cell.style, parent)
-      //   }
-      //   thiz._eventService._events.emit("nodeChanged");
-      // });
-
-      this.graph.popupMenuHandler.factoryMethod = function(menu, cell, evt)
-				{
-          if (thiz.canAddNewNode(cell)) {
-            menu.addItem('Создать BranchNode', 'assets/images/split.png', function()
-              {
-                const id = uuid.v4()
-                thiz.addNewNode(id, NodeType.BranchNode, cell.id)
-                thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id)
-              });
-            menu.addItem('Создать SystemNode', 'assets/images/split.png', function()
-              {
-                const id = uuid.v4()
-                thiz.addNewNode(id, NodeType.SystemNode, cell.id)
-                thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id)
-              });
-            menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function()
-              {
-                const id = uuid.v4()
-                thiz.addNewNode(id, NodeType.SpecifierNode, cell.id)
-                thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id)
-              });
-            menu.addItem('Создать EndNode', 'assets/images/done.png', function()
-              {
-                const id = uuid.v4()
-                thiz.addNewNode(id, NodeType.EndNode, cell.id)
-                thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id)
-              });
-            }
-          menu.addItem('Удалить', 'assets/images/delete.png', function()
-            {
-              thiz.deleteNode(cell.id)
-            });
-				};
-      }
-    }
-    canAddNewNode(cell: any) {
-      // const viewNode = this._modelService.viewModel.get(cell.id)
-      // switch(viewNode.type) {
-      //   case NodeType.BranchNode: {
-      //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
-      //       return true
-      //     } else {
-      //       return false
-      //     }
-      //   }
-      //   case NodeType.ClassifierNode: {
-      //     return true
-      //   }
-      //   case NodeType.EndNode: {
-      //     return false
-      //   }
-      //   case NodeType.SpecifierNode: {
-      //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
-      //       return true
-      //     } else {
-      //       return false
-      //     }
-      //   }
-      // }
-      return true
-    }
-  private buildModel() {
-    const mapNode = new Map();
-    this.graph.getModel().beginUpdate();
-    try {
-      this.viewModel.forEach((node: ViewNode) => {
-
-        let vObj = this.graph.insertVertex(this.parent, node.id, node.props[0].value, 0, 0, 120, 80, node.type);
-       // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
-        this.map.set(node.id, vObj);
-        mapNode.set(node.id, node);
-      });
-
-      this.map.forEach((v, k) => {
-        if (mapNode.get(k).edgeList !== undefined && mapNode.get(k).edgeList.length !== 0) {
-          mapNode.get(k).edgeList.forEach((nodeName) => {
-            let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.id), 'Edge');
-          });
-        }
-      });
-    } catch (e) {
-      console.error(`mx-graph.component Erorr: ${e}`);
-    } finally {
-      this.layout.execute(this.parent);
-      this.graph.getModel().endUpdate();
-    }
-  }
-  // ПОДСВЕТКА ЯЧЕКИ
-  highlightCellOn(cell) {
-    this.highlight.highlight(this.graph.view.getState(cell));
-  }
-  highlightCellReset() {
-    this.highlight.resetHandler();
-  }
-
-  public addNode(id: string) {
-    const viewNode = this._modelService.viewModel.get(id)
-    this.graph.getModel().beginUpdate();
-    try {
-      let vObj = this.graph.insertVertex(this.parent, viewNode.id, 'Ну вот он текст', 0, 0, 120, 80, viewNode.type);
-      //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
-      this.map.set(viewNode.id, vObj);
-      this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'Edge');
-    } finally {
-      this.layout.execute(this.parent);
-      this.graph.getModel().endUpdate();
-    }
-  }
-
-  private addNewNode(id: string, type: string, parent: string) {
-    this.graph.getModel().beginUpdate();
-    let vObj
-    try {
-      vObj = this.graph.insertVertex(this.parent, id, 'Ну вот он текст, ебать', 0, 0, 120, 80, type);
-      this.map.set(id, vObj);
-      // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'Edge');
-      this.graph.insertEdge(this.parent, null, 'test', this.map.get(parent), vObj, 'verticalLabelPosition=top;verticalAlign=bottom');
-    } finally {
-      this.layout.execute(this.parent);
-      this.graph.getModel().endUpdate();
-      // let element = this.graph.view.getState(vObj).shape.node
-      // var clickEvent  = document.createEvent ('MouseEvents');
-      // clickEvent.initEvent('dblclick', true, true);
-      // element.dispatchEvent(clickEvent);
-    }
-  }
-
-  public deleteNode(id: string) {
-    this.graph.getModel().beginUpdate();
-    try {
-      const rNode = this.map.get(id);
-      this.graph.removeCells([rNode]);
-    } finally {
-      this.graph.getModel().endUpdate();
-    }
-    this._modelService.deleteViewNode(id)
-    this._eventService._events.emit("nodeChanged");
-  }
-
   // private initModel() {
   //   const field1 = new mx.mxCell(Object.keys(this.viewModel)[0], new mx.mxGeometry(0, 40, 140, 40),
   //     'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0');
-  
+
   //   const field2 = new mx.mxCell('classify', new mx.mxGeometry(0, 40, 140, 40),
   //     'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0');
-  
+
   //   field1.vertex = true;
   //   field2.vertex = true;
   //   // Adds cells to the model in a single step
@@ -414,4 +476,6 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   //     this.graph.getModel().endUpdate();
   //   }
   // }
+
+
 }

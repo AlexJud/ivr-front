@@ -13,7 +13,7 @@ export class BranchViewNode extends ViewNode {
     edgeList: BranchEdgesPresent[]
     props: BranchPropsPresent[]
     tableView: TableView
-    
+
     public static createFromNode(node: Node): BranchViewNode {
         let newNode = new BranchViewNode()
         newNode.id = node.id
@@ -39,12 +39,12 @@ export class BranchViewNode extends ViewNode {
         let rowType: CellType
         let rowValue: any
         this.props = []
-        
+
 
         rowType = CellType.TEXTAREA
         rowValue = node === undefined ? '' : node.props.synthText
         this.props.push(this.createPropsRow(rowType, Strings.TEXT_FOR_SYNTHESIZE, rowValue))
-        
+
         rowType = CellType.INPUT
         rowValue = node === undefined ? 'b=1&t=5000&nit=5000' : node.props.options
         this.props.push(this.createPropsRow(rowType, Strings.ASR_OPTION, rowValue))
@@ -76,7 +76,7 @@ export class BranchViewNode extends ViewNode {
         let rowValue: any
         let length: number
         this.edgeList = []
-        if(node.edgeList === undefined) {
+        if(node === undefined || node.edgeList === undefined) {
             this.edgeList = []
         } else {
             length = node.edgeList.length
@@ -92,7 +92,7 @@ export class BranchViewNode extends ViewNode {
     public createPropsRow(type: CellType, name: string, value: any): BranchPropsPresent {
         const row = new BranchPropsPresent()
         row.name = name
-        row.value = value 
+        row.value = value
         row.type = type
         return row
     }
@@ -106,7 +106,7 @@ export class BranchViewNode extends ViewNode {
         return row
     }
 
-    public addChildren(child: string): void {
+    public addChildren(child: string,error): void {
         this.edgeList.push(this.createEdgeRow(CellType.CARD_WITH_CHIPS, Strings.CARDNAME, {id: child, match: []}))
     }
 }

@@ -69,7 +69,7 @@ export class SystemViewNode extends ViewNode {
     public createPropsRow(type: CellType, name: string, value: any): SystemPropsPresent {
         const row = new SystemPropsPresent()
         row.name = name
-        row.value = value 
+        row.value = value
         row.type = type
         return row
     }
@@ -83,7 +83,7 @@ export class SystemViewNode extends ViewNode {
         return row
     }
 
-    addChildren(child: string) {
+    addChildren(child: string,error) {
         this.edgeList.push(this.createEdgeRow(CellType.CARD_WITHOUT_CHIPS, Strings.CARDNAME, {id: child, match: ''}))
     }
 

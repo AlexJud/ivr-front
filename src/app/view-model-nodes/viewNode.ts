@@ -11,18 +11,18 @@ export abstract class ViewNode {
     edgeIfEmpty?: any
     tableView?: TableView
 
-    abstract addChildren(child: string);
+    abstract addChildren(child: string, error:boolean);
 }
 
 export class RowType {
   name: CellType
   value: CellType
-  
+
   constructor(type: CellType) {
       this.name = CellType.SPAN
       this.value = type
   }
-  
+
   public static getInstance(type: CellType): RowType {
       return new RowType(type)
   }

@@ -1,20 +1,24 @@
-import { Injectable } from '@angular/core';
-import { Node, NodeType, SpecifierNode, EndNode, BranchNode } from '../graph/nodes/nodes';
-import { Relation } from '../graph/nodes/relation';
-import { HttpService } from './http.service';
-import { SpecifierProps } from '../graph/nodeProps/specifierProps';
-import { EventService } from './event.service';
-import { ViewNode } from '../view-model-nodes/viewNode';
-import { BranchViewNode } from '../view-model-nodes/branchViewNode/branchViewNode';
-import { Strings, CellType } from '../graph/nodeProps/optionStrings';
-import { GrammarService } from './grammar.service';
-import { EndProps } from '../graph/nodeProps/endProps';
-import { SpecifierViewNode } from '../view-model-nodes/specifierViewNode/specifierViewNode';
-import { EndViewNode } from '../view-model-nodes/endViewNode/endViewNode';
-import { SystemViewNode } from '../view-model-nodes/systemViewNode/systemViewNode';
+import {Injectable} from '@angular/core';
+import {Node, NodeType, SpecifierNode, EndNode, BranchNode} from '../graph/nodes/nodes';
+import {Relation} from '../graph/nodes/relation';
+import {HttpService} from './http.service';
+import {SpecifierProps} from '../graph/nodeProps/specifierProps';
+import {EventService} from './event.service';
+import {ViewNode} from '../view-model-nodes/viewNode';
+import {BranchViewNode} from '../view-model-nodes/branchViewNode/branchViewNode';
+import {Strings, CellType} from '../graph/nodeProps/optionStrings';
+import {GrammarService} from './grammar.service';
+import {EndProps} from '../graph/nodeProps/endProps';
+import {SpecifierViewNode} from '../view-model-nodes/specifierViewNode/specifierViewNode';
+import {EndViewNode} from '../view-model-nodes/endViewNode/endViewNode';
+import {SystemViewNode} from '../view-model-nodes/systemViewNode/systemViewNode';
 
 const START_DATA = [
-  new BranchNode('root', {synthText:'Здравствуй, дружочек! Чего желаешь?', grammar: 'http://localhost/theme:graph', options: 'b=1&t=5000&nit=5000'}),
+  new BranchNode('root', {
+    synthText: 'Здравствуй, дружочек! Чего желаешь?',
+    grammar: 'http://localhost/theme:graph',
+    options: 'b=1&t=5000&nit=5000'
+  }),
   // new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
   // new SpecifierNode('specifier', [new SpecifierProps()], [new Relation('end')] ),
   // new EndNode('end', ['@name#, все понятно, до свидания!']),
@@ -31,6 +35,7 @@ export class ModelService {
   private _model: Node[];
   private _viewModel = new Map<string, ViewNode>()
   private asrTypes: string[]
+
   constructor(private _http: HttpService,
               private _eventService: EventService) {
     this.asrTypes = ['Слитное распознавание', 'Распознавание по грамматике']
@@ -39,6 +44,7 @@ export class ModelService {
   get model(): Node[] {
     return this._model;
   }
+
   set model(model: Node[]) {
     this._model = model;
   }
@@ -46,6 +52,7 @@ export class ModelService {
   get viewModel(): Map<string, ViewNode> {
     return this._viewModel;
   }
+
   set viewModel(model: Map<string, ViewNode>) {
     this._viewModel = model;
   }
@@ -56,33 +63,35 @@ export class ModelService {
   }
 
   buildViewModel() {
-     this.model.forEach(node => {
-      switch(node.type) {
-          case NodeType.BranchNode: {
-            this._viewModel.set(node.id, BranchViewNode.createFromNode(node))
-            break;
-          }
-          case NodeType.ClassifierNode: {
-            // this._viewModel.set(node.id, ClassifierViewNode.createFromNode(node))
-            break;
-          }
-          case NodeType.SpecifierNode: {
-            this._viewModel.set(node.id, SpecifierViewNode.createFromNode(node))
-            break;
-          }
-          case NodeType.EndNode: {
-            this._viewModel.set(node.id, EndViewNode.createFromNode(node))
-            break;
-          }
+    this.model.forEach(node => {
+      switch (node.type) {
+        case NodeType.BranchNode: {
+          this._viewModel.set(node.id, BranchViewNode.createFromNode(node))
+          break;
+        }
+        case NodeType.ClassifierNode: {
+          // this._viewModel.set(node.id, ClassifierViewNode.createFromNode(node))
+          break;
+        }
+        case NodeType.SpecifierNode: {
+          this._viewModel.set(node.id, SpecifierViewNode.createFromNode(node))
+          break;
+        }
+        case NodeType.EndNode: {
+          this._viewModel.set(node.id, EndViewNode.createFromNode(node))
+          break;
+        }
       }
-  })
-  console.log(this.viewModel);
+    })
+    console.log(this.viewModel);
   }
 
-  addNewViewNode(id: string, type: string, parent:string) {
-    switch(type) {
+  addNewViewNode(id: string, type: string, parent: string, error: boolean = false) {
+    switch (type) {
       case NodeType.BranchNode: {
-        this._viewModel.set(id, BranchViewNode.createNewNode(id, type, parent));   
+        console.log('TRACE1')
+        this._viewModel.set(id, BranchViewNode.createNewNode(id, type, parent));
+        console.log('map', this._viewModel.get(id))
         break
       }
       case NodeType.SystemNode: {
@@ -98,15 +107,38 @@ export class ModelService {
         break
       }
     }
-    this.addChildrenToParent(id, parent)
+    this.addChildrenToParent(id, parent, error)
+    console.log('viewModel ', this.viewModel)
   }
 
-  addChildrenToParent(child: string, parent: string) {
-    this.viewModel.get(parent).addChildren(child)
+  addChildrenToParent(child: string, parent: string, error: boolean) {
+    this.viewModel.get(parent).addChildren(child, error)
   }
 
   deleteViewNode(id: string) {
-    this.viewModel.delete(id)
+    let node = this.viewModel.get(id);
+    console.log('NODE UNDEF', node)
+    if (node.edgeIfEmpty) {
+      for (let rec in node.edgeIfEmpty) {
+        // console.log('REC',node.edgeIfEmpty[rec])
+        this.deleteViewNode(node.edgeIfEmpty[rec].id)
+      }}
+    if (node.edgeList) {
+      for (let rec in node.edgeList) {
+        // console.log('REC2',node.edgeList[rec]);
+        this.deleteViewNode(node.edgeList[rec].id)
+      }}
+
+
+    let parent = this.viewModel.get(node.parent);
+    console.log('PARENT', node)
+    if (parent.edgeList){
+      parent.edgeList = parent.edgeList.filter(item => item.id !== id)
+    }
+    if (parent.edgeIfEmpty){
+      parent.edgeIfEmpty = parent.edgeIfEmpty.filter(item => item.id !== id)
+    }
+    return this.viewModel.delete(id);
   }
 
   // convertModel() {

@@ -44,7 +44,7 @@ export class SpecifierViewNode extends ViewNode {
         rowType = CellType.TEXTAREA
         rowValue = node === undefined ? '' : node.props.synthText
         this.props.push(this.createRow(rowType, Strings.TEXT_FOR_SYNTHESIZE, rowValue))
-        
+
         rowType = CellType.INPUT
         rowValue = node === undefined ? 'b=1&t=5000&nit=5000' : node.props.asrOptions
         this.props.push(this.createRow(rowType, Strings.ASR_OPTION, rowValue))
@@ -104,7 +104,7 @@ export class SpecifierViewNode extends ViewNode {
     public createRow(type: CellType, name: string, value: any): SpecifierRowPresent {
         const row = new SpecifierRowPresent()
         row.name = name
-        row.value = value 
+        row.value = value
         row.type = type
         return row
     }
@@ -116,7 +116,11 @@ export class SpecifierViewNode extends ViewNode {
         row.type = type
         return row
     }
-    public addChildren(child: string): void {
+    public addChildren(child: string, error:boolean = false): void {
+      if (error){
+        this.edgeIfEmpty.push(this.createEdgeRow(CellType.CARD_WITHOUT_CHIPS, Strings.CARD_FAIL, {id: child, match: ''}))
+      } else{
         this.edgeList.push(this.createEdgeRow(CellType.CARD_WITHOUT_CHIPS, Strings.CARD_SUCCESS, {id: child, match: ''}))
+      }
     }
 }
