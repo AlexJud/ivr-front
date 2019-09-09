@@ -38,6 +38,14 @@
   height: 100%;
   float: left;
 }
+
+.right-panel {
+  overflow: auto;
+  width: 25%;
+  position: relative;
+  height: 89%;
+  float: right;
+}
 mat-drawer-container {
   top: 0;
   bottom: 0;

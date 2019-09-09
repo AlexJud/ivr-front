@@ -18,7 +18,7 @@ const START_DATA = [
   new BranchNode('root', {
     synthText: 'Здравствуй, дружочек! Чего желаешь?',
     grammar: 'http://localhost/theme:graph',
-    asrOptions: 'b=1&t=5000&nit=5000'
+    asrOptions: 'b=0&t=5000&nit=5000'
   }),
   // new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
   // new SpecifierNode('specifier', [new SpecifierProps()], [new Relation('end')] ),
@@ -193,8 +193,10 @@ export class ModelService {
           })
           let edgeList: Relation[] = []
           if (node.edgeList !== undefined && node.edgeList.length !== 0) {
-            let edge = new Relation(node.edgeList[0].id, node.edgeList[0].match);
-            edgeList.push(edge)
+            node.edgeList.forEach(edge => {
+              let relation = new Relation(edge.id, edge.match);
+              edgeList.push(relation)
+            })
           }
           newNode = new BranchNode(node.id, branchProps, edgeList)
           this.model.push(newNode)
