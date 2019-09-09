@@ -1,13 +1,16 @@
-import { NodeType } from './../graph/nodes/nodes';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
-import { ModelService } from '../services/model.service';
-import { EventService } from '../services/event.service';
-import { Node } from '../graph/nodes/nodes';
-import { ViewNode } from '../view-model-nodes/viewNode';
+import {NodeType} from './../graph/nodes/nodes';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit} from '@angular/core';
+import {ModelService} from '../services/model.service';
+import {EventService} from '../services/event.service';
+import {Node} from '../graph/nodes/nodes';
+import {ViewNode} from '../view-model-nodes/viewNode';
 import * as uuid from 'uuid'
+
 declare var mxClient: any;
 // mxClient.mxBasePath = 'assets/mxgraph'
 declare var mxCompactTreeLayout: any;
+declare var mxHierarchicalLayout: any;
+declare var mxFastOrganicLayout: any;
 declare var mxCellMarker: any;
 declare var mxCellHighlight: any;
 declare var mxConstants: any;
@@ -44,8 +47,11 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   mxGraphHandler;
   highlight;
   layout;
+  layout2;
+  layout3;
   map = new Map();
   node: Node;
+
   constructor(private _modelService: ModelService,
               private _eventService: EventService) {
   }
@@ -59,6 +65,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     this.initializeMxGraph();
     this.initStyles();
     this.layout = new mxCompactTreeLayout(this.graph);
+    this.layout2 = new mxHierarchicalLayout(this.graph);
+    this.layout3 = new mxFastOrganicLayout(this.graph)
     this.initListeners();
     this.viewModel = this._modelService.viewModel;
     this.buildModel();
@@ -70,7 +78,6 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     });
     this._eventService._events.addListener('updateModel', () => {
       this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()))
-      console.log('MODEL ',this.viewModel)
       this.buildModel()
     })
     this._eventService._events.addListener('updateGraph', (id) => {
@@ -82,6 +89,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       let name = this.map.get(id)
       this.highlightCellOn(name);
     })
+    this._eventService._events.addListener('changeLayout', (name) => this.changeLayout(name))
+    this._eventService._events.addListener('updateCell', (id) => this.renderNodeFromViewModel(id))
     // Подписаться на получение Node для подстветки =>
     // this.highlightCellOn(NodeName); //подсветка
     // this.highlightCellReset();  //сброс
@@ -93,8 +102,6 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     var marker = new mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
     this.graph.addMouseListener({
       mouseDown: ((sender, me) => {
-        // console.log('MOUSE EVENT SENDER',sender)
-        // console.log('MOUSE EVENT ME',me)
         if (me.evt.button === 0) //left
         {
           if (me.getCell() !== null) {
@@ -109,6 +116,10 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
               console.log('Select node', me.getCell().value);
             }
           }
+<<<<<<< HEAD
+=======
+          // console.log('MODEL GRAPH', this.graph.model)
+>>>>>>> 2b83cdbdb46f0c013c67e8ab794dba131ee3b416
         }
       }),
       mouseMove: function (sender, me) {
@@ -152,10 +163,10 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
         // mx.Print = false;
         if (evt.altKey && up) {
           thiz.graph.zoomIn();
-            mxEvent.consume(evt);
+          mxEvent.consume(evt);
         } else if (evt.altKey) {
           thiz.graph.zoomOut();
-            mxEvent.consume(evt);
+          mxEvent.consume(evt);
         }
       });
       // this.graph.addListener(mxEvent.LABEL_CHANGED,  function (sender, evt) {
@@ -171,110 +182,113 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       //   thiz._eventService._events.emit("nodeChanged");
       // });
 
-      this.graph.popupMenuHandler.factoryMethod = function(menu, cell, evt)
-				{
-          let submenu = thiz._modelService.viewModel.get(cell.id).type === NodeType.SpecifierNode
-          if (submenu) {
-            submenu = menu.addItem('Ответ получен', null, null);
-          } else {
-            submenu = null;
-          }
-          // if (thiz.canAddNewNode(cell)) {
-            menu.addItem('Создать BranchNode', 'assets/images/split.png', function()
-              {
-                const id = uuid.v4()
-                thiz.addNewNode(id, NodeType.BranchNode, cell.id)
-                thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id)
-              },submenu);
-            menu.addItem('Создать SystemNode', 'assets/images/info.png', function()
-              {
-                const id = uuid.v4()
-                thiz.addNewNode(id, NodeType.SystemNode, cell.id)
-                thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id)
-              },submenu);
-            menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function()
-              {
-                const id = uuid.v4()
-                thiz.addNewNode(id, NodeType.SpecifierNode, cell.id)
-                thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id)
-              },submenu);
-            menu.addItem('Создать EndNode', 'assets/images/done.png', function()
-              {
-                const id = uuid.v4()
-                thiz.addNewNode(id, NodeType.EndNode, cell.id)
-                thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id)
-              },submenu);
-            // }
-          if(submenu){
-            submenu = menu.addItem('Если ошибка', null, null);
-            menu.addItem('Создать BranchNode', 'assets/images/split.png', function()
-            {
-              const id = uuid.v4()
-              thiz.addNewNode(id, NodeType.BranchNode, cell.id, true)
-              thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id,true)
-            },submenu);
-            menu.addItem('Создать SystemNode', 'assets/images/info.png', function()
-            {
-              const id = uuid.v4()
-              thiz.addNewNode(id, NodeType.SystemNode, cell.id, true)
-              thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id,true)
-            },submenu);
-            menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function()
-            {
-              const id = uuid.v4()
-              thiz.addNewNode(id, NodeType.SpecifierNode, cell.id,true)
-              thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id, true)
-            },submenu);
-            menu.addItem('Создать EndNode', 'assets/images/done.png', function()
-            {
-              const id = uuid.v4()
-              thiz.addNewNode(id, NodeType.EndNode, cell.id, true)
-              thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id,true)
-            },submenu);
-          }
-          menu.addItem('Удалить', 'assets/images/delete.png', function()
-            {
-              thiz.deleteNode(cell.id)
-            });
-				};
-      }
+      this.graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
+        let submenu = thiz._modelService.viewModel.get(cell.id).type === NodeType.SpecifierNode
+        if (submenu) {
+          submenu = menu.addItem('Ответ получен', null, null);
+        } else {
+          submenu = null;
+        }
+        // if (thiz.canAddNewNode(cell)) {
+        menu.addItem('Создать BranchNode', 'assets/images/split.png', function () {
+          const id = uuid.v4()
+          thiz.addNewNode(id, NodeType.BranchNode, cell.id)
+          thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id)
+        }, submenu);
+        menu.addItem('Создать SystemNode', 'assets/images/info.png', function () {
+          const id = uuid.v4()
+          thiz.addNewNode(id, NodeType.SystemNode, cell.id)
+          thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id)
+        }, submenu);
+        menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function () {
+          const id = uuid.v4()
+          thiz.addNewNode(id, NodeType.SpecifierNode, cell.id)
+          thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id)
+        }, submenu);
+        menu.addItem('Создать EndNode', 'assets/images/done.png', function () {
+          const id = uuid.v4()
+          thiz.addNewNode(id, NodeType.EndNode, cell.id)
+          thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id)
+        }, submenu);
+        // }
+        if (submenu) {
+          submenu = menu.addItem('Если ошибка', null, null);
+          menu.addItem('Создать BranchNode', 'assets/images/split.png', function () {
+            const id = uuid.v4()
+            thiz.addNewNode(id, NodeType.BranchNode, cell.id, true)
+            thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id, true)
+          }, submenu);
+          menu.addItem('Создать SystemNode', 'assets/images/info.png', function () {
+            const id = uuid.v4()
+            thiz.addNewNode(id, NodeType.SystemNode, cell.id, true)
+            thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id, true)
+          }, submenu);
+          menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function () {
+            const id = uuid.v4()
+            thiz.addNewNode(id, NodeType.SpecifierNode, cell.id, true)
+            thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id, true)
+          }, submenu);
+          menu.addItem('Создать EndNode', 'assets/images/done.png', function () {
+            const id = uuid.v4()
+            thiz.addNewNode(id, NodeType.EndNode, cell.id, true)
+            thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id, true)
+          }, submenu);
+        }
+        menu.addItem('Удалить', 'assets/images/delete.png', function () {
+          thiz.deleteNode(cell.id)
+        });
+      };
     }
-    canAddNewNode(cell: any) {
-      // const viewNode = this._modelService.viewModel.get(cell.id)
-      // switch(viewNode.type) {
-      //   case NodeType.BranchNode: {
-      //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
-      //       return true
-      //     } else {
-      //       return false
-      //     }
-      //   }
-      //   case NodeType.ClassifierNode: {
-      //     return true
-      //   }
-      //   case NodeType.EndNode: {
-      //     return false
-      //   }
-      //   case NodeType.SpecifierNode: {
-      //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
-      //       return true
-      //     } else {
-      //       return false
-      //     }
-      //   }
-      // }
-      return true
-    }
+  }
+
+  canAddNewNode(cell: any) {
+    // const viewNode = this._modelService.viewModel.get(cell.id)
+    // switch(viewNode.type) {
+    //   case NodeType.BranchNode: {
+    //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
+    //       return true
+    //     } else {
+    //       return false
+    //     }
+    //   }
+    //   case NodeType.ClassifierNode: {
+    //     return true
+    //   }
+    //   case NodeType.EndNode: {
+    //     return false
+    //   }
+    //   case NodeType.SpecifierNode: {
+    //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
+    //       return true
+    //     } else {
+    //       return false
+    //     }
+    //   }
+    // }
+    return true
+  }
+
+  renderNodeFromViewModel(id) {
+    let cell = this.graph.model.getCell(id);
+    let viewNode = this.viewModel.get(id);
+    this.graph.model.setValue(cell,viewNode.props[0].value)
+
+    viewNode.edgeList.forEach(child => {
+     let edge = cell.edges.find(target => target.target.id === child.id)
+      this.graph.model.setValue(edge,child.match[0])
+    })
+  }
+
   private buildModel() {
     const mapNode = new Map();
     this.map = new Map();
-    console.log('VIEW ',this.viewModel);
+    // console.log('VIEW ',this.viewModel)
     this.graph.getModel().beginUpdate();
     try {
       this.viewModel.forEach((node: ViewNode) => {
 
         let vObj = this.graph.insertVertex(this.parent, node.id, node.props[0].value, 0, 0, 120, 80, node.type);
-       // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
+        // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
         this.map.set(node.id, vObj);
         mapNode.set(node.id, node);
       });
@@ -283,12 +297,12 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
         let object = mapNode.get(k);
         if (object.edgeList !== undefined && object.edgeList.length !== 0) {
           object.edgeList.forEach((nodeName) => {
-            let p = this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(nodeName.id), 'Edge');
+            let p = this.graph.insertEdge(this.parent, null, nodeName.match ? nodeName.match[0] : '', this.map.get(k), this.map.get(nodeName.id), 'Edge');
           });
         }
-        if(object.edgeIfEmpty && object.edgeIfEmpty.length !== 0) {
+        if (object.edgeIfEmpty && object.edgeIfEmpty.length !== 0) {
           object.edgeIfEmpty.forEach(node => {
-            this.graph.insertEdge(this.parent, null, '', this.map.get(k), this.map.get(node.id), 'redEdge');
+            this.graph.insertEdge(this.parent, null, node.match ? node.match[0] : '', this.map.get(k), this.map.get(node.id), 'redEdge');
           })
         }
       });
@@ -299,10 +313,12 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       this.graph.getModel().endUpdate();
     }
   }
+
   // ПОДСВЕТКА ЯЧЕКИ
   highlightCellOn(cell) {
     this.highlight.highlight(this.graph.view.getState(cell));
   }
+
   highlightCellReset() {
     this.highlight.resetHandler();
   }
@@ -321,8 +337,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private addNewNode(id: string, type: string, parent: string, error:boolean = false) {
-    let style = error? 'redEdge':'Edge';
+  private addNewNode(id: string, type: string, parent: string, error: boolean = false) {
+    let style = error ? 'redEdge' : 'Edge';
 
     this.graph.getModel().beginUpdate();
     let vObj
@@ -342,7 +358,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   }
 
   public deleteNode(id: string) {
-    console.log('CIRE VIEW ',this.viewModel)
+    console.log('CIRE VIEW ', this.viewModel)
     // this.graph.getModel().beginUpdate();
     // try {
     //   const rNode = this.map.get(id);
@@ -353,6 +369,17 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     this._modelService.deleteViewNode(id)
 // this.buildModel();
     this._eventService._events.emit("updateModel");
+  }
+
+  changeLayout(name) {
+    switch (name) {
+      case 'tree':
+        return this.layout.execute(this.parent);
+      case 'organic':
+        return this.layout3.execute(this.parent);
+      case 'hierarch':
+        return this.layout2.execute(this.parent);
+    }
   }
 
 
@@ -433,8 +460,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     this.graph.getStylesheet().putCellStyle('Edge', edgeStyle);
 
     let redEdge = {
-      verticalLabelPosition : 'top',
-      verticalAlign:'bottom',
+      verticalLabelPosition: 'top',
+      verticalAlign: 'bottom',
       strokeWidth: 2,
       strokeColor: '#ff0500'
     };

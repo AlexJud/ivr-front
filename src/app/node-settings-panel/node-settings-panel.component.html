@@ -35,8 +35,8 @@
           </mat-card-header>
             <mat-card-content>
               <mat-chip-list #chipList aria-label="Keywords selection">
-                <mat-chip *ngFor="let key of prop.match" [selectable]="selectable"
-                          [removable]="removable" (removed)="remove(key)">
+                <mat-chip *ngFor="let key of prop.value; let i = index" [selectable]="selectable"
+                          [removable]="removable" (removed)="removeMatch(key)">
                   {{key}}
                   <mat-icon matChipRemove *ngIf="removable">o</mat-icon>
                 </mat-chip>
@@ -44,7 +44,7 @@
                         [matChipInputFor]="chipList"
                         [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                         [matChipInputAddOnBlur]="addOnBlur"
-                        (matChipInputTokenEnd)="add($event)">
+                        (matChipInputTokenEnd)="addMatch($event)">
               </mat-chip-list>
               </mat-card-content>
           </mat-card>

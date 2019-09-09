@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { ModelService } from '../services/model.service';
-import { EventService } from '../services/event.service';
-import { ViewNode } from '../view-model-nodes/viewNode';
+import {Component, OnInit} from '@angular/core';
+import {MatChipInputEvent} from '@angular/material/chips';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {ModelService} from '../services/model.service';
+import {EventService} from '../services/event.service';
+import {ViewNode} from '../view-model-nodes/viewNode';
 import {FormControl} from '@angular/forms';
 
 @Component({
@@ -27,15 +27,16 @@ export class NodeSettingsPanelComponent implements OnInit {
   panelOpenState = false;
 
   constructor(private _modelService: ModelService,
-              private _eventService: EventService) { }
+              private _eventService: EventService) {
+  }
 
   ngOnInit() {
-    this.setDataSource({node:'root'})
+    this.setDataSource({node: 'root'})
     this._eventService._events.addListener('showProps', (data) => {
       this.setDataSource(data)
     });
     this.model = this._modelService.model;
-    
+
   }
 
   setDataSource(data: any) {
@@ -43,15 +44,32 @@ export class NodeSettingsPanelComponent implements OnInit {
     console.log(this.currentNode)
   }
 
-  add(event: MatChipInputEvent, id: string): void {
+  add(event: MatChipInputEvent, id: string, type: string): void {
     const input = event.input;
     const value = event.value;
-    console.log(event)
-    // Add our fruit
     if ((value || '').trim()) {
       this.currentNode.edgeList.forEach(edge => {
-        if(edge.id === id) {
+        if (edge.id === id) {
           edge.match.push(value.trim())
+          this._eventService._events.emit('updateCell', this.currentNode.id)
+        }
+      });
+    }
+
+    // Reset the input value
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  addMatch(event: MatChipInputEvent, i: number) {
+    const input = event.input;
+    const value = event.value;
+    if ((value || '').trim()) {
+      this.currentNode.props.forEach(prop => {
+        if (prop.name === 'Ключевые слова') {
+          prop.value.push(value.trim())
+          this._eventService._events.emit('updateCell', this.currentNode.id)
         }
       });
     }
@@ -66,15 +84,23 @@ export class NodeSettingsPanelComponent implements OnInit {
     let index: number
 
     this.currentNode.edgeList.forEach(edge => {
-      if(edge.id === id) {
+      if (edge.id === id) {
         index = edge.match.indexOf(key);
       }
       if (index >= 0) {
         edge.match.splice(index, 1);
       }
-  })
+    })
 
-    
+
+  }
+  removeMatch(key: string, id: string): void {
+    let index: number
+
+    index = this.currentNode.props.match.indexOf(key);
+    if (index >= 0) {
+      this.currentNode.props.match.splice(index, 1);
+    }
   }
 
 }
