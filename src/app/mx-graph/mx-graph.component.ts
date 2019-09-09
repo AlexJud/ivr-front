@@ -93,22 +93,22 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     var marker = new mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
     this.graph.addMouseListener({
       mouseDown: ((sender, me) => {
-        console.log('MOUSE EVENT SENDER',sender)
-        console.log('MOUSE EVENT ME',me)
+        // console.log('MOUSE EVENT SENDER',sender)
+        // console.log('MOUSE EVENT ME',me)
         if (me.evt.button === 0) //left
         {
-          // if (me.getCell() !== null) {
-          //   // this.emitNameCell.emit(me.getCell().value);
-          //   if (me.getCell().parent.value === undefined) {
-          //     // this._eventService._events.emit('selectNode', {node: me.getCell().value, type: me.getCell().value});
-          //     this._eventService._events.emit('showProps', {node: me.getCell().id, type: 'options'});
-          //     console.log('Select node', me.getCell().value);
-          //   } else {
-          //     this._eventService._events.emit('showProps', {node: me.getCell().id, type: 'options'});
-          //     // this._eventService._events.emit('selectNode', me.getCell().value);
-          //     console.log('Select node', me.getCell().value);
-          //   }
-          // }
+          if (me.getCell() !== null) {
+            // this.emitNameCell.emit(me.getCell().value);
+            if (me.getCell().parent.value === undefined) {
+              // this._eventService._events.emit('selectNode', {node: me.getCell().value, type: me.getCell().value});
+              this._eventService._events.emit('showProps', {node: me.getCell().id, type: 'options'});
+              console.log('Select node', me.getCell().value);
+            } else {
+              this._eventService._events.emit('showProps', {node: me.getCell().id, type: 'options'});
+              // this._eventService._events.emit('selectNode', me.getCell().value);
+              console.log('Select node', me.getCell().value);
+            }
+          }
         }
       }),
       mouseMove: function (sender, me) {

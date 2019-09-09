@@ -34,9 +34,9 @@ export class BranchNode extends Node {
 }
 
 export class SpecifierNode extends Node {
-  props: SpecifierProps[];
+  props: SpecifierProps;
   type: NodeType = NodeType.SpecifierNode;
-  constructor(id: string, props: SpecifierProps[], child: Relation[]) {
+  constructor(id: string, props: SpecifierProps, child: Relation[]) {
     super();
     this.id = id;
     this.edgeList = child;

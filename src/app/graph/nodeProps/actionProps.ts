@@ -1,10 +1,10 @@
 export class BranchProps {
     synthText: string
     grammar: string
-    options: string
+    asrOptions: string
     constructor() {
         this.synthText = ''
         this.grammar = ''
-        this.options = ''
+        this.asrOptions = ''
     }
 }

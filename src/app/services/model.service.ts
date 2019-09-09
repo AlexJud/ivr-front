@@ -12,12 +12,13 @@ import {EndProps} from '../graph/nodeProps/endProps';
 import {SpecifierViewNode} from '../view-model-nodes/specifierViewNode/specifierViewNode';
 import {EndViewNode} from '../view-model-nodes/endViewNode/endViewNode';
 import {SystemViewNode} from '../view-model-nodes/systemViewNode/systemViewNode';
+import { BranchProps } from '../graph/nodeProps/actionProps';
 
 const START_DATA = [
   new BranchNode('root', {
     synthText: 'Здравствуй, дружочек! Чего желаешь?',
     grammar: 'http://localhost/theme:graph',
-    options: 'b=1&t=5000&nit=5000'
+    asrOptions: 'b=1&t=5000&nit=5000'
   }),
   // new ClassifierNode('classify', [new Relation('specifier', ['ничего', 'квартиру', 'машину', 'дальше', 'не знаю'])]),
   // new SpecifierNode('specifier', [new SpecifierProps()], [new Relation('end')] ),
@@ -141,96 +142,104 @@ export class ModelService {
     return this.viewModel.delete(id);
   }
 
-  // convertModel() {
-  //   this.model = []
-  //   const viewArray = [...this.viewModel.values()]
-  //   viewArray.forEach((node) => {
-  //     let newNode: Node
-  //     switch(node.type) {
-  //       case NodeType.BranchNode: {
-  //         let actionProps = new BranchNode();
-  //         node.props.forEach((prop) => {
-  //           switch(prop.name) {
-  //             case Strings.TEXT_FOR_SYNTHESIZE: {
-  //               actionProps.synthText = prop.value
-  //               break
-  //             }
-  //             case Strings.ASR_OPTION: {
-  //               actionProps.options = prop.value
-  //               break
-  //             }
-  //             case Strings.ASR_TYPE: {
-  //               if(prop.value.selected === Strings.BUILTIN_GRAMMAR) {
-  //                 actionProps.grammar = 'http://localhost/theme:graph'
-  //                 break
-  //               }
-  //             }
-  //             case Strings.GRAMMAR: {
-  //               if (prop.value.selected === Strings.FILE_GRAMMAR) {
-  //                 actionProps.grammar = '/etc/asterisk/' + prop.value.selected
-  //                 break
-  //               }
-  //             }
-  //           }
-  //         })
-  //         // let edgeList: Relation[] = []
-  //         // node.edgeList.forEach((child) => {
-  //         //   edgeList.push(new Relation(child.id))
-  //         // })
-  //         newNode = new ActionNode(node.id, actionProps, node.edgeList)
-  //         this.model.push(newNode)
-  //         break
-  //       }
+  convertModel() {
+    this.model = []
+    const viewArray = [...this.viewModel.values()]
+    viewArray.forEach((node) => {
+      let newNode: Node
+      switch(node.type) {
+        case NodeType.BranchNode: {
+          let branchProps = new BranchProps();
+          node.props.forEach((prop) => {
+            switch(prop.name) {
+              case Strings.TEXT_FOR_SYNTHESIZE: {
+                branchProps.synthText = prop.value
+                break
+              }
+              case Strings.ASR_OPTION: {
+                branchProps.asrOptions = prop.value
+                break
+              }
+              case Strings.ASR_TYPE: {
+                if(prop.value.selected === Strings.BUILTIN_GRAMMAR) {
+                  branchProps.grammar = 'http://localhost/theme:graph'
+                  break
+                }
+              }
+              case Strings.GRAMMAR: {
+                if (prop.value.selected === Strings.FILE_GRAMMAR) {
+                  branchProps.grammar = '/etc/asterisk/' + prop.value.selected
+                  break
+                }
+              }
+            }
+          })
+          let edgeList: Relation[] = []
+          if (node.edgeList !== undefined && node.edgeList.length !== 0) {
+            let edge = new Relation(node.edgeList[0].id, node.edgeList[0].match);
+            edgeList.push(edge)
+          }
+          newNode = new BranchNode(node.id, branchProps, edgeList)
+          this.model.push(newNode)
+          break
+        }
 
-  //       case NodeType.ClassifierNode: {
-  //         // let edgeList: Relation[] = []
-  //         // node.edgeList.forEach((child) => {
-  //         //   edgeList.push(new Relation(child.id, child.match.split(',')))
-  //         // })
-  //         newNode = new ClassifierNode(node.id, node.edgeList)
-  //         this.model.push(newNode)
-  //         break
-  //       }
+        case NodeType.SpecifierNode: {
+          let specifierProps = new SpecifierProps()
+          node.props.forEach((prop) => {
+            switch(prop.name) {
+              case Strings.TEXT_FOR_SYNTHESIZE: {
+                specifierProps.synthText = prop.value
+                break
+              }
+              case Strings.ASR_OPTION: {
+                specifierProps.asrOptions = prop.value
+                break
+              }
+              case Strings.ASR_TYPE: {
+                if(prop.value.selected === Strings.BUILTIN_GRAMMAR) {
+                  specifierProps.grammar = 'http://localhost/theme:graph'
+                  break
+                }
+              }
+              case Strings.GRAMMAR: {
+                if (prop.value.selected === Strings.FILE_GRAMMAR) {
+                  specifierProps.grammar = '/etc/asterisk/' + prop.value.selected
+                  break
+                }
+              }
+              case Strings.VAR_NAME: {
+                specifierProps.varName = prop.value
+                break
+              }
+              case Strings.KEYWORDS: {
+                specifierProps.match = prop.value
+                break
+              }
+            }
+          })
+          newNode = new SpecifierNode(node.id, specifierProps, node.edgeList)
+          node.edgeIfEmpty = newNode.edgeIfEmpty
+          node.edgeList = newNode.edgeList
+          this.model.push(newNode)
+          break
+        }
+        case NodeType.EndNode: {
+          let endProps = new EndProps()
+          endProps.synthText = node.props[0].value
+          newNode = new EndNode(node.id, endProps)
+          this.model.push(newNode)
+          break
+        }
+      }
+    })
+  }
 
-  //       case NodeType.SpecifierNode: {
-  //         let specifierPropsArray: SpecifierProps[] = []
-  //         node.props.forEach((prop) => {
-  //           let specifierProps = new SpecifierProps()
-  //           specifierProps.varName = prop.varName
-  //           specifierProps.synthText = prop.synthText
-  //           specifierProps.asrOptions = prop.asrOptions
-  //           if(prop.asrType.selected === Strings.BUILTIN_GRAMMAR) {
-  //             specifierProps.grammar = 'http://localhost/theme:graph'
-  //           } else {
-  //             specifierProps.grammar = prop.grammar.value.selected
-  //           }
-  //           specifierProps.match = prop.keywords.split(',')
-  //           specifierPropsArray.push(specifierProps)
-  //         })
-  //         // let edgeList: Relation[] = []
-  //         // node.edgeList.forEach((child) => {
-  //         //   edgeList.push(new Relation(child.id))
-  //         // })
-  //         newNode = new SpecifierNode(node.id, specifierPropsArray, node.edgeList)
-  //         this.model.push(newNode)
-  //         break
-  //       }
-  //       case NodeType.EndNode: {
-  //         let endProps = new EndProps()
-  //         endProps.synthText = node.props[0].value
-  //         newNode = new EndNode(node.id, endProps)
-  //         this.model.push(newNode)
-  //         break
-  //       }
-  //     }
-  //   })
-  // }
-
-  // saveToJson() {
-  //   this.convertModel();
-  //   this._http.sendModel(this.model).subscribe((data: any) => { console.log('OPA') },
-  //     error => console.log(error));
-  // }
+  saveToJson() {
+    this.convertModel();
+    this._http.sendModel(this.model).subscribe((data: any) => { console.log('OPA') },
+      error => console.log(error));
+  }
 
   requestModel() {
     this._http.requestModel().subscribe((response: any) => {
