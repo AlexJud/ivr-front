@@ -84,7 +84,24 @@ export class ModelService {
         }
       }
     })
+    this.setParents()
     console.log(this.viewModel);
+  }
+
+  private setParents() {
+    this._viewModel.forEach(node => {
+      let parentId = node.id
+      if(node.edgeIfEmpty !== undefined) {
+        node.edgeList.forEach(edge => {
+          this._viewModel.get(edge.id).parent = parentId
+        })
+      }
+      if(node.edgeIfEmpty !== undefined) {
+        node.edgeIfEmpty.forEach(edge => {
+          this._viewModel.get(edge.id).parent = parentId
+        })
+      }
+    })
   }
 
   addNewViewNode(id: string, type: string, parent: string, error: boolean = false) {
