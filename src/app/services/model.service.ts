@@ -213,14 +213,24 @@ export class ModelService {
                 break
               }
               case Strings.KEYWORDS: {
-                specifierProps.match = prop.value
+                if(prop.value.length !== 0) {
+                  specifierProps.match = prop.value
+                }
                 break
               }
             }
           })
-          newNode = new SpecifierNode(node.id, specifierProps, node.edgeList)
-          node.edgeIfEmpty = newNode.edgeIfEmpty
-          node.edgeList = newNode.edgeList
+          let edgeList: Relation[] = []
+          let edgeIfEmpty: Relation[] = []
+          if (node.edgeList !== undefined && node.edgeList.length !== 0) {
+            let edge = new Relation(node.edgeList[0].id, node.edgeList[0].match);
+            edgeList.push(edge)
+          }
+          if (node.edgeIfEmpty !== undefined && node.edgeIfEmpty.length !== 0) {
+            let edge = new Relation(node.edgeIfEmpty[0].id, node.edgeIfEmpty[0].match);
+            edgeIfEmpty.push(edge)
+          }
+          newNode = new SpecifierNode(node.id, specifierProps, edgeList, edgeIfEmpty)
           this.model.push(newNode)
           break
         }
