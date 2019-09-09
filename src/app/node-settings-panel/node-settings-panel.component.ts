@@ -44,15 +44,31 @@ export class NodeSettingsPanelComponent implements OnInit {
     console.log(this.currentNode)
   }
 
-  add(event: MatChipInputEvent, id: string): void {
+  add(event: MatChipInputEvent, id: string, type: string): void {
     const input = event.input;
     const value = event.value;
-    console.log(event)
-    // Add our fruit
     if ((value || '').trim()) {
       this.currentNode.edgeList.forEach(edge => {
         if (edge.id === id) {
           edge.match.push(value.trim())
+          this._eventService._events.emit('updateCell', this.currentNode.id)
+        }
+      });
+    }
+
+    // Reset the input value
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  addMatch(event: MatChipInputEvent, i: number) {
+    const input = event.input;
+    const value = event.value;
+    if ((value || '').trim()) {
+      this.currentNode.props.forEach(prop => {
+        if (prop.name === 'Ключевые слова') {
+          prop.value.push(value.trim())
           this._eventService._events.emit('updateCell', this.currentNode.id)
         }
       });
@@ -77,6 +93,14 @@ export class NodeSettingsPanelComponent implements OnInit {
     })
 
 
+  }
+  removeMatch(key: string, id: string): void {
+    let index: number
+
+    index = this.currentNode.props.match.indexOf(key);
+    if (index >= 0) {
+      this.currentNode.props.match.splice(index, 1);
+    }
   }
 
 }
