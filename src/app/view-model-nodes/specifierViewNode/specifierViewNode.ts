@@ -68,7 +68,7 @@ export class SpecifierViewNode extends ViewNode {
         this.props.push(this.createRow(rowType, Strings.VAR_NAME, rowValue))
 
         rowType = CellType.CARD_WITH_CHIPS
-        rowValue = node === undefined ? [] : node.props.match
+        rowValue = node === undefined ? new Array : node.props.match
         this.props.push(this.createRow(rowType, Strings.KEYWORDS, rowValue))
 
     }

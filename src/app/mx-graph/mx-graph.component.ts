@@ -116,10 +116,6 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
               console.log('Select node', me.getCell().value);
             }
           }
-<<<<<<< HEAD
-=======
-          // console.log('MODEL GRAPH', this.graph.model)
->>>>>>> 2b83cdbdb46f0c013c67e8ab794dba131ee3b416
         }
       }),
       mouseMove: function (sender, me) {
