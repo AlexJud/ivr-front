@@ -24,9 +24,11 @@ export class BranchEdgesPresent {
 export class RowWithSelectValue {
     value: string[]
     selected: string
+    disabled: boolean
 
-    constructor(value: string[], selected: string) {
+    constructor(value: string[], selected: string, disabled: boolean) {
         this.value = value
         this.selected = selected
+        this.disabled = disabled
     }
 }

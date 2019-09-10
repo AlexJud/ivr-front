@@ -17,7 +17,7 @@ export class HttpService {
                 'Authorization': 'Basic dXNlcjpwYXNzd29yZA=='
             })
         };
-        return this.http.post<Node[]>('https://192.168.1.74:8080/api/json/', data, httpOptions);
+        return this.http.post<Node[]>('/api/json/', data, httpOptions);
             // .pipe(catchError(this.handleError));
     }
     private handleError(error: HttpErrorResponse) {
@@ -52,7 +52,7 @@ export class HttpService {
         /** In Angular 5, including the header Content-Type can invalidate your request */
         headers.append('Content-Type', 'multipart/form-data');
         headers.append('Accept', 'application/json');
-        return this.http.post('https://192.168.1.74:8080/api/grammar/', formData, {observe: 'response'})
+        return this.http.post('/api/grammar/', formData, {observe: 'response'})
       }
     }
 

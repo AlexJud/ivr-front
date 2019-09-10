@@ -50,16 +50,19 @@ export class SpecifierViewNode extends ViewNode {
         this.props.push(this.createRow(rowType, Strings.ASR_OPTION, rowValue))
 
         rowType = CellType.SELECT
+        let asr = Utils.parseAsrType(node === undefined ? '' : node.props.grammar)
         rowValue = new RowWithSelectValue (
                 [Strings.BUILTIN_GRAMMAR, Strings.FILE_GRAMMAR],
-                Utils.parseAsrType(node === undefined ? '' : node.props.grammar)
+                asr,
+                false
             )
         this.props.push(this.createRow(rowType, Strings.ASR_TYPE, rowValue))
 
         rowType = CellType.SELECT
         rowValue = new RowWithSelectValue (
             [Strings.LOAD_GRAMMAR, 'grammar.xml'],
-            ''
+            '',
+            asr === Strings.BUILTIN_GRAMMAR ? true : false
         )
         this.props.push(this.createRow(rowType, Strings.GRAMMAR, rowValue))
 

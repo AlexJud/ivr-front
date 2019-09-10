@@ -1,3 +1,5 @@
+<!-- Это поле нужно для загрузки файлов -->
+<input type="file" (change)="uploadFile($event)" accept="*/xml" #file [hidden]="true">
 <!-- Настройки узла -->
 <mat-accordion class="example-headers-align">
     <mat-expansion-panel> 
@@ -7,7 +9,7 @@
           <span style="font-size: 11px">{{currentNode.props[0].value}}</span></label>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <div *ngFor="let prop of currentNode.props">
+      <div *ngFor="let prop of currentNode.props; let i = index">
         <div class="textarea-field" *ngIf="prop.type === 2">
           <mat-form-field>
               <textarea matInput placeholder="{{prop.name}}" [(ngModel)]="prop.value"></textarea>
@@ -21,12 +23,13 @@
         <div class="select-field" *ngIf="prop.type === 3">
           <mat-form-field>
             <mat-label>{{prop.name}}</mat-label>
-            <mat-select [(value)]="prop.value.selected">
+            <mat-select [(value)]="prop.value.selected" (selectionChange) = "changeGrammar(prop.value.selected, i)" [(disabled)]="prop.value.disabled">
               <mat-option *ngFor="let value of prop.value.value" [(value)]="value">
                 {{value}}
               </mat-option>
             </mat-select>
           </mat-form-field>
+          <mat-progress-bar *ngIf="prop.name === 'Грамматика' && isProgress" mode="indeterminate"></mat-progress-bar>
         </div>
         <div class="keys-card-field" *ngIf="prop.type === 4">
           <mat-card class="example-card">
@@ -90,6 +93,7 @@
                     </mat-chip>
                     <input placeholder="Добавить слово..." matInput
                             [matChipInputFor]="chipList"
+                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                             [matChipInputAddOnBlur]="addOnBlur"
                             (matChipInputTokenEnd)="add($event, edge.id)">
                   </mat-chip-list>
