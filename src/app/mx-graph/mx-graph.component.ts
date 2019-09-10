@@ -62,6 +62,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   node: Node;
   vertexHandlerInit;
 
+  private counterNodeId = 0;
   constructor(private _modelService: ModelService,
               private _eventService: EventService) {
   }
@@ -88,6 +89,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     });
     this._eventService._events.addListener('updateModel', () => {
       this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()))
+      this.layout2 = new mxHierarchicalLayout(this.graph, mxConstants.DIRECTION_WEST);
       this.buildModel()
     })
     this._eventService._events.addListener('updateGraph', (id) => {
@@ -101,7 +103,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     })
     this._eventService._events.addListener('changeLayout', (name) => this.changeLayout(name))
     this._eventService._events.addListener('updateCell', (id) => this.renderNodeFromViewModel(id))
-    this._eventService._events.addListener('labelChanged', mes => console.log('MESSAGE ', mes))
+    // this._eventService._events.addListener('labelChanged', mes => console.log('MESSAGE ', mes))
     // Подписаться на получение Node для подстветки =>
     // this.highlightCellOn(NodeName); //подсветка
     // this.highlightCellReset();  //сброс
@@ -190,8 +192,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
 
       }));
       this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function (sender, evt) {
-        console.log('CHANGE -----------', evt.properties['cell'])
-
+        // console.log('CHANGE ----------- Cell', evt.properties['cell'])
 
       }));
 
@@ -270,62 +271,52 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       // });
 
       this.graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
-        let submenu = thiz._modelService.viewModel.get(cell.id).type === NodeType.SpecifierNode
+        if (!cell) return
+
+        let node = thiz._modelService.viewModel.get(cell.id);
+        let submenu = node.type === NodeType.SpecifierNode
+
         if (submenu) {
-          submenu = menu.addItem('Ответ получен', null, null);
+          if (node.edgeList.length === 0) {
+            submenu = menu.addItem('Ответ получен', null, null);
+            thiz.addMenu(thiz, menu, cell, submenu)
+          }
+          if (node.edgeIfEmpty.length === 0) {
+            submenu = menu.addItem('Eсли ошибка', null, null);
+            thiz.addMenu(thiz, menu, cell, submenu, true)
+          }
         } else {
-          submenu = null;
+          thiz.addMenu(thiz,menu,cell)
         }
-        // if (thiz.canAddNewNode(cell)) {
-        menu.addItem('Создать BranchNode', 'assets/images/split.png', function () {
-          const id = uuid.v4()
-          thiz.addNewNode(id, NodeType.BranchNode, cell.id)
-          thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id)
-        }, submenu);
-        menu.addItem('Создать SystemNode', 'assets/images/info.png', function () {
-          const id = uuid.v4()
-          thiz.addNewNode(id, NodeType.SystemNode, cell.id)
-          thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id)
-        }, submenu);
-        menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function () {
-          const id = uuid.v4()
-          thiz.addNewNode(id, NodeType.SpecifierNode, cell.id)
-          thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id)
-        }, submenu);
-        menu.addItem('Создать EndNode', 'assets/images/done.png', function () {
-          const id = uuid.v4()
-          thiz.addNewNode(id, NodeType.EndNode, cell.id)
-          thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id)
-        }, submenu);
-        // }
-        if (submenu) {
-          submenu = menu.addItem('Если ошибка', null, null);
-          menu.addItem('Создать BranchNode', 'assets/images/split.png', function () {
-            const id = uuid.v4()
-            thiz.addNewNode(id, NodeType.BranchNode, cell.id, true)
-            thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id, true)
-          }, submenu);
-          menu.addItem('Создать SystemNode', 'assets/images/info.png', function () {
-            const id = uuid.v4()
-            thiz.addNewNode(id, NodeType.SystemNode, cell.id, true)
-            thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id, true)
-          }, submenu);
-          menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function () {
-            const id = uuid.v4()
-            thiz.addNewNode(id, NodeType.SpecifierNode, cell.id, true)
-            thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id, true)
-          }, submenu);
-          menu.addItem('Создать EndNode', 'assets/images/done.png', function () {
-            const id = uuid.v4()
-            thiz.addNewNode(id, NodeType.EndNode, cell.id, true)
-            thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id, true)
-          }, submenu);
-        }
+
         menu.addItem('Удалить', 'assets/images/delete.png', function () {
           thiz.deleteNode(cell.id)
         });
       };
     }
+  }
+
+  addMenu(thiz, menu, cell, submenu = null, error: boolean = false) {
+    menu.addItem('Создать BranchNode', 'assets/images/split.png', function () {
+      const id = 'Branch node ' + thiz.counterNodeId++
+      thiz.addNewNode(id, NodeType.BranchNode, cell.id, error)
+      thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id, error)
+    }, submenu);
+    menu.addItem('Создать SystemNode', 'assets/images/info.png', function () {
+      const id = 'System node' + thiz.counterNodeId++
+      thiz.addNewNode(id, NodeType.SystemNode, cell.id, error)
+      thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id, error)
+    }, submenu);
+    menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function () {
+      const id = 'Specified node ' + thiz.counterNodeId++
+      thiz.addNewNode(id, NodeType.SpecifierNode, cell.id, error)
+      thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id, error)
+    }, submenu);
+    menu.addItem('Создать EndNode', 'assets/images/done.png', function () {
+      const id = 'End node ' + thiz.counterNodeId++
+      thiz.addNewNode(id, NodeType.EndNode, cell.id, error)
+      thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id, error)
+    }, submenu);
   }
 
   addOverlay(cell: string) {
@@ -384,7 +375,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       // geometry.width = 120;
       // geometry.height = 80;
       // console.log('TRACE 0', cell)
-      var edge = this.graph.insertEdge(this.parent, null, '', cell, vertex, 'Edge');
+      var edge = this.graph.insertEdge(this.parent, null, '', cell, vertex, 'greenEdge');
 
 
       // console.log('TRACE 1', edge)
@@ -481,13 +472,12 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
         let object = mapNode.get(k);
         if (object.edgeList !== undefined && object.edgeList.length !== 0) {
           object.edgeList.forEach((nodeName) => {
-            let p = this.graph.insertEdge(this.parent, null, nodeName.match ? nodeName.match[0] : '', this.map.get(k), this.map.get(nodeName.id), 'Edge');
+            let p = this.graph.insertEdge(this.parent, null, nodeName.match ? nodeName.match[0] : '', this.map.get(k), this.map.get(nodeName.id), 'greenEdge');
           });
         }
         if (object.edgeIfEmpty && object.edgeIfEmpty.length !== 0) {
           object.edgeIfEmpty.forEach(node => {
             let edge = this.graph.insertEdge(this.parent, null, node.match ? node.match[0] : '', this.map.get(k), this.map.get(node.id), 'redEdge');
-
             mxEdgeHandler.prototype.isConnectableCell = function (cell) {
               console.log('CHECK IS CONNECT', cell)
               // return this.graph.connectionHandler.isConnectableCell(cell);
@@ -521,7 +511,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       let vObj = this.graph.insertVertex(this.parent, viewNode.id, 'Ну вот он текст', 0, 0, 120, 80, viewNode.type);
       //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
       this.map.set(viewNode.id, vObj);
-      this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'Edge');
+      this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'greenEdge');
     } finally {
       this.layout2.execute(this.parent);
       this.graph.getModel().endUpdate();
@@ -529,15 +519,15 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   }
 
   private addNewNode(id: string, type: string, parent: string, error: boolean = false) {
-    let style = error ? 'redEdge' : 'Edge';
+    let style = error ? 'redEdge' : 'greenEdge';
 
     this.graph.getModel().beginUpdate();
     let vObj
     try {
       vObj = this.graph.insertVertex(this.parent, id, 'Тестовый текст', 0, 0, 120, 80, type);
       this.map.set(id, vObj);
-      // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'Edge');
-      this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, style);
+      // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'greenEdge');
+      let edge = this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, style);
     } finally {
       this.layout2.execute(this.parent);
       this.graph.getModel().endUpdate();
@@ -549,7 +539,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   }
 
   public deleteNode(id: string) {
-    console.log('CIRE VIEW ', this.viewModel)
+    // console.log('CIRE VIEW ', this.viewModel)
     // this.graph.getModel().beginUpdate();
     // try {
     //   const rNode = this.map.get(id);
@@ -648,7 +638,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     edgeStyle[mxConstants.STYLE_VERTICAL_LABEL_POSITION] = 'top'
     edgeStyle[mxConstants.STYLE_VERTICAL_ALIGN] = 'bottom'
 
-    this.graph.getStylesheet().putCellStyle('Edge', edgeStyle);
+    this.graph.getStylesheet().putCellStyle('greenEdge', edgeStyle);
 
     let redEdge = {
       verticalLabelPosition: 'top',
