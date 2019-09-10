@@ -1,11 +1,9 @@
 import {NodeType} from './../graph/nodes/nodes';
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {ModelService} from '../services/model.service';
 import {EventService} from '../services/event.service';
 import {Node} from '../graph/nodes/nodes';
 import {ViewNode} from '../view-model-nodes/viewNode';
-import * as uuid from 'uuid'
-import {graphMessage} from "./models/common-classes";
 // import {mxResources, mxVertexHandler} from "mxgraph";
 
 declare var mxClient: any;
@@ -63,6 +61,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   vertexHandlerInit;
 
   private counterNodeId = 0;
+
   constructor(private _modelService: ModelService,
               private _eventService: EventService) {
   }
@@ -180,16 +179,21 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       //   console.log('LABEL CHANGED 2',value)
       // }
       this.graph.addListener(mxEvent.LABEL_CHANGED, mxUtils.bind(this, function (sender, evt) {
-        // console.log('CHAGED LABEL 2', evt)
-        // console.log('CHANGE LABEL 3', evt.properties['cell'].vertex ? evt.properties['cell'].value : evt.properties['cell'].source.id)
-        let m = new graphMessage(
-          evt.properties['cell'].vertex ? evt.properties['cell'].id : evt.properties['cell'].source.id,
-          evt.properties['cell'].vertex ? null : evt.properties['cell'].target.id,
-          evt.properties['cell'].value,
-          evt.properties['cell'].vertex ? 'cell' : 'edge'
-        );
-        this._eventService._events.emit('labelChanged', m)
+        let idNode = evt.properties['cell'].vertex ? evt.properties['cell'].id : evt.properties['cell'].source.id
+        let parent = this.viewModel.get(idNode)
+        if (evt.properties['cell'].vertex) {
+          parent.props[0].value = evt.properties['cell'].value
+        } else {
+          let edge;
+          if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
+            edge = parent.edgeList.find(node => node.id === evt.properties['cell'].target.id)
+          } else {
+            edge = parent.edgeIfEmpty.find(node => node.id === evt.properties['cell'].target.id)
+          }
+          edge.match = []
+          evt.properties['cell'].value.split(',').forEach(rec => edge.match.push(rec))
 
+        }
       }));
       this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function (sender, evt) {
         // console.log('CHANGE ----------- Cell', evt.properties['cell'])
@@ -286,7 +290,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
             thiz.addMenu(thiz, menu, cell, submenu, true)
           }
         } else {
-          thiz.addMenu(thiz,menu,cell)
+          thiz.addMenu(thiz, menu, cell)
         }
 
         menu.addItem('Удалить', 'assets/images/delete.png', function () {
