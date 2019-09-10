@@ -133,29 +133,32 @@ export class ModelService {
     this.viewModel.get(parent).addChildren(child, error)
   }
 
-  deleteViewNode(id: string) {
+  deleteViewNode(id: string, root?) {
     let node = this.viewModel.get(id);
     console.log('NODE UNDEF', node)
     if (node.edgeIfEmpty) {
       for (let rec in node.edgeIfEmpty) {
-        // console.log('REC',node.edgeIfEmpty[rec])
-        this.deleteViewNode(node.edgeIfEmpty[rec].id)
+        this.deleteViewNode(node.edgeIfEmpty[rec].id, id)
       }}
     if (node.edgeList) {
       for (let rec in node.edgeList) {
-        // console.log('REC2',node.edgeList[rec]);
-        this.deleteViewNode(node.edgeList[rec].id)
+        this.deleteViewNode(node.edgeList[rec].id, id)
       }}
 
+    if (!root){
+      let parent = this.viewModel.get(node.parent);
+      if (parent.edgeList){
+        parent.edgeList = parent.edgeList.filter(item => item.id !== id)
+        this.viewModel.set(parent.id,parent)
+      }
+      if (parent.edgeIfEmpty){
+        parent.edgeIfEmpty = parent.edgeIfEmpty.filter(item => item.id !== id)
+      }
+    }
 
-    let parent = this.viewModel.get(node.parent);
-    console.log('PARENT', node)
-    if (parent.edgeList){
-      parent.edgeList = parent.edgeList.filter(item => item.id !== id)
-    }
-    if (parent.edgeIfEmpty){
-      parent.edgeIfEmpty = parent.edgeIfEmpty.filter(item => item.id !== id)
-    }
+    // let parent = this.viewModel.get(node.parent);
+    // console.log('PARENT', node)
+
     return this.viewModel.delete(id);
   }
 
