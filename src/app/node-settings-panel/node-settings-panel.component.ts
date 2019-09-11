@@ -99,8 +99,8 @@ export class NodeSettingsPanelComponent implements OnInit {
     });
   }
 
-  onHover(id: string) {
-    this._eventService._events.emit('onHover', id)
+  onHover(id: string, focus:boolean) {
+    this._eventService._events.emit('onHover', {id,focus})
   }
 
   add(event: MatChipInputEvent, id: string): void {

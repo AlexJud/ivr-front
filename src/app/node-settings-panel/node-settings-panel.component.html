@@ -2,7 +2,7 @@
 <input type="file" (change)="uploadFile($event)" accept="*/xml" #file [hidden]="true">
 <!-- Настройки узла -->
 <mat-accordion class="example-headers-align">
-    <mat-expansion-panel expanded="true"> 
+    <mat-expansion-panel expanded="true">
       <mat-expansion-panel-header>
         <mat-panel-title>
         <label for="">Вопрос:
@@ -74,14 +74,14 @@
   </mat-accordion>
   <!-- Дочерние узлы -->
   <mat-accordion class="example-headers-align">
-      <mat-expansion-panel> 
+      <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
             <span style="font-size: 12px">Дочерние узлы</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
             <div *ngFor="let edge of currentNode.edgeList">
-              <mat-card class="example-card" (mouseenter)="onHover(edge.id)">
+              <mat-card class="example-card" (mouseenter)="onHover(edge.id, true)" (mouseleave)="onHover(edge.id,false)" >
                 <mat-card-header>
                   <mat-card-subtitle>{{edge.name}}</mat-card-subtitle>
                 </mat-card-header>

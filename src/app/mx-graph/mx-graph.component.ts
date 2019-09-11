@@ -42,7 +42,7 @@ declare var mxCellTracker: any;
   styleUrls: ['./mx-graph.component.scss']
 })
 
-export class MxGraphComponent implements OnInit, AfterViewInit {
+export class MxGraphComponent implements OnInit {
 
   @Output('getNameCellByClick') emitNameCell = new EventEmitter();
 
@@ -50,8 +50,6 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   graph: any;
   parent: any;
   styleSheet = {};
-  styleCell = '';
-  styleVertex = '';
   mxGraphHandler;
   highlight;
   layout;
@@ -59,18 +57,11 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   layout3;
   map = new Map();
   node: Node;
-  vertexHandlerInit;
-  marker
 
   private counterNodeId = 0;
 
   constructor(private _modelService: ModelService,
               private _eventService: EventService) {
-  }
-
-  ngAfterViewInit() {
-    // console.log('mxBasePath is: ' + mxBasePath)
-    // console.log('mxImageBasePath is: ' + mxImageBasePath)
   }
 
   ngOnInit() {
@@ -106,71 +97,35 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     })
     this._eventService._events.addListener('changeLayout', (name) => this.changeLayout(name))
     this._eventService._events.addListener('updateCell', (id) => this.renderNodeFromViewModel(id))
-    this._eventService._events.addListener('onHover', (id) => this.high(id))
-    // this._eventService._events.addListener('labelChanged', mes => console.log('MESSAGE ', mes))
-    // Подписаться на получение Node для подстветки =>
-    // this.highlightCellOn(NodeName); //подсветка
-    // this.highlightCellReset();  //сброс
+    this._eventService._events.addListener('onHover', (obj) => this.high(obj))
 
     new mxCellTracker(this.graph, '#de7f1c'); // hover cell подсветка
 
-
+    this.graph.setCellsResizable(false);
   }
 
   initListeners() {
     this.graph.setTooltips(true);
 
-    this.marker = new mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
+    // this.marker = new mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
 
     this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function (sender, evt) {
-      // console.log('CHANGE -----------', evt.properties['cell'])
       if (evt.properties['cell'] && evt.properties['cell'].vertex) {
-        // console.log('CLICK ',evt.properties['cell'].id)
         this._eventService._events.emit('showProps', {node: evt.properties['cell'].id, type: 'options'});
       }
     }));
-
-    mxEvent.addMou
-
-    // this.graph.addMouseListener({
-    //   mouseDown: ((sender, me) => {
-    //   //   console.log('ME -------', me)
-    //   //   if (me.evt.button === 0) //left
-    //   //   {
-    //   //     if (me.getCell().vertex) {
-    //   //       // this.emitNameCell.emit(me.getCell().value);
-    //   //       console.log('THIS IS ', me.getCell())
-    //   //       // if (me.getCell().parent.value === undefined) {
-    //   //       //   // this._eventService._events.emit('selectNode', {node: me.getCell().value, type: me.getCell().value});
-    //   //       //   this._eventService._events.emit('showProps', {node: me.getCell().id, type: 'options'});
-    //   //       //   console.log('Select node', me.getCell().value);
-    //   //       // } else {
-    //   //       //   this._eventService._events.emit('showProps', {node: me.getCell().id, type: 'options'});
-    //   //       //   // this._eventService._events.emit('selectNode', me.getCell().value);
-    //   //       //   console.log('Select node', me.getCell().value);
-    //   //       // }
-    //   //     }
-    //   //   }
-    //   }),
-    //   mouseMove: function (sender, me) {
-    //     //     marker.process(me);
-    //   },
-    //   mouseUp: function () {
-    //   }
-    // });
 
     this.highlight = new mxCellHighlight(this.graph, '#ff0000', 5);
 
 
   }
 
-  high(id) {
-    // console.log('TRACE 1', id)
-    // let node = this.map.get(id);
-    // console.log('TRACE 2', this.graph.model)
-    // let nodeG = this.graph.model.cells[id]
-    // console.log('TRACE 3', nodeG)
-    // this.marker.process(node)
+  high({id, focus}) {
+    if (focus) {
+      this.highlightCellOn(this.map.get(id))
+    } else {
+      this.highlightCellReset()
+    }
   }
 
   private initializeMxGraph() {
@@ -231,48 +186,6 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
 
       }));
 
-      // this.vertexHandlerInit = mxVertexHandler.prototype.init;
-
-      // mxVertexHandler.prototype.init = function(){
-      //   if (this.graph.connectionHandler.isEnabled() &&
-      //     this.graph.isCellConnectable(this.state.cell) &&
-      //     this.graph.getSelectionCount() == 1)
-      //   {
-      //     this.connectorImg = mxUtils.createImage('/assets/images/call.png');
-      //     this.connectorImg.style.cursor = 'pointer';
-      //     this.connectorImg.style.width = '29px';
-      //     this.connectorImg.style.height = '29px';
-      //     this.connectorImg.style.position = 'absolute';
-      //
-      //     if (!mxClient.IS_TOUCH)
-      //     {
-      //       this.connectorImg.setAttribute('title', mxResources.get('connect'));
-      //       mxEvent.redirectMouseEvents(this.connectorImg, this.graph, this.state);
-      //     }
-      //
-      //     // Starts connecting on touch/mouse down
-      //     mxEvent.addGestureListeners(this.connectorImg,
-      //       mxUtils.bind(this, function(evt)
-      //       {
-      //         this.graph.popupMenuHandler.hideMenu();
-      //         this.graph.stopEditing(false);
-      //
-      //         var pt = mxUtils.convertPoint(this.graph.container,
-      //           mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-      //         this.graph.connectionHandler.start(this.state, pt.x, pt.y);
-      //         this.graph.isMouseDown = true;
-      //         this.graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
-      //         mxEvent.consume(evt);
-      //       })
-      //     );
-      //
-      //     this.graph.container.appendChild(this.connectorImg);
-      //   }
-      //
-      //   this.redrawHandles();
-      // }
-
-
       this.graph.setCellsMovable(false);
       // this.graph.setAutoSizeCells(true);
       this.graph.setPanning(true);
@@ -291,21 +204,6 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       //     thiz.graph.zoomOut();
       //     mxEvent.consume(evt);
       //   }
-      // });
-
-
-      // mxEvent.
-      // this.graph.addListener(mxEvent.LABEL_CHANGED,  function (sender, evt) {
-      //   const id = evt.properties.cell.value;
-      //   const parent = evt.properties.cell.edges[0].source.value
-      //   thiz.map.set(id, evt.properties.cell);
-      //   let viewNode = thiz._modelService.viewModel.get(id)
-      //   if ( viewNode !== undefined) {
-      //     viewNode.id = id
-      //   } else {
-      //     thiz._modelService.addNewViewNode(id, evt.properties.cell.style, parent)
-      //   }
-      //   thiz._eventService._events.emit("nodeChanged");
       // });
 
       this.graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
@@ -371,31 +269,13 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
 
     this.graph.addCellOverlay(cell, overlay);
 
-    // if (addDeleteIcon)
-    // {
-    //   overlay = new mxCellOverlay(new mxImage('images/close.png', 30, 30), 'Delete');
-    //   overlay.cursor = 'hand';
-    //   overlay.offset = new mxPoint(-4, 8);
-    //   overlay.align = mxConstants.ALIGN_RIGHT;
-    //   overlay.verticalAlign = mxConstants.ALIGN_TOP;
-    //   overlay.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt)
-    //   {
-    //     deleteSubtree(graph, cell);
-    //   }));
-    //
-    //   this.graph.addCellOverlay(cell, overlay);
-    // }
   }
 
   addChild(cell) {
-    // alert('HEllo')
     this.graph.clearSelection();
 
     let model = this.graph.getModel();
     let vertex;
-
-
-    // console.log('GEO ',geo)
 
     model.beginUpdate();
     try {
@@ -404,29 +284,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
 
       this.graph.view.refresh(vertex);
       let geometry = model.getGeometry(vertex);
-      console.log('GEOMETRY ', geometry);
-      // this.graph.set
-      // var size = this.graph.getPreferredSizeForCell(cell);
-      // size.height = 80
-      // size.width = 120
-      // console.log('SIZE P', size)
-      // var size = this.graph.getPreferredSizeForCell(vertex);
-      // console.log('SIZE ', size)
-      // geometry.width = 120;
-      // geometry.height = 80;
-      // console.log('TRACE 0', cell)
       var edge = this.graph.insertEdge(this.parent, null, '', cell, vertex, 'greenEdge');
-
-
-      // console.log('TRACE 1', edge)
-      // edge.geometry.x = 1;
-      // edge.geometry.y = 0;
-      // edge.geometry.offset = new mxPoint(-50, 30);
-      // console.log('TRACE 2', edge)
-
       this.addOverlay(vertex);
-      // console.log('TRACE 3')
-
 
     } finally {
       model.endUpdate();
@@ -582,16 +441,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   }
 
   public deleteNode(id: string) {
-    // console.log('CIRE VIEW ', this.viewModel)
-    // this.graph.getModel().beginUpdate();
-    // try {
-    //   const rNode = this.map.get(id);
-    //   this.graph.removeCells([rNode]);
-    // } finally {
-    //   this.graph.getModel().endUpdate();
-    // }
     this._modelService.deleteViewNode(id)
-// this.buildModel();
     this._eventService._events.emit("updateModel");
   }
 
@@ -694,46 +544,6 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
 
     };
     this.graph.getStylesheet().putCellStyle('redEdge', redEdge);
-
-    // let style = this.graph.getStylesheet().getDefaultVertexStyle();
-    // style[mxConstants.STYLE_SHAPE] = 'BranchNode';
-
-
-    //this.styleCell = 'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0';
-    //this.styleVertex = 'ROUNDED;separatorColor=green;rounded=1;arcSize=10';
   }
-
-  // private initModel() {
-  //   const field1 = new mx.mxCell(Object.keys(this.viewModel)[0], new mx.mxGeometry(0, 40, 140, 40),
-  //     'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0');
-
-  //   const field2 = new mx.mxCell('classify', new mx.mxGeometry(0, 40, 140, 40),
-  //     'text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rotatable=0');
-
-  //   field1.vertex = true;
-  //   field2.vertex = true;
-  //   // Adds cells to the model in a single step
-  //   this.graph.getModel().beginUpdate();
-  //   const style = {};
-  //   style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_SWIMLANE;
-  //   style[mxConstants.STYLE_OPACITY] = 50;
-  //   style[mxConstants.STYLE_FONTCOLOR] = '#774400';
-  //   this.graph.getStylesheet().putCellStyle('ROUNDED', style);
-  //   try {
-  //     const v1 = this.graph.insertVertex(this.parent, null, this.viewModel['root'].constructor.name, 20, 50, 140, 80, 'ROUNDED;separatorColor=green;rounded=1;arcSize=10');
-  //     const v2 = this.graph.insertVertex(this.parent, null, 'CLASSIFIER', 300, 120, 140, 80, 'ROUNDED;separatorColor=green;rounded=1;arcSize=10');
-  //     v1.insert(field1);
-  //     v2.insert(field2);
-  //     // var v2 = graph.insertVertex(parent, null, 'Privet', 20, 50, 80, 30, 'ROUNDED;separatorColor=green');
-  //     // let node = graph.groupCells(10, v1, v2);
-  //     // graph.addCell(vertexTemplateEntry);
-  //     // graph.addCell(cell);
-  //     // const v3 = graph.insertVertex(parent, null, 'World!', 200, 150, 80, 30);
-  //     const e1 = this.graph.insertEdge(this.parent, null, '', v1, v2);
-  //   } finally {
-  //     this.graph.getModel().endUpdate();
-  //   }
-  // }
-
 
 }
