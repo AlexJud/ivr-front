@@ -121,6 +121,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       }
     }));
 
+    // this.graph.addMouseListener()
+
     // this.graph.addMouseListener({
     //   mouseDown: ((sender, me) => {
     //   //   console.log('ME -------', me)
@@ -186,12 +188,24 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
         } else {
           let edge;
           if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
-            edge = parent.edgeList.find(node => node.id === evt.properties['cell'].target.id)
+            if (parent.type === NodeType.SpecifierNode){
+              edge = parent.props.find(option => option.name === 'Ключевые слова');
+              edge.value = [];
+              evt.properties['cell'].value.split(',').forEach(rec => edge.value.push(rec))
+              return
+
+            } else{
+              edge = parent.edgeList.find(node => node.id === evt.properties['cell'].target.id)
+              edge.match = []
+              evt.properties['cell'].value.split(',').forEach(rec => edge.match.push(rec))
+              return
+            }
           } else {
-            edge = parent.edgeIfEmpty.find(node => node.id === evt.properties['cell'].target.id)
+            return null
+            // edge = parent.edgeIfEmpty.find(node => node.id === evt.properties['cell'].target.id)
           }
-          edge.match = []
-          evt.properties['cell'].value.split(',').forEach(rec => edge.match.push(rec))
+
+          console.log('EDGE',edge)
 
         }
       }));
@@ -249,7 +263,9 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       this.graph.panningHandler.useLeftButtonForPanning = true;
 
       const thiz = this;
+
       // mxEvent.addMouseWheelListener(function (evt, up) {
+      //   console.log('eventListener',evt.target, '  up ',up)
       //   // mx.Print = false;
       //   if (up) {
       //     thiz.graph.zoomIn();
@@ -259,6 +275,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       //     mxEvent.consume(evt);
       //   }
       // });
+
+
 
       // mxEvent.
       // this.graph.addListener(mxEvent.LABEL_CHANGED,  function (sender, evt) {
@@ -442,16 +460,19 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   }
 
   renderNodeFromViewModel(id) {
+    console.log('UPDATE ',id)
     let cell = this.graph.model.getCell(id);
     let viewNode = this.viewModel.get(id);
     this.graph.model.setValue(cell, viewNode.props[0].value)
     console.log('NODE', cell)
     viewNode.edgeList.forEach(child => {
       let edge = cell.edges.find(target => target.target.id === child.id)
-      if (child.match[0]) {
+      // console.l
+      if (child.match) {
         this.graph.model.setValue(edge, child.match[0])
       } else {
-        this.graph.model.setValue(edge, viewNode.props[5].value[0])
+        let value = viewNode.props.find(item => item.name ==='Ключевые слова')
+        this.graph.model.setValue(edge, value.value[0])
       }
     })
     console.log('EDGE;', viewNode)
@@ -641,6 +662,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     edgeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
     edgeStyle[mxConstants.STYLE_VERTICAL_LABEL_POSITION] = 'top'
     edgeStyle[mxConstants.STYLE_VERTICAL_ALIGN] = 'bottom'
+    edgeStyle[mxConstants.STYLE_FONTSIZE] = '14'
 
     this.graph.getStylesheet().putCellStyle('greenEdge', edgeStyle);
 
@@ -648,7 +670,10 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       verticalLabelPosition: 'top',
       verticalAlign: 'bottom',
       strokeWidth: 2,
-      strokeColor: '#ff0500'
+      strokeColor: '#ff0500',
+      fontSize: 14,
+      fontColor: '#730017',
+
     };
     this.graph.getStylesheet().putCellStyle('redEdge', redEdge);
 
