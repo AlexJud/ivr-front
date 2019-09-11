@@ -57,6 +57,6 @@ export class HttpService {
     }
 
     requestModel(): Observable<any> {
-      return this.http.get('https://192.168.1.74:8080/api/model')
+      return this.http.get('/api/model')
     }
 }
