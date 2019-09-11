@@ -256,7 +256,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       // }
 
 
-      // this.graph.setCellsMovable(false);
+      this.graph.setCellsMovable(false);
       // this.graph.setAutoSizeCells(true);
       this.graph.setPanning(true);
       this.graph.centerZoom = false;
