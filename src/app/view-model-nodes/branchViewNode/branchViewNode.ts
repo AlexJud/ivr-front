@@ -16,6 +16,7 @@ export class BranchViewNode extends ViewNode {
 
     public static createFromNode(node: Node): BranchViewNode {
         let newNode = new BranchViewNode()
+        newNode.parent = ''
         newNode.id = node.id
         newNode.type = node.type
         newNode.initializeEdges(node)
@@ -26,6 +27,7 @@ export class BranchViewNode extends ViewNode {
 
     public static createNewNode(id: string, type: string, parent: string): BranchViewNode {
         let newNode = new BranchViewNode()
+        newNode.parent = ''
         newNode.id = id
         newNode.type = type
         newNode.parent = parent
@@ -66,12 +68,6 @@ export class BranchViewNode extends ViewNode {
         )
         this.props.push(this.createPropsRow(rowType, Strings.GRAMMAR, rowValue))
 
-
-
-        this.tableView = new TableView()
-        this.tableView.displayedColumns = ['name', 'value']
-        this.tableView.columnsData.push(new ColumsData("name", "Наименование"))
-        this.tableView.columnsData.push(new ColumsData("value", "Значение"))
     }
 
     private initializeEdges(node?:Node) {

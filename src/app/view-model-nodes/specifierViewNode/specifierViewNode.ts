@@ -78,6 +78,7 @@ export class SpecifierViewNode extends ViewNode {
     private initializeEdges(node?:Node) {
         let rowType: CellType
         let rowValue: any
+        let emptyLength: number
         let length: number
         this.edgeList = []
         this.edgeIfEmpty = []
@@ -89,7 +90,7 @@ export class SpecifierViewNode extends ViewNode {
         if(node === undefined || node.edgeIfEmpty === null) {
             this.edgeIfEmpty
         } else {
-            length = node.edgeIfEmpty.length
+            emptyLength = node.edgeIfEmpty.length
         }
         for(let i = 0; i < length; i++) {
             rowType = CellType.CARD_WITHOUT_CHIPS
@@ -97,7 +98,7 @@ export class SpecifierViewNode extends ViewNode {
             this.edgeList.push(this.createEdgeRow(rowType, Strings.CARD_SUCCESS, rowValue))
         }
 
-        for(let i = 0; i < length; i++) {
+        for(let i = 0; i < emptyLength; i++) {
             rowType = CellType.CARD_WITHOUT_CHIPS
             rowValue = node === undefined ? '' : node.edgeIfEmpty[i]
             this.edgeIfEmpty.push(this.createEdgeRow(rowType, Strings.CARD_FAIL, rowValue))

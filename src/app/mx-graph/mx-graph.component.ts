@@ -90,6 +90,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()))
       this.layout2 = new mxHierarchicalLayout(this.graph, mxConstants.DIRECTION_WEST);
       this.buildModel()
+      console.log(this.graph);
     })
     this._eventService._events.addListener('updateGraph', (id) => {
       const node = this._modelService.viewModel.get(id)
