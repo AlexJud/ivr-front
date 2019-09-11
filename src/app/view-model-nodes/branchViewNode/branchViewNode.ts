@@ -45,9 +45,9 @@ export class BranchViewNode extends ViewNode {
         rowValue = node === undefined ? '' : node.props.synthText
         this.props.push(this.createPropsRow(rowType, Strings.TEXT_FOR_SYNTHESIZE, rowValue))
 
-        rowType = CellType.INPUT
-        rowValue = node === undefined ? 'b=1&t=5000&nit=5000' : node.props.asrOptions
-        this.props.push(this.createPropsRow(rowType, Strings.ASR_OPTION, rowValue))
+        // rowType = CellType.INPUT
+        // rowValue = node === undefined ? 'b=0&t=5000&nit=5000' : node.props.asrOptions
+        // this.props.push(this.createPropsRow(rowType, Strings.ASR_OPTION, rowValue))
 
         rowType = CellType.SELECT
         let asr = Utils.parseAsrType(node === undefined ? '' : node.props.grammar)

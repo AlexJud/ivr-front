@@ -10,7 +10,6 @@ export class SpecifierRowPresent {
 
 export class SpecifierEdgePresent {
     id: string
-    match: any
     name: string
     type: CellType
 }

@@ -9,6 +9,7 @@ import { HttpService } from '../services/http.service';
 import { GrammarService } from '../services/grammar.service';
 import { Strings } from '../graph/nodeProps/optionStrings';
 import { MatSnackBar } from '@angular/material';
+import { NodeType } from '../graph/nodes/nodes';
 
 @Component({
   selector: 'app-node-settings-panel',
@@ -102,37 +103,33 @@ export class NodeSettingsPanelComponent implements OnInit {
     this._eventService._events.emit('onHover', id)
   }
 
-  add(event: MatChipInputEvent, id: string, type: string): void {
+  add(event: MatChipInputEvent, id: string): void {
     const input = event.input;
     const value = event.value;
-    if ((value || '').trim()) {
-      this.currentNode.edgeList.forEach(edge => {
-        if (edge.id === id) {
-          edge.match.push(value.trim())
-          this._eventService._events.emit('updateCell', this.currentNode.id)
+    switch(this.currentNode.type) {
+      case NodeType.BranchNode: {
+        if ((value || '').trim()) {
+          this.currentNode.edgeList.forEach(edge => {
+            if (edge.id === id) {
+              edge.match.push(value.trim())
+              this._eventService._events.emit('updateCell', this.currentNode.id)
+            }
+          });
         }
-      });
-    }
-
-    // Reset the input value
-    if (input) {
-      input.value = '';
-    }
-  }
-
-  addMatch(event: MatChipInputEvent, i: number) {
-    const input = event.input;
-    const value = event.value;
-    if ((value || '').trim()) {
-      this.currentNode.props.forEach(prop => {
-        if (prop.name === 'Ключевые слова') {
-          prop.value.push(value.trim())
-          this._eventService._events.emit('updateCell', this.currentNode.id)
+        break
+      }
+      case NodeType.SpecifierNode: {
+        if ((value || '').trim()) {
+          this.currentNode.props.forEach(prop => {
+            if (prop.name === 'Ключевые слова') {
+              prop.value.push(value.trim())
+              this._eventService._events.emit('updateCell', this.currentNode.id)
+            }
+          });
         }
-      });
+        break
+      }
     }
-
-    // Reset the input value
     if (input) {
       input.value = '';
     }
@@ -140,25 +137,31 @@ export class NodeSettingsPanelComponent implements OnInit {
 
   remove(key: string, id: string): void {
     let index: number
-
-    this.currentNode.edgeList.forEach(edge => {
-      if (edge.id === id) {
-        index = edge.match.indexOf(key);
+    switch(this.currentNode.type) {
+      case NodeType.BranchNode: {
+        this.currentNode.edgeList.forEach(edge => {
+          if (edge.id === id) {
+            index = edge.match.indexOf(key);
+          }
+          if (index >= 0) {
+            edge.match.splice(index, 1);
+          }
+        })
+        break
       }
-      if (index >= 0) {
-        edge.match.splice(index, 1);
+      case NodeType.SpecifierNode: {
+        this.currentNode.props.forEach(prop => {
+          if(prop.name === Strings.KEYWORDS) {
+            index = prop.value.indexOf(key);
+          }
+          if (index >= 0) {
+            prop.value.splice(index, 1);
+          }
+        })
+        break
       }
-    })
-
-
-  }
-  removeMatch(key: string, id: string): void {
-    let index: number
-
-    index = this.currentNode.props.match.indexOf(key);
-    if (index >= 0) {
-      this.currentNode.props.match.splice(index, 1);
     }
-  }
 
+
+  }
 }

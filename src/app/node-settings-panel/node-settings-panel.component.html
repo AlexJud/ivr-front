@@ -39,7 +39,7 @@
             <mat-card-content>
               <mat-chip-list #chipList aria-label="Keywords selection">
                 <mat-chip *ngFor="let key of prop.value; let i = index" [selectable]="selectable"
-                          [removable]="removable" (removed)="removeMatch(key)">
+                          [removable]="removable" (removed)="remove(key)">
                   {{key}}
                   <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
                 </mat-chip>
@@ -47,7 +47,7 @@
                         [matChipInputFor]="chipList"
                         [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                         [matChipInputAddOnBlur]="addOnBlur"
-                        (matChipInputTokenEnd)="addMatch($event)">
+                        (matChipInputTokenEnd)="add($event)">
               </mat-chip-list>
               </mat-card-content>
           </mat-card>
@@ -58,13 +58,17 @@
             <mat-form-field class="example-full-width">
               <input type="text" placeholder="Pick one" matInput [formControl]="myControl" [matAutocomplete]="auto">
               <mat-autocomplete #auto="matAutocomplete">
-                <mat-option *ngFor="let option of fruits" [value]="option">
-                  {{option}}
+                <mat-option>
+                  callerId
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>
             </form>
         </div>
+        <!-- <div class="checkbox-asr" *ngIf="prop.type === 7">
+          <mat-label>Опции распознавания</mat-label>
+          <mat-checkbox>Barge-in</mat-checkbox>
+        </div> -->
       </div>
     </mat-expansion-panel>
   </mat-accordion>

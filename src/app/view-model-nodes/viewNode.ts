@@ -12,6 +12,10 @@ export abstract class ViewNode {
     tableView?: TableView
 
     abstract addChildren(child: string, error:boolean);
+
+    public parseAsrOptions(options: string) {
+        let opt = options.split('&')
+    }
 }
 
 export class RowType {
@@ -27,6 +31,8 @@ export class RowType {
       return new RowType(type)
   }
 }
+
+
 
 export class TableView {
   displayedColumns: string[]

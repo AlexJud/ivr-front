@@ -45,9 +45,9 @@ export class SpecifierViewNode extends ViewNode {
         rowValue = node === undefined ? '' : node.props.synthText
         this.props.push(this.createRow(rowType, Strings.TEXT_FOR_SYNTHESIZE, rowValue))
 
-        rowType = CellType.INPUT
-        rowValue = node === undefined ? 'b=1&t=5000&nit=5000' : node.props.asrOptions
-        this.props.push(this.createRow(rowType, Strings.ASR_OPTION, rowValue))
+        // rowType = CellType.INPUT
+        // rowValue = node === undefined ? 'b=0&t=5000&nit=5000' : node.props.asrOptions
+        // this.props.push(this.createRow(rowType, Strings.ASR_OPTION, rowValue))
 
         rowType = CellType.SELECT
         let asr = Utils.parseAsrType(node === undefined ? '' : node.props.grammar)
@@ -114,16 +114,15 @@ export class SpecifierViewNode extends ViewNode {
     public createEdgeRow(type: CellType, cardName: string, value: any): SpecifierEdgePresent {
         const row = new SpecifierEdgePresent()
         row.id = value.id
-        row.match = value.match /* === undefined ? '' : value.match */
         row.name = cardName + ' ' + value.id
         row.type = type
         return row
     }
     public addChildren(child: string, error:boolean = false): void {
       if (error){
-        this.edgeIfEmpty.push(this.createEdgeRow(CellType.CARD_WITHOUT_CHIPS, Strings.CARD_FAIL, {id: child, match: ''}))
+        this.edgeIfEmpty.push(this.createEdgeRow(CellType.CARD_WITHOUT_CHIPS, Strings.CARD_FAIL, {id: child}))
       } else{
-        this.edgeList.push(this.createEdgeRow(CellType.CARD_WITHOUT_CHIPS, Strings.CARD_SUCCESS, {id: child, match: ''}))
+        this.edgeList.push(this.createEdgeRow(CellType.CARD_WITHOUT_CHIPS, Strings.CARD_SUCCESS, {id: child}))
       }
     }
 }
