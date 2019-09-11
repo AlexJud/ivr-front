@@ -186,12 +186,25 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
         } else {
           let edge;
           if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
-            edge = parent.edgeList.find(node => node.id === evt.properties['cell'].target.id)
+            if (parent.type === NodeType.SpecifierNode){
+              edge = parent.props[5];
+              console.log('TRACE1',edge)
+              edge.value = [];
+              evt.properties['cell'].value.split(',').forEach(rec => edge.value.push(rec))
+              return
+
+            } else{
+              edge = parent.edgeList.find(node => node.id === evt.properties['cell'].target.id)
+              edge.match = []
+              evt.properties['cell'].value.split(',').forEach(rec => edge.match.push(rec))
+              return
+            }
           } else {
-            edge = parent.edgeIfEmpty.find(node => node.id === evt.properties['cell'].target.id)
+            return null
+            // edge = parent.edgeIfEmpty.find(node => node.id === evt.properties['cell'].target.id)
           }
-          edge.match = []
-          evt.properties['cell'].value.split(',').forEach(rec => edge.match.push(rec))
+
+          console.log('EDGE',edge)
 
         }
       }));
@@ -259,6 +272,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       //     mxEvent.consume(evt);
       //   }
       // });
+
+
 
       // mxEvent.
       // this.graph.addListener(mxEvent.LABEL_CHANGED,  function (sender, evt) {
@@ -641,6 +656,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
     edgeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
     edgeStyle[mxConstants.STYLE_VERTICAL_LABEL_POSITION] = 'top'
     edgeStyle[mxConstants.STYLE_VERTICAL_ALIGN] = 'bottom'
+    edgeStyle[mxConstants.STYLE_FONTSIZE] = '14'
 
     this.graph.getStylesheet().putCellStyle('greenEdge', edgeStyle);
 
@@ -648,7 +664,10 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       verticalLabelPosition: 'top',
       verticalAlign: 'bottom',
       strokeWidth: 2,
-      strokeColor: '#ff0500'
+      strokeColor: '#ff0500',
+      fontSize: 14,
+      fontColor: '#730017',
+
     };
     this.graph.getStylesheet().putCellStyle('redEdge', redEdge);
 
