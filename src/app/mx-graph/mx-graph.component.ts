@@ -146,6 +146,13 @@ export class MxGraphComponent implements OnInit {
       this.graph.enterStopsCellEditing = true
       this.graph.setHtmlLabels(true);
 
+      this.graph.setCellsMovable(false);
+      this.graph.setCellsLocked(true);
+      // this.graph.setAutoSizeCells(true);
+      this.graph.setPanning(true);
+      this.graph.centerZoom = false;
+      this.graph.panningHandler.useLeftButtonForPanning = true;
+
       // this.graph.setConnectable(true);
       // this.graph.cellLabelChanged = function (cell, value, autoSize) {
       //   this.graph.setValue(cell,value)
@@ -186,11 +193,6 @@ export class MxGraphComponent implements OnInit {
 
       }));
 
-      this.graph.setCellsMovable(false);
-      // this.graph.setAutoSizeCells(true);
-      this.graph.setPanning(true);
-      this.graph.centerZoom = false;
-      this.graph.panningHandler.useLeftButtonForPanning = true;
 
       const thiz = this;
 
@@ -207,7 +209,8 @@ export class MxGraphComponent implements OnInit {
       // });
 
       this.graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
-        if (!cell) return
+        if (!cell || cell.edge) return
+        // console.log('CELL ',cell)
 
         let node = thiz._modelService.viewModel.get(cell.id);
         if (node.type !== NodeType.EndNode) {
@@ -235,22 +238,22 @@ export class MxGraphComponent implements OnInit {
   }
 
   addMenu(thiz, menu, cell, submenu = null, error: boolean = false) {
-    menu.addItem('Создать BranchNode', 'assets/images/split.png', function () {
+    menu.addItem('Оператор ветвления', 'assets/images/split.png', function () {
       const id = 'Branch_node_' + thiz.counterNodeId++
       thiz.addNewNode(id, NodeType.BranchNode, cell.id, error)
       thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id, error)
     }, submenu);
-    menu.addItem('Создать SystemNode', 'assets/images/info.png', function () {
+    menu.addItem('Оператор загрузки данных', 'assets/images/info.png', function () {
       const id = 'System_node_' + thiz.counterNodeId++
       thiz.addNewNode(id, NodeType.SystemNode, cell.id, error)
       thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id, error)
     }, submenu);
-    menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function () {
+    menu.addItem('Оператор сохранения ответа', 'assets/images/record.png', function () {
       const id = 'Specified_node_' + thiz.counterNodeId++
       thiz.addNewNode(id, NodeType.SpecifierNode, cell.id, error)
       thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id, error)
     }, submenu);
-    menu.addItem('Создать EndNode', 'assets/images/done.png', function () {
+    menu.addItem('Завершение разговора', 'assets/images/done.png', function () {
       const id = 'End_node_' + thiz.counterNodeId++
       thiz.addNewNode(id, NodeType.EndNode, cell.id, error)
       thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id, error)
@@ -410,7 +413,7 @@ export class MxGraphComponent implements OnInit {
     const viewNode = this._modelService.viewModel.get(id)
     this.graph.getModel().beginUpdate();
     try {
-      let vObj = this.graph.insertVertex(this.parent, viewNode.id, 'Ну вот он текст', 0, 0, 120, 80, viewNode.type);
+      let vObj = this.graph.insertVertex(this.parent, viewNode.id, '', 0, 0, 120, 80, viewNode.type);
       //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
       this.map.set(viewNode.id, vObj);
       this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'greenEdge');
@@ -426,7 +429,7 @@ export class MxGraphComponent implements OnInit {
     this.graph.getModel().beginUpdate();
     let vObj
     try {
-      vObj = this.graph.insertVertex(this.parent, id, 'Тестовый текст', 0, 0, 120, 80, type);
+      vObj = this.graph.insertVertex(this.parent, id, '', 0, 0, 120, 80, type);
       this.map.set(id, vObj);
       // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'greenEdge');
       let edge = this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, style);
