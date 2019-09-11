@@ -27,6 +27,7 @@ declare var mxImage: any;
 declare var mxPoint: any;
 declare var mxEdgeHandler: any;
 declare var mxMorphing: any;
+declare var mxCellTracker: any;
 
 // declare var require: any;
 // const mx = require('mxgraph')
@@ -59,6 +60,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   map = new Map();
   node: Node;
   vertexHandlerInit;
+  marker
 
   private counterNodeId = 0;
 
@@ -98,21 +100,27 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
 
     })
     this._eventService._events.addListener('highlight', (id) => {
+      // this._eventService._events.addListener('onHover', (id) => {
       let name = this.map.get(id)
       this.highlightCellOn(name);
     })
     this._eventService._events.addListener('changeLayout', (name) => this.changeLayout(name))
     this._eventService._events.addListener('updateCell', (id) => this.renderNodeFromViewModel(id))
+    this._eventService._events.addListener('onHover', (id) => this.high(id))
     // this._eventService._events.addListener('labelChanged', mes => console.log('MESSAGE ', mes))
     // Подписаться на получение Node для подстветки =>
     // this.highlightCellOn(NodeName); //подсветка
     // this.highlightCellReset();  //сброс
+
+    new mxCellTracker(this.graph, '#de7f1c'); // hover cell подсветка
+
+
   }
 
   initListeners() {
     this.graph.setTooltips(true);
 
-    var marker = new mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
+    this.marker = new mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
 
     this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function (sender, evt) {
       // console.log('CHANGE -----------', evt.properties['cell'])
@@ -122,7 +130,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       }
     }));
 
-    // this.graph.addMouseListener()
+    mxEvent.addMou
 
     // this.graph.addMouseListener({
     //   mouseDown: ((sender, me) => {
@@ -156,6 +164,14 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
 
   }
 
+  high(id) {
+    // console.log('TRACE 1', id)
+    // let node = this.map.get(id);
+    // console.log('TRACE 2', this.graph.model)
+    // let nodeG = this.graph.model.cells[id]
+    // console.log('TRACE 3', nodeG)
+    // this.marker.process(node)
+  }
 
   private initializeMxGraph() {
     const container = document.getElementById('graphContainer');
@@ -189,13 +205,13 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
         } else {
           let edge;
           if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
-            if (parent.type === NodeType.SpecifierNode){
+            if (parent.type === NodeType.SpecifierNode) {
               edge = parent.props.find(option => option.name === 'Ключевые слова');
               edge.value = [];
               evt.properties['cell'].value.split(',').forEach(rec => edge.value.push(rec))
               return
 
-            } else{
+            } else {
               edge = parent.edgeList.find(node => node.id === evt.properties['cell'].target.id)
               edge.match = []
               evt.properties['cell'].value.split(',').forEach(rec => edge.match.push(rec))
@@ -206,7 +222,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
             // edge = parent.edgeIfEmpty.find(node => node.id === evt.properties['cell'].target.id)
           }
 
-          console.log('EDGE',edge)
+          console.log('EDGE', edge)
 
         }
       }));
@@ -278,7 +294,6 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       // });
 
 
-
       // mxEvent.
       // this.graph.addListener(mxEvent.LABEL_CHANGED,  function (sender, evt) {
       //   const id = evt.properties.cell.value;
@@ -297,19 +312,21 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
         if (!cell) return
 
         let node = thiz._modelService.viewModel.get(cell.id);
-        let submenu = node.type === NodeType.SpecifierNode
+        if (node.type !== NodeType.EndNode) {
+          let submenu = node.type === NodeType.SpecifierNode
 
-        if (submenu) {
-          if (node.edgeList.length === 0) {
-            submenu = menu.addItem('Ответ получен', null, null);
-            thiz.addMenu(thiz, menu, cell, submenu)
+          if (submenu) {
+            if (node.edgeList.length === 0) {
+              submenu = menu.addItem('Ответ получен', null, null);
+              thiz.addMenu(thiz, menu, cell, submenu)
+            }
+            if (node.edgeIfEmpty.length === 0) {
+              submenu = menu.addItem('Eсли ошибка', null, null);
+              thiz.addMenu(thiz, menu, cell, submenu, true)
+            }
+          } else {
+            thiz.addMenu(thiz, menu, cell)
           }
-          if (node.edgeIfEmpty.length === 0) {
-            submenu = menu.addItem('Eсли ошибка', null, null);
-            thiz.addMenu(thiz, menu, cell, submenu, true)
-          }
-        } else {
-          thiz.addMenu(thiz, menu, cell)
         }
 
         menu.addItem('Удалить', 'assets/images/delete.png', function () {
@@ -321,22 +338,22 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
 
   addMenu(thiz, menu, cell, submenu = null, error: boolean = false) {
     menu.addItem('Создать BranchNode', 'assets/images/split.png', function () {
-      const id = 'Branch node ' + thiz.counterNodeId++
+      const id = 'Branch_node_' + thiz.counterNodeId++
       thiz.addNewNode(id, NodeType.BranchNode, cell.id, error)
       thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id, error)
     }, submenu);
     menu.addItem('Создать SystemNode', 'assets/images/info.png', function () {
-      const id = 'System node' + thiz.counterNodeId++
+      const id = 'System_node_' + thiz.counterNodeId++
       thiz.addNewNode(id, NodeType.SystemNode, cell.id, error)
       thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id, error)
     }, submenu);
     menu.addItem('Создать SpecifierNode', 'assets/images/record.png', function () {
-      const id = 'Specified node ' + thiz.counterNodeId++
+      const id = 'Specified_node_' + thiz.counterNodeId++
       thiz.addNewNode(id, NodeType.SpecifierNode, cell.id, error)
       thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id, error)
     }, submenu);
     menu.addItem('Создать EndNode', 'assets/images/done.png', function () {
-      const id = 'End node ' + thiz.counterNodeId++
+      const id = 'End_node_' + thiz.counterNodeId++
       thiz.addNewNode(id, NodeType.EndNode, cell.id, error)
       thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id, error)
     }, submenu);
@@ -461,7 +478,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   }
 
   renderNodeFromViewModel(id) {
-    console.log('UPDATE ',id)
+    console.log('UPDATE ', id)
     let cell = this.graph.model.getCell(id);
     let viewNode = this.viewModel.get(id);
     this.graph.model.setValue(cell, viewNode.props[0].value)
@@ -472,7 +489,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       if (child.match) {
         this.graph.model.setValue(edge, child.match[0])
       } else {
-        let value = viewNode.props.find(item => item.name ==='Ключевые слова')
+        let value = viewNode.props.find(item => item.name === 'Ключевые слова')
         this.graph.model.setValue(edge, value.value[0])
       }
     })
