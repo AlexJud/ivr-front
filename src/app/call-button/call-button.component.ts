@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { WebSocketAPI } from '../services/WebSocketAPI';
 import { EventService } from '../services/event.service';
 declare var SIPml: any;
@@ -10,6 +10,7 @@ declare var SIPml: any;
   styleUrls: ['./call-button.component.scss']
 })
 export class CallButtonComponent implements OnInit {
+  @ViewChild("callPhone", {static: false}) callPhone: ElementRef
   sipStack;
   callSession;
   callStatus: boolean
@@ -215,7 +216,7 @@ export class CallButtonComponent implements OnInit {
         }
       } // optional: '*' means all events
     });
-    this.callSession.call('1060');
+    this.callSession.call(this.callPhone.nativeElement.value);
     this.callStatus = true;
   }
 }

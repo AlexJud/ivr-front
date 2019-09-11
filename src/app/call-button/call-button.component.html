@@ -25,4 +25,5 @@
       <mat-icon>delete</mat-icon>&nbsp;Очистить Диалог
   </button>
 </div>
+<input matInput *ngIf="!bttns.callButton.disabled" placeholder="Введите номер" #callPhone/>
 <app-call-viewer #callView></app-call-viewer>
