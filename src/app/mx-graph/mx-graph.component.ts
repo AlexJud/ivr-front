@@ -121,6 +121,8 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       }
     }));
 
+    // this.graph.addMouseListener()
+
     // this.graph.addMouseListener({
     //   mouseDown: ((sender, me) => {
     //   //   console.log('ME -------', me)
@@ -187,8 +189,7 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
           let edge;
           if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
             if (parent.type === NodeType.SpecifierNode){
-              edge = parent.props[5];
-              console.log('TRACE1',edge)
+              edge = parent.props.find(option => option.name === 'Ключевые слова');
               edge.value = [];
               evt.properties['cell'].value.split(',').forEach(rec => edge.value.push(rec))
               return
@@ -262,7 +263,9 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
       this.graph.panningHandler.useLeftButtonForPanning = true;
 
       const thiz = this;
+
       // mxEvent.addMouseWheelListener(function (evt, up) {
+      //   console.log('eventListener',evt.target, '  up ',up)
       //   // mx.Print = false;
       //   if (up) {
       //     thiz.graph.zoomIn();
@@ -457,16 +460,19 @@ export class MxGraphComponent implements OnInit, AfterViewInit {
   }
 
   renderNodeFromViewModel(id) {
+    console.log('UPDATE ',id)
     let cell = this.graph.model.getCell(id);
     let viewNode = this.viewModel.get(id);
     this.graph.model.setValue(cell, viewNode.props[0].value)
     console.log('NODE', cell)
     viewNode.edgeList.forEach(child => {
       let edge = cell.edges.find(target => target.target.id === child.id)
-      if (child.match[0]) {
+      // console.l
+      if (child.match) {
         this.graph.model.setValue(edge, child.match[0])
       } else {
-        this.graph.model.setValue(edge, viewNode.props[5].value[0])
+        let value = viewNode.props.find(item => item.name ==='Ключевые слова')
+        this.graph.model.setValue(edge, value.value[0])
       }
     })
     console.log('EDGE;', viewNode)
