@@ -233,7 +233,7 @@
 //   //           [
 //   //             {id: node.edgeList[0].id}
 //   //           ]
-//   //         }
+//   //         } 
 //   //         this.columnMap.set(node.id, {
 //   //           options: ['option', 'value'],
 //   //           children: ['id']
