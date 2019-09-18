@@ -74,7 +74,7 @@ export class ModelService {
     // this.model = START_DATA;
     // this.buildViewModel();
 
-    let node = new Vertex('root');
+    let node = new Vertex(this.generateNodeId());
     node.type = NodeType.BranchNode;
     node.speech = 'Как дела?';
     this.graphViewModel.graph.set(node.id, node);
@@ -82,7 +82,7 @@ export class ModelService {
   }
 
   addVertex(vertex: Vertex, parentId: string, errorEdge: boolean = false) {
-    console.log('ADD NEW', vertex)
+    console.log('ADD NEW', vertex);
     if (!parentId) {
       console.error('Родитель не задан', vertex);
       return;
@@ -143,11 +143,11 @@ export class ModelService {
     child.parent.push(parent);
 
     child.props.edges.push(new Edge(parent, [], isErrorLink));
-    if (!parent.props.state.errorEdge && isErrorLink){
-      parent.props.state.errorEdge = child
+    if (!parent.props.state.errorEdge && isErrorLink) {
+      parent.props.state.errorEdge = child;
     }
-    if (!parent.props.state.logicEdge && !isErrorLink){
-      parent.props.state.logicEdge = child
+    if (!parent.props.state.logicEdge && !isErrorLink) {
+      parent.props.state.logicEdge = child;
     }
 
     this.graphViewModel.events.emit(Events.edgeadded);
@@ -182,6 +182,7 @@ export class ModelService {
 
   requestModel() {
     this._http.requestModel().subscribe((response: any) => {
+      this.counterNodeId = 0;
       this.sourceModel = response;
       this.graphViewModel.graph = this.convertToViewModel(response);
       this.graphViewModel.events.emit(Events.loadedmodel);
@@ -192,17 +193,27 @@ export class ModelService {
   }
 
   private generateNodeId() {
-    return 'Node' + this.counterNodeId++;
+    if (this.graphViewModel.graph) {
+      if (this.graphViewModel.graph.size === 0) {
+        return 'root';
+      } else {
+        return 'Node' + this.counterNodeId++;
+      }
+    }
   }
 
   private convertToViewModel(json) {
     let map = new Map<string, Vertex>();
 
+    // let array = Array.from(json);
+    // let root = array.find((item:any) => item.id === 'root')
+
+
     Array.from(json).forEach((node: any) => {
-      let vertex = new Vertex(this.generateNodeId());
+      let vertex = new Vertex(node.id);
       // console.log('VERTEX', vertex, node);
       vertex.type = node.type;
-      vertex.title = node.id;
+      // vertex.id = node.id;
       vertex.props.props = node.props;
       if (node.type === NodeType.BranchNode || node.type === NodeType.SpecifierNode) {
         vertex.props.result.grammar = node.props.grammar;
@@ -220,7 +231,7 @@ export class ModelService {
       }
 
       vertex.temp = node;
-      map.set(vertex.title, vertex);
+      map.set(vertex.id, vertex);
     });
 
     console.log('map 1 step', map);
@@ -235,7 +246,9 @@ export class ModelService {
             console.error('Узел не обраружен в словаре ', child.id);
           }
           let error = false;
-          if (child.match.length === 0) error = true
+          if (child.match.length === 0) {
+            error = true;
+          }
           vert.props.edges.push(new Edge(parent, child.match, error));
           vert.parent.push(parent);
           parent.child.push(vert);
