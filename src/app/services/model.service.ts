@@ -205,11 +205,11 @@ export class ModelService {
   private convertToViewModel(json) {
     let map = new Map<string, Vertex>();
 
-    // let array = Array.from(json);
+    let array = Array.from(json);
     // let root = array.find((item:any) => item.id === 'root')
 
 
-    Array.from(json).forEach((node: any) => {
+    array.forEach((node: any) => {
       let vertex = new Vertex(node.id);
       // console.log('VERTEX', vertex, node);
       vertex.type = node.type;
@@ -269,6 +269,8 @@ export class ModelService {
     map.forEach((v, k) => resultMap.set(v.id, v));
 
     console.log('MAP', resultMap);
+    this.counterNodeId = array.length;
+    // console.log('CURRENT ', this.counterNodeId);
 
     return resultMap;
   }
