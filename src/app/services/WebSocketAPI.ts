@@ -44,6 +44,11 @@ export class WebSocketAPI {
 
     onMessageReceived(message) {
         console.log("Message Received from Server :: " + message);
+        let body = JSON.parse(message.body);
+        if(body.level === 'highlight') {
+            this._eventService._events.emit('highlightNode', body.message)
+            console.log('==================ZALUPA==============', body.message);  
+        }
         this._eventService._events.emit('messageReceived', message)
     }
 }
