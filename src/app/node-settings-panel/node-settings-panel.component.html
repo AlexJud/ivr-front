@@ -1,109 +1,115 @@
 <!-- Это поле нужно для загрузки файлов -->
 <input type="file" (change)="uploadFile($event)" accept="*/xml" #file [hidden]="true">
 <!-- Настройки узла -->
-<mat-accordion class="example-headers-align">
-    <mat-expansion-panel expanded="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-        <label for="">Вопрос:
-          <span style="font-size: 11px">{{currentNode.props[0].value}}</span></label>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <div *ngFor="let prop of currentNode.props; let i = index">
-        <div class="textarea-field" *ngIf="prop.type === 2">
-          <mat-form-field>
-              <textarea matInput placeholder="{{prop.name}}" [(ngModel)]="prop.value"></textarea>
-          </mat-form-field>
-        </div>
-        <div class="input-field" *ngIf="prop.type === 1">
-          <mat-form-field>
-              <input matInput placeholder="{{prop.name}}" [(ngModel)]="prop.value">
-          </mat-form-field>
-        </div>
-        <div class="select-field" *ngIf="prop.type === 3">
-          <mat-form-field>
-            <mat-label>{{prop.name}}</mat-label>
-            <mat-select [(value)]="prop.value.selected" (selectionChange) = "changeGrammar(prop.value.selected, i)" [(disabled)]="prop.value.disabled">
-              <mat-option *ngFor="let value of prop.value.value" [(value)]="value">
-                {{value}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-progress-bar *ngIf="prop.name === 'Грамматика' && isProgress" mode="indeterminate"></mat-progress-bar>
-        </div>
-        <div class="keys-card-field" *ngIf="prop.type === 4">
-          <mat-card class="example-card">
-            <mat-card-header>
-              <mat-card-subtitle>Слова для распознования ответа</mat-card-subtitle>
-          </mat-card-header>
-            <mat-card-content>
-              <mat-chip-list #chipList aria-label="Keywords selection">
-                <mat-chip *ngFor="let key of prop.value; let i = index" [selectable]="selectable"
-                          [removable]="removable" (removed)="remove(key)">
-                  {{key}}
-                  <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-                </mat-chip>
-                <input placeholder="Добавить слово..." matInput
-                        [matChipInputFor]="chipList"
-                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                        [matChipInputAddOnBlur]="addOnBlur"
-                        (matChipInputTokenEnd)="add($event)">
-              </mat-chip-list>
-              </mat-card-content>
-          </mat-card>
-          <br/>
-        </div>
-        <div class="select-field" *ngIf="prop.type === 6">
-          <form class="example-form">
-            <mat-form-field class="example-full-width">
-              <input type="text" placeholder="Pick one" matInput [formControl]="myControl" [matAutocomplete]="auto">
-              <mat-autocomplete #auto="matAutocomplete">
-                <mat-option>
-                  callerId
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-            </form>
-        </div>
+<mat-accordion class="example-headers-align" *ngIf="currentNode.type !== 'SystemNode'">
+  <mat-expansion-panel expanded="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <label for="">Синтез:
+          <span style="font-size: 11px">{{currentNode.speech}}</span></label>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div >
+      <div class="textarea-field">
+        <mat-form-field >
+          <textarea matInput placeholder="Синтезировать" [(ngModel)]="currentNode.speech"></textarea>
+        </mat-form-field>
+        <mat-form-field *ngIf="currentNode.type === 'SpecifierNode'">
+          <input matInput placeholder="Сохранить ответ c именем" [(ngModel)]="currentNode.props.result.name">
+        </mat-form-field>
+        <!--        </div>-->
+        <!--        <div class="input-field" *ngIf="prop.type === 1">-->
+        <!--          <mat-form-field>-->
+        <!--              <input matInput placeholder="{{prop.name}}" [(ngModel)]="prop.value">-->
+        <!--          </mat-form-field>-->
+        <!--        </div>-->
+        <!--        <div class="select-field" *ngIf="prop.type === 3">-->
+        <!--          <mat-form-field>-->
+        <!--            <mat-label>{{prop.name}}</mat-label>-->
+        <!--            <mat-select [(value)]="prop.value.selected" (selectionChange) = "changeGrammar(prop.value.selected, i)" [(disabled)]="prop.value.disabled">-->
+        <!--              <mat-option *ngFor="let value of prop.value.value" [(value)]="value">-->
+        <!--                {{value}}-->
+        <!--              </mat-option>-->
+        <!--            </mat-select>-->
+        <!--          </mat-form-field>-->
+        <!--          <mat-progress-bar *ngIf="prop.name === 'Грамматика' && isProgress" mode="indeterminate"></mat-progress-bar>-->
+        <!--        </div>-->
+        <!--        <div class="keys-card-field" *ngIf="prop.type === 4">-->
+        <!--          <mat-card class="example-card">-->
+        <!--            <mat-card-header>-->
+        <!--              <mat-card-subtitle>Слова для распознования ответа</mat-card-subtitle>-->
+        <!--          </mat-card-header>-->
+        <!--            <mat-card-content>-->
+        <!--              <mat-chip-list #chipList aria-label="Keywords selection">-->
+        <!--                <mat-chip *ngFor="let key of prop.value; let i = index" [selectable]="selectable"-->
+        <!--                          [removable]="removable" (removed)="remove(key)">-->
+        <!--                  {{key}}-->
+        <!--                  <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>-->
+        <!--                </mat-chip>-->
+        <!--                <input placeholder="Добавить слово..." matInput-->
+        <!--                        [matChipInputFor]="chipList"-->
+        <!--                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"-->
+        <!--                        [matChipInputAddOnBlur]="addOnBlur"-->
+        <!--                        (matChipInputTokenEnd)="add($event)">-->
+        <!--              </mat-chip-list>-->
+        <!--              </mat-card-content>-->
+        <!--          </mat-card>-->
+        <!--          <br/>-->
+        <!--        </div>-->
+        <!--        <div class="select-field" *ngIf="prop.type === 6">-->
+        <!--          <form class="example-form">-->
+        <!--            <mat-form-field class="example-full-width">-->
+        <!--              <input type="text" placeholder="Pick one" matInput [formControl]="myControl" [matAutocomplete]="auto">-->
+        <!--              <mat-autocomplete #auto="matAutocomplete">-->
+        <!--                <mat-option>-->
+        <!--                  callerId-->
+        <!--                </mat-option>-->
+        <!--              </mat-autocomplete>-->
+        <!--            </mat-form-field>-->
+        <!--            </form>-->
+        <!--        </div>-->
         <!-- <div class="checkbox-asr" *ngIf="prop.type === 7">
           <mat-label>Опции распознавания</mat-label>
-          <mat-checkbox>Barge-in</mat-checkbox>
-        </div> -->
+          <mat-checkbox>Barge-in</mat-checkbox> -->
       </div>
-    </mat-expansion-panel>
-  </mat-accordion>
-  <!-- Дочерние узлы -->
-  <mat-accordion class="example-headers-align">
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <span style="font-size: 12px">Дочерние узлы</span>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-            <div *ngFor="let edge of currentNode.edgeList">
-              <mat-card class="example-card" (mouseenter)="onHover(edge.id, true)" (mouseleave)="onHover(edge.id,false)" >
-                <mat-card-header>
-                  <mat-card-subtitle>{{edge.name}}</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                    <mat-form-field>
-                        <input matInput placeholder="Имя дочернего узла" value="{{edge.id}}">
-                    </mat-form-field>
-                  <mat-chip-list *ngIf="edge.type === 4" #chipList aria-label="Keywords selection" [(ngModel)]="edge.match">
-                    <mat-chip *ngFor="let key of edge.match" [selectable]="selectable"
-                              [removable]="removable" (removed)="remove(key, edge.id)">
-                      {{key}}
-                      <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-                    </mat-chip>
-                    <input placeholder="Добавить слово..." matInput
-                            [matChipInputFor]="chipList"
-                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                            [matChipInputAddOnBlur]="addOnBlur"
-                            (matChipInputTokenEnd)="add($event, edge.id)">
-                  </mat-chip-list>
-                </mat-card-content>
-              </mat-card>
-              <br/>
-            </div>
-      </mat-expansion-panel>
-    </mat-accordion>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>
+<!-- Дочерние узлы -->
+<mat-accordion class="example-headers-align" *ngIf="currentNode.child.length > 0">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <span style="font-size: 12px">Дочерние узлы</span>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div *ngFor="let child of currentNode.child">
+      <mat-card class="example-card" (mouseenter)="onHover(child.id, true)" (mouseleave)="onHover(child.id,false)">
+        <mat-card-header>
+          <mat-card-subtitle>ID: {{child.id}}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field>
+            <input matInput placeholder="Синтез узла" [(ngModel)]="child.speech">
+          </mat-form-field>
+          <mat-chip-list #chipList aria-label="Keywords selection">
+            <!--                              *ngIf="child.type === 4"-->
+            <mat-chip *ngFor="let key of filterChildEdges(child,currentNode.id)" [selectable]="selectable"
+                      [removable]="removable" (removed)="remove(key, child.id)">
+              {{key}}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+            <input placeholder="Добавить ключевое слово..." matInput
+                   [matChipInputFor]="chipList"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   [matChipInputAddOnBlur]="addOnBlur"
+                   (matChipInputTokenEnd)="add($event, child.id)">
+          </mat-chip-list>
+
+        </mat-card-content>
+      </mat-card>
+      <br/>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>

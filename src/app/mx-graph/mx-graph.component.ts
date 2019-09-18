@@ -5,7 +5,8 @@ import {EventService} from '../services/event.service';
 import {Node} from '../graph/nodes/nodes';
 import {ViewNode} from '../view-model-nodes/viewNode';
 import {arrayControlsImage} from './graph-settings/properties';
-import {BranchEdgesPresent} from '../view-model-nodes/branchViewNode/branchClasses';
+import {GraphViewModel, Vertex} from '../models/vertex';
+import {Events} from '../models/events';
 // import {mxResources, mxVertexHandler} from "mxgraph";
 
 declare var mxClient: any;
@@ -41,6 +42,8 @@ declare var mxCellState: any;
 // //   mxBasePath: 'assets/mxgraph'
 // // });
 
+type Permission = { addLogicVertex: boolean, addErrorVertex: boolean, addLogicConnection: boolean, addErrorConnection: boolean }
+
 @Component({
   selector: 'app-mx-graph',
   templateUrl: './mx-graph.component.html',
@@ -52,87 +55,154 @@ export class MxGraphComponent implements OnInit {
   @Output('getNameCellByClick') emitNameCell = new EventEmitter();
 
   viewModel;
+  vmodel: GraphViewModel = this.modelService.graphViewModel;
+
   graph: any;
   parent: any;
   styleSheet = {};
   mxGraphHandler;
   highlight;
   layout;
-  layout2;
+  // layout2;
   layout3;
   map = new Map();
   node: Node;
   tracker;
   tempImages = [];
 
+  layouts: {
+    tree: any;
+    organic: any;
+    hierarch: any;
+  };
+
   private counterNodeId = 0;
 
-  constructor(private _modelService: ModelService,
+  constructor(private modelService: ModelService,
               private _eventService: EventService) {
   }
 
   ngOnInit() {
     this.initializeMxGraph();
     this.initStyles();
-    this.layout = new mxCompactTreeLayout(this.graph);
-    this.layout2 = new mxHierarchicalLayout(this.graph, mxConstants.DIRECTION_WEST);
-    this.layout3 = new mxFastOrganicLayout(this.graph);
-    this.initListeners();
-    this.viewModel = this._modelService.viewModel;
-    this.buildModel();
-    this._eventService._events.addListener('addNode', (id) => {
-      this.addNode(id);
-    });
-    this._eventService._events.addListener('deleteNode', (id: string) => {
-      this.deleteNode(id);
-    });
-    this._eventService._events.addListener('updateModel', () => {
-      this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()));
-      this.layout2 = new mxHierarchicalLayout(this.graph, mxConstants.DIRECTION_WEST);
-      this.buildModel();
-      console.log(this.graph);
-    });
-    this._eventService._events.addListener('updateGraph', (id) => {
-      const node = this._modelService.viewModel.get(id);
-      this.graph.model.setValue(this.map.get(id), node.props[0].value);
 
-    });
-    this._eventService._events.addListener('highlight', (id) => {
-      // this._eventService._events.addListener('onHover', (id) => {
-      let name = this.map.get(id);
-      this.highlightCellOn(name);
-    });
-    this._eventService._events.addListener('changeLayout', (name) => this.changeLayout(name));
+
+    this.layout = new mxHierarchicalLayout(this.graph, mxConstants.DIRECTION_WEST);
+    this.highlight = new mxCellHighlight(this.graph, '#ff0000', 5);
+
+
+    this.initListeners();
+    this.viewModel = this.modelService.viewModel;
+
+    this.buildGraph();
+
+    // this._eventService._events.addListener('updateGraph', (id) => {
+    //   const node = this.modelService.viewModel.get(id);
+    //   this.graph.model.setValue(this.map.get(id), node.props[0].value);
+    //
+    // });
+    // this._eventService._events.addListener('highlight', (id) => {
+    //   // this._eventService._events.addListener('onHover', (id) => {
+    //   let name = this.map.get(id);
+    //   this.highlightCellOn(name);
+    // });
+
+    // this._eventService._events.addListener('changeLayout', (name) => this.changeLayout(name));
     this._eventService._events.addListener('updateCell', (id) => this.renderNodeFromViewModel(id));
-    this._eventService._events.addListener('onHover', (obj) => this.high(obj));
+    // this._eventService._events.addListener('onHover', (obj) => this.high(obj));
 
     // this.tracker = new mxCellTracker(this.graph, '#de7f1c'); // hover cell подсветка
 
-    this.graph.setCellsResizable(false);
+
+    // this.vmodel.events.addListener(Events.nodeadded, () => {
+    //   this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()));
+    //   this.layout2 = new mxHierarchicalLayout(this.graph, mxConstants.DIRECTION_WEST);
+    //   this.buildGraph();
+    // });
+
 
   }
 
-  initListeners() {
-    this.graph.setTooltips(true);
+  redrawGraph() {
+    this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()));
+    this.layout = new mxHierarchicalLayout(this.graph, mxConstants.DIRECTION_WEST);
+    // this.layout = this.vmodel.state.graph.layouts['hierarch'];
+    // this.buildModel();
+    this.buildGraph();
+  }
 
-    // this.marker = new mxCellMarker(this.graph);         // ПОДСВЕТКА ПО МЫШКЕ
+  initListeners() {
+
+    this.vmodel.events.addListener(Events.loadedmodel, () => this.redrawGraph());
+    this.vmodel.events.addListener(Events.updatemodel, () => this.redrawGraph());
+    this.vmodel.events.addListener(Events.nodeadded, () => this.redrawGraph());
+    this.vmodel.events.addListener(Events.edgeadded, () => this.redrawGraph());
+    this.vmodel.events.addListener(Events.noderemoved, () => this.redrawGraph());
+    this.vmodel.events.addListener(Events.cellhighlight, (obj) => this.high(obj));
+
+    this.vmodel.events.addListener(Events.noderemoved, () => {
+      this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()));
+      this.layout = new mxHierarchicalLayout(this.graph, mxConstants.DIRECTION_WEST);
+      this.buildGraph();
+    });
+    this.graph.setCellsResizable(false);
 
     this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt) {
       if (evt.properties['cell'] && evt.properties['cell'].vertex) {
-        this._eventService._events.emit('showProps', {node: evt.properties['cell'].id, type: 'options'});
+        this.modelService.graphViewModel.events.emit(Events.cellselected, evt.properties['cell'].id);
       }
     }));
 
     this.graph.connectionHandler.addListener(mxEvent.CONNECT, mxUtils.bind(this, function(sender, evt) {
-      console.log('src edge',this.viewModel.get(evt.properties.cell.source.id))
-      let parent = this.viewModel.get(evt.properties.cell.source.id);
-      parent.edgeList.push(new BranchEdgesPresent(evt.properties.cell.target.id,[],'Ахаахахахха',4))
+      console.log('connection edge', evt);
+      let error = evt.properties['cell'].style.indexOf('redEdge') > -1;
+      this.modelService.bindVertex(evt.properties.cell.source.id, evt.properties.cell.target.id, error);
     }));
 
-    this.highlight = new mxCellHighlight(this.graph, '#ff0000', 5);
+    this.graph.addListener(mxEvent.LABEL_CHANGED, mxUtils.bind(this, function(sender, evt) {
+      let idNode = evt.properties['cell'].vertex ? evt.properties['cell'].id : evt.properties['cell'].source.id;
+      let node = this.vmodel.graph.get(idNode);
 
+      if (evt.properties['cell'].vertex) {
+        let text = evt.properties['value'];
+        // if (text.indexOf('(') > -1 && text.lastIndexOf(')') > -1) {
+        //   let name = text.substring(text.indexOf('(')+1,text.lastIndexOf(')'))
+        //   text = text.substring(0,text.indexOf('(')+1).trim()
+        //   console.log('VAR', name);
+        //   if (node.type === NodeType.SpecifierNode){
+        //     node.props.result.name = name
+        //   }
+        // }
+        node.speech = text;
+      } else {
+        // let edge;
+        if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
+          let childId = evt.properties['cell'].target.id;
+          let child = this.vmodel.graph.get(childId);
+          let words = [];
+          evt.properties.value.split(',').forEach(elem => {
+            words.push(elem.trim());
+          });
+          let edge = child.props.edges.find(el => el.parent.id === node.id);
+          edge.match = words;
 
+          if (node.type === NodeType.SpecifierNode) {
+            node.props.result.seek = words;
+          }
+        } else {
+          return null;
+          // this.buildGraph();
+          // edge = parent.edgeIfEmpty.find(node => node.id === evt.properties['cell'].target.id)
+        }
+      }
+    }));
+
+    this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt) {
+      // console.log('CHANGE ----------- Cell', evt.properties['cell'])
+
+    }));
   }
+
 
   high({id, focus}) {
     if (focus) {
@@ -160,7 +230,7 @@ export class MxGraphComponent implements OnInit {
       this.graph.enterStopsCellEditing = true;
       this.graph.setHtmlLabels(true);
       this.graph.setAllowDanglingEdges(false);
-
+      this.graph.setTooltips(true);
       this.graph.setCellsMovable(false);
       // this.graph.setCellsLocked(true);
       // this.graph.setAutoSizeCells(true);
@@ -179,35 +249,7 @@ export class MxGraphComponent implements OnInit {
       //   console.log('LABEL CHANGED ',cell)
       //   console.log('LABEL CHANGED 2',value)
       // }
-      this.graph.addListener(mxEvent.LABEL_CHANGED, mxUtils.bind(this, function(sender, evt) {
-        let idNode = evt.properties['cell'].vertex ? evt.properties['cell'].id : evt.properties['cell'].source.id;
-        let parent = this.viewModel.get(idNode);
-        if (evt.properties['cell'].vertex) {
-          parent.props[0].value = evt.properties['cell'].value;
-        } else {
-          let edge;
-          if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
-            if (parent.type === NodeType.SpecifierNode) {
-              edge = parent.props.find(option => option.name === 'Ключевые слова');
-              edge.value = [];
-              evt.properties['cell'].value.split(',').forEach(rec => edge.value.push(rec));
-              return;
 
-            } else {
-              edge = parent.edgeList.find(node => node.id === evt.properties['cell'].target.id);
-              edge.match = [];
-              evt.properties['cell'].value.split(',').forEach(rec => edge.match.push(rec));
-              return;
-            }
-          } else {
-            return null;
-            // edge = parent.edgeIfEmpty.find(node => node.id === evt.properties['cell'].target.id)
-          }
-
-          console.log('EDGE', edge);
-
-        }
-      }));
 
       // mxIconSet.prototype.destroy = function()
       // {
@@ -223,10 +265,6 @@ export class MxGraphComponent implements OnInit {
       //   this.images = null;
       // };
 
-      this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt) {
-        // console.log('CHANGE ----------- Cell', evt.properties['cell'])
-
-      }));
 
       this.graph.addMouseListener({
 
@@ -240,9 +278,8 @@ export class MxGraphComponent implements OnInit {
           }
         },
         mouseMove: function(sender, me) {
-          if (this.currentState != null && (me.getState() == this.currentState ||
-            me.getState() == null)) {
-            let offset = 40;
+          if (this.currentState != null) {// && (me.getState() == this.currentState || me.getState() == null))
+            let offset = 70;
             let tmp = new mxRectangle(me.getGraphX() - offset,
               me.getGraphY() - offset, 2 * offset, 2 * offset);
             if (mxUtils.intersects(tmp, this.currentState)) {
@@ -308,18 +345,31 @@ export class MxGraphComponent implements OnInit {
         if (!cell || cell.edge) {
           return;
         }
-        // console.log('CELL ',cell)
-
-        let node = thiz._modelService.viewModel.get(cell.id);
+        console.log('CELL ', cell);
+        let node = thiz.vmodel.graph.get(cell.id);
+        console.log('CELL 2', node);
+        // let node = thiz.modelService.viewModel.get(cell.id);
         if (node.type !== NodeType.EndNode) {
           let submenu = node.type === NodeType.SpecifierNode;
 
           if (submenu) {
-            if (node.edgeList.length === 0) {
+            let ok;
+            let err;
+            node.child.forEach(elem => {
+              let edges = elem.props.edges.filter(edge => edge.parent.id === node.id);
+              if (!ok) {
+                ok = edges.find(item => item.error === false);
+              }
+              if (!err) {
+                err = edges.find(item => item.error);
+              }
+            });
+
+            if (!ok) {
               submenu = menu.addItem('Ответ получен', null, null);
               thiz.addMenu(thiz, menu, cell, submenu);
             }
-            if (node.edgeIfEmpty.length === 0) {
+            if (!err) {
               submenu = menu.addItem('Eсли ошибка', null, null);
               thiz.addMenu(thiz, menu, cell, submenu, true);
             }
@@ -335,16 +385,31 @@ export class MxGraphComponent implements OnInit {
     }
   }
 
+  private addIcon() {
+
+  }
+
   mxIconSet(state) {
     this.tempImages = [];
     let graph = this.graph;
     let imgArr = arrayControlsImage;
+    let permit = this.getCellPermissions(null, state.cell.id);
+    let node = this.vmodel.graph.get(state.cell.id);
 
     if (state.cell.style === NodeType.EndNode) {
       return;
     }
 
+    if (permit.addLogicVertex){
     for (let i = 0; i < imgArr.length; i++) {
+
+
+      // if (imgArr[i].type === NodeType.SpecifierNode) {
+      //   let array = this.modelService.getChildEdges(state.cell.id)
+      //   // todo
+      //   continue
+      // }
+
       var img = mxUtils.createImage(`assets/images/${imgArr[i].img}`);
       img.setAttribute('title', imgArr[i].title);
       img.style.position = 'absolute';
@@ -368,7 +433,8 @@ export class MxGraphComponent implements OnInit {
 
       if (imgArr[i].vertex) {
         mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
-          this.createNewNode(imgArr[i].type, state.cell.id);
+          // this.createNewNode(imgArr[i].type, state.cell.id);
+          this.modelService.addVertex(new Vertex(null, NodeType[imgArr[i].type]), state.cell.id);
         }));
       } else {
         mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
@@ -401,115 +467,127 @@ export class MxGraphComponent implements OnInit {
 
       state.view.graph.container.appendChild(img);
       this.tempImages.push(img);
+    }}
+
+
+    if ((state.cell.style === NodeType.SpecifierNode) && (!node.props.state.errorEdge)) {
+
+      let ar = imgArr.filter(icon => icon.position === 'bottom');
+      console.log('TRACE 2', ar);
+      ar.forEach(item => {
+        var img = mxUtils.createImage(`assets/images/${item.img}`);
+        img.setAttribute('title', item.title);
+        img.style.position = 'absolute';
+        img.style.cursor = 'pointer';
+        img.style.width = '24px';
+        img.style.height = '24px';
+        img.style.left = (state.x + (item.index * 30) + 5) + 'px';
+        img.style.top = (state.y + state.height + 10 + 30) + 'px';
+
+        mxEvent.addGestureListeners(img,
+          mxUtils.bind(this, function(evt) {
+            mxEvent.consume(evt);
+          })
+        );
+
+        mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
+          // this.createNewNode(imgArr[i].type, state.cell.id);
+          this.modelService.addVertex(new Vertex(null, NodeType[item.type]), state.cell.id, true);
+        }));
+
+        state.view.graph.container.appendChild(img);
+        this.tempImages.push(img);
+      });
     }
   }
 
   addMenu(thiz, menu, cell, submenu = null, error: boolean = false) {
     menu.addItem('Оператор ветвления', 'assets/images/split.png', function() {
-      const id = 'Branch_node_' + thiz.counterNodeId++;
-      thiz.addNewNode(id, NodeType.BranchNode, cell.id, error);
-      thiz._modelService.addNewViewNode(id, NodeType.BranchNode, cell.id, error);
+      let vertex = new Vertex(null, NodeType.BranchNode);
+      thiz.modelService.addVertex(vertex, cell.id, error);
     }, submenu);
     menu.addItem('Оператор загрузки данных', 'assets/images/info.png', function() {
-      const id = 'System_node_' + thiz.counterNodeId++;
-      thiz.addNewNode(id, NodeType.SystemNode, cell.id, error);
-      thiz._modelService.addNewViewNode(id, NodeType.SystemNode, cell.id, error);
+      let vertex = new Vertex(null, NodeType.SystemNode);
+      thiz.modelService.addVertex(vertex, cell.id, error);
     }, submenu);
     menu.addItem('Оператор сохранения ответа', 'assets/images/record.png', function() {
-      const id = 'Specified_node_' + thiz.counterNodeId++;
-      thiz.addNewNode(id, NodeType.SpecifierNode, cell.id, error);
-      thiz._modelService.addNewViewNode(id, NodeType.SpecifierNode, cell.id, error);
+      let vertex = new Vertex(null, NodeType.SpecifierNode, thiz.vmodel.graph.get(cell.id));
+      thiz.modelService.addVertex(vertex, cell.id, error);
     }, submenu);
     menu.addItem('Завершение разговора', 'assets/images/done.png', function() {
-      const id = 'End_node_' + thiz.counterNodeId++;
-      thiz.addNewNode(id, NodeType.EndNode, cell.id, error);
-      thiz._modelService.addNewViewNode(id, NodeType.EndNode, cell.id, error);
+      let vertex = new Vertex(null, NodeType.EndNode, thiz.vmodel.graph.get(cell.id));
+      thiz.modelService.addVertex(vertex, cell.id, error);
     }, submenu);
   }
 
-  addOverlay(cell: string) {
-    var overlay = new mxCellOverlay(new mxImage('/assets/images/rarrow.png', 24, 24), 'Add child');
-    overlay.cursor = 'hand';
 
-    // overlay.align = mxConstants.ALIGN_CENTER;
-    // overlay.verticalAlign = mxConstants.ALIGN_MIDDLE
-    overlay.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt) {
-      this.addChild(cell);
-    }));
+  // private createNewNode(nodeType: NodeType, parentId: string, error: boolean = false) {
+  //   const id = 'Node_' + this.counterNodeId++;
+  //   this.modelService.addNewViewNode(id, nodeType, parentId, error);
+  //   // this._eventService._events.emit('updateModel');
+  // }
 
-    this.graph.addCellOverlay(cell, overlay);
+  // addChild(cell) {
+  //   this.graph.clearSelection();
+  //
+  //   let model = this.graph.getModel();
+  //   let vertex;
+  //
+  //   model.beginUpdate();
+  //   try {
+  //     var geo = this.graph.getCellGeometry(cell);
+  //     vertex = this.graph.insertVertex(this.parent, null, '', geo.x, geo.y, 120, 80);
+  //
+  //     this.graph.view.refresh(vertex);
+  //     let geometry = model.getGeometry(vertex);
+  //     var edge = this.graph.insertEdge(this.parent, null, '', cell, vertex, 'greenEdge');
+  //     this.addOverlay(vertex);
+  //
+  //   } finally {
+  //     model.endUpdate();
+  //     this.layout.execute(this.parent);
+  //     // var morph = new mxMorphing(this.graph);
+  //
+  //     // morph.addListener(mxEvent.DONE, mxUtils.bind(this, function()
+  //     // {
+  //     //   this.graph.getModel().endUpdate();
+  //     //
+  //     //   // if (post != null)
+  //     //   // {
+  //     //   //   post();
+  //     //   // }
+  //     // }));
+  //     //
+  //     // morph.startAnimation();
+  //     // this.graph.view.refresh()
+  //   }
+  //   return vertex;
+  //
+  // }
 
-  }
+  getCellPermissions(cell: Vertex, cellId?: string): Permission {
+    let vertex = cell ? cell : this.vmodel.graph.get(cellId);
+    let permission: Permission = {addLogicVertex: true, addErrorVertex: true, addLogicConnection: true, addErrorConnection: true};
 
-  private createNewNode(nodeType: NodeType, parentId: string, error: boolean = false) {
-    const id = 'Node_' + this.counterNodeId++;
-    this._modelService.addNewViewNode(id, nodeType, parentId, error);
-    this._eventService._events.emit('updateModel');
-  }
-
-  addChild(cell) {
-    this.graph.clearSelection();
-
-    let model = this.graph.getModel();
-    let vertex;
-
-    model.beginUpdate();
-    try {
-      var geo = this.graph.getCellGeometry(cell);
-      vertex = this.graph.insertVertex(this.parent, null, '', geo.x, geo.y, 120, 80);
-
-      this.graph.view.refresh(vertex);
-      let geometry = model.getGeometry(vertex);
-      var edge = this.graph.insertEdge(this.parent, null, '', cell, vertex, 'greenEdge');
-      this.addOverlay(vertex);
-
-    } finally {
-      model.endUpdate();
-      this.layout2.execute(this.parent);
-      // var morph = new mxMorphing(this.graph);
-
-      // morph.addListener(mxEvent.DONE, mxUtils.bind(this, function()
-      // {
-      //   this.graph.getModel().endUpdate();
-      //
-      //   // if (post != null)
-      //   // {
-      //   //   post();
-      //   // }
-      // }));
-      //
-      // morph.startAnimation();
-      // this.graph.view.refresh()
+    if (vertex.props.state.errorEdge) {
+      permission.addErrorVertex = false;
+      permission.addErrorConnection = false;
     }
-    return vertex;
 
-  }
-
-  canAddNewNode(cell: any) {
-    // const viewNode = this._modelService.viewModel.get(cell.id)
-    // switch(viewNode.type) {
-    //   case NodeType.BranchNode: {
-    //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
-    //       return true
-    //     } else {
-    //       return false
-    //     }
-    //   }
-    //   case NodeType.ClassifierNode: {
-    //     return true
-    //   }
-    //   case NodeType.EndNode: {
-    //     return false
-    //   }
-    //   case NodeType.SpecifierNode: {
-    //     if(viewNode.edgeList === undefined || viewNode.edgeList.length === 0) {
-    //       return true
-    //     } else {
-    //       return false
-    //     }
-    //   }
-    // }
-    return true;
+    if (vertex.type === NodeType.SpecifierNode) {
+      if (vertex.props.state.logicEdge) {
+        permission.addLogicVertex = false;
+      }
+    }
+    if (vertex.type === NodeType.EndNode) {
+      permission.addLogicVertex = false;
+      permission.addLogicConnection = false;
+    }
+    if (vertex.type === NodeType.SystemNode) {
+      permission.addErrorConnection = false;
+      permission.addErrorVertex = false;
+    }
+    return permission;
   }
 
   renderNodeFromViewModel(id) {
@@ -531,46 +609,39 @@ export class MxGraphComponent implements OnInit {
     console.log('EDGE;', viewNode);
   }
 
-  private buildModel() {
-    const mapNode = new Map();
-    this.map = new Map();
-    // console.log('VIEW ',this.viewModel)
+
+  private buildGraph() {
+    let mapCells = new Map<string, any>();
+
+    //   var value = {
+    //    first : 'First value',
+    //   second : 'Second value'
+    // }
     this.graph.getModel().beginUpdate();
     try {
-      this.viewModel.forEach((node: ViewNode) => {
-
-        let vObj = this.graph.insertVertex(this.parent, node.id, node.props[0].value, 0, 0, 120, 80, node.type);
-        // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
-        // this.addOverlay(vObj)
-        this.map.set(node.id, vObj);
-        mapNode.set(node.id, node);
+      this.vmodel.graph.forEach((node: Vertex) => {
+        let vert = this.graph.insertVertex(this.parent, node.id, node.speech, 0, 0, 120, 80, node.type);
+        // let label11 = this.graph.insertVertex(vert, null, 'Label1', 0.5, 1.1, 0, 0, null, true);
+        mapCells.set(node.id, vert);
+        this.map.set(node.id, vert);
       });
-
-      this.map.forEach((v, k) => {
-        let object = mapNode.get(k);
-        if (object.edgeList !== undefined && object.edgeList.length !== 0) {
-          object.edgeList.forEach((nodeName) => {
-            let p = this.graph.insertEdge(this.parent, null, nodeName.match ? nodeName.match[0] : '', this.map.get(k), this.map.get(nodeName.id), 'greenEdge');
-          });
-        }
-        if (object.edgeIfEmpty && object.edgeIfEmpty.length !== 0) {
-          object.edgeIfEmpty.forEach(node => {
-            let edge = this.graph.insertEdge(this.parent, null, node.match ? node.match[0] : '', this.map.get(k), this.map.get(node.id), 'redEdge');
-            mxEdgeHandler.prototype.isConnectableCell = function(cell) {
-              console.log('CHECK IS CONNECT', cell);
-              // return this.graph.connectionHandler.isConnectableCell(cell);
-            };
-            console.log('EDGE ', edge);
-
+      this.vmodel.graph.forEach((node: Vertex) => {
+        if (node.props.edges.length > 0) {
+          node.props.edges.forEach(elem => {
+            let edge = this.graph.insertEdge(this.parent, null, elem.match[0], mapCells.get(elem.parent.id), mapCells.get(node.id), elem.error ? 'redEdge' : 'greenEdge');
           });
         }
       });
+
+
     } catch (e) {
-      console.error(`mx-graph.component Erorr: ${e}`);
+      console.error('Error rendex graph', e);
     } finally {
-      this.layout2.execute(this.parent);
+      this.layout.execute(this.parent);
       this.graph.getModel().endUpdate();
+      console.log('GRAPH ', this.graph.model.cells);
     }
+
   }
 
   // ПОДСВЕТКА ЯЧЕКИ
@@ -582,55 +653,22 @@ export class MxGraphComponent implements OnInit {
     this.highlight.resetHandler();
   }
 
-  public addNode(id: string) {
-    const viewNode = this._modelService.viewModel.get(id);
-    this.graph.getModel().beginUpdate();
-    try {
-      let vObj = this.graph.insertVertex(this.parent, viewNode.id, '', 0, 0, 120, 80, viewNode.type);
-      //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
-      this.map.set(viewNode.id, vObj);
-      this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'greenEdge');
-    } finally {
-      this.layout2.execute(this.parent);
-      this.graph.getModel().endUpdate();
-    }
-  }
-
-  private addNewNode(id: string, type: string, parent: string, error: boolean = false) {
-    let style = error ? 'redEdge' : 'greenEdge';
-
-    this.graph.getModel().beginUpdate();
-    let vObj;
-    try {
-      vObj = this.graph.insertVertex(this.parent, id, '', 0, 0, 120, 80, type);
-      this.map.set(id, vObj);
-      // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'greenEdge');
-      let edge = this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, style);
-    } finally {
-      this.layout2.execute(this.parent);
-      this.graph.getModel().endUpdate();
-      // let element = this.graph.view.getState(vObj).shape.node
-      // var clickEvent  = document.createEvent ('MouseEvents');
-      // clickEvent.initEvent('dblclick', true, true);
-      // element.dispatchEvent(clickEvent);
-    }
-  }
 
   public deleteNode(id: string) {
-    this._modelService.deleteViewNode(id);
-    this._eventService._events.emit('updateModel');
+    this.modelService.deleteVertex(id);
+    // this._eventService._events.emit('updateModel');
   }
 
-  changeLayout(name) {
-    switch (name) {
-      case 'tree':
-        return this.layout.execute(this.parent);
-      case 'organic':
-        return this.layout3.execute(this.parent);
-      case 'hierarch':
-        return this.layout2.execute(this.parent);
-    }
-  }
+  // changeLayout(name) {
+  //   switch (name) {
+  //     case 'tree':
+  //       return this.layouts.tree.execute(this.parent);
+  //     case 'organic':
+  //       return this.layouts.organic.execute(this.parent);
+  //     case 'hierarch':
+  //       return this.layouts.hierarch.execute(this.parent);
+  //   }
+  // }
 
 
   initStyles() {
@@ -720,6 +758,96 @@ export class MxGraphComponent implements OnInit {
 
     };
     this.graph.getStylesheet().putCellStyle('redEdge', redEdge);
+  }
+
+  addOverlay(cell: string) {
+    var overlay = new mxCellOverlay(new mxImage('/assets/images/rarrow.png', 24, 24), 'Add child');
+    overlay.cursor = 'hand';
+
+    // overlay.align = mxConstants.ALIGN_CENTER;
+    // overlay.verticalAlign = mxConstants.ALIGN_MIDDLE
+    overlay.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt) {
+      this.addChild(cell);
+    }));
+
+    this.graph.addCellOverlay(cell, overlay);
+
+  }
+
+  public addNode(id: string) {
+    const viewNode = this.modelService.viewModel.get(id);
+    this.graph.getModel().beginUpdate();
+    try {
+      let vObj = this.graph.insertVertex(this.parent, viewNode.id, '', 0, 0, 120, 80, viewNode.type);
+      //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
+      this.map.set(viewNode.id, vObj);
+      this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'greenEdge');
+    } finally {
+      this.layout.execute(this.parent);
+      this.graph.getModel().endUpdate();
+    }
+  }
+
+  private addNewNode(id: string, type: string, parent: string, error: boolean = false) {
+    let style = error ? 'redEdge' : 'greenEdge';
+
+    this.graph.getModel().beginUpdate();
+    let vObj;
+    try {
+      vObj = this.graph.insertVertex(this.parent, id, '', 0, 0, 120, 80, type);
+      this.map.set(id, vObj);
+      // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'greenEdge');
+      let edge = this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, style);
+    } finally {
+      this.layout.execute(this.parent);
+      this.graph.getModel().endUpdate();
+      // let element = this.graph.view.getState(vObj).shape.node
+      // var clickEvent  = document.createEvent ('MouseEvents');
+      // clickEvent.initEvent('dblclick', true, true);
+      // element.dispatchEvent(clickEvent);
+    }
+  }
+
+  private buildModel() {
+    const mapNode = new Map();
+    this.map = new Map();
+    // console.log('VIEW ',this.viewModel)
+    this.graph.getModel().beginUpdate();
+    try {
+      this.viewModel.forEach((node: ViewNode) => {
+
+        let vObj = this.graph.insertVertex(this.parent, node.id, node.props[0].value, 0, 0, 120, 80, node.type);
+        // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
+        // this.addOverlay(vObj)
+        this.map.set(node.id, vObj);
+        mapNode.set(node.id, node);
+      });
+
+      this.map.forEach((v, k) => {
+        let object = mapNode.get(k);
+        if (object.edgeList !== undefined && object.edgeList.length !== 0) {
+          object.edgeList.forEach((nodeName) => {
+            let p = this.graph.insertEdge(this.parent, null, nodeName.match ? nodeName.match[0] : '', this.map.get(k), this.map.get(nodeName.id), 'greenEdge');
+          });
+        }
+        if (object.edgeIfEmpty && object.edgeIfEmpty.length !== 0) {
+          object.edgeIfEmpty.forEach(node => {
+            let edge = this.graph.insertEdge(this.parent, null, node.match ? node.match[0] : '', this.map.get(k), this.map.get(node.id), 'redEdge');
+            mxEdgeHandler.prototype.isConnectableCell = function(cell) {
+              console.log('CHECK IS CONNECT', cell);
+              // return this.graph.connectionHandler.isConnectableCell(cell);
+            };
+            console.log('EDGE ', edge);
+
+          });
+        }
+      });
+    } catch (e) {
+      console.error(`mx-graph.component Erorr: ${e}`);
+    } finally {
+      this.layout.execute(this.parent);
+      this.graph.getModel().endUpdate();
+    }
   }
 
 }

@@ -1,19 +1,20 @@
 <div class="panel">
-  <button mat-icon-button [matMenuTriggerFor]="nodeTypes"><mat-icon>add</mat-icon></button>
+<!--  <button mat-icon-button [matMenuTriggerFor]="nodeTypes"><mat-icon>add</mat-icon></button>-->
 
-  <mat-menu #nodeTypes="matMenu">
-    <button mat-menu-item *ngFor="let type of types" [matMenuTriggerFor]="nodeNames" [matMenuTriggerData]="{ typeName: type }">{{type}}</button>
-  </mat-menu>
+<!--  <mat-menu #nodeTypes="matMenu">-->
+<!--    <button mat-menu-item *ngFor="let type of types" [matMenuTriggerFor]="nodeNames" [matMenuTriggerData]="{ typeName: type }">{{type}}</button>-->
+<!--  </mat-menu>-->
 
-  <mat-menu #nodeNames="matMenu">
-    <ng-template matMenuContent let-typeName="typeName">
-      <button *ngFor="let node of nodes" mat-menu-item (click)="add(node, typeName)">{{node}}</button>
-  </ng-template>
-  </mat-menu>
-  <button mat-icon-button (click)="delete()"><mat-icon>delete</mat-icon></button>
+<!--  <mat-menu #nodeNames="matMenu">-->
+<!--    <ng-template matMenuContent let-typeName="typeName">-->
+<!--      <button *ngFor="let node of nodes" mat-menu-item (click)="add(node, typeName)">{{node}}</button>-->
+<!--  </ng-template>-->
+<!--  </mat-menu>-->
+<!--  <button mat-icon-button (click)="delete()"><mat-icon>delete</mat-icon></button>-->
   <button mat-icon-button (click)="save()"><mat-icon>save</mat-icon></button>
   <button mat-icon-button (click)="load()"><mat-icon>cloud_download</mat-icon></button>
-  <button mat-icon-button (click)="changeLatoyout('tree')"><mat-icon>account_tree</mat-icon></button>
-  <button mat-icon-button (click)="changeLatoyout('organic')"><mat-icon>view_quilt</mat-icon></button>
-  <button mat-icon-button (click)="changeLatoyout('hierarch')"><mat-icon>device_hub</mat-icon></button>
+<!--  <button mat-icon-button (click)="changeLatoyout('tree')"><mat-icon>account_tree</mat-icon></button>-->
+<!--  <button mat-icon-button (click)="changeLatoyout('organic')"><mat-icon>view_quilt</mat-icon></button>-->
+<!--  <button mat-icon-button (click)="changeLatoyout('hierarch')"><mat-icon>device_hub</mat-icon></button>-->
+<!--  <button mat-icon-button (click)="saveTest()"><mat-icon>cancel</mat-icon></button>-->
 </div>
