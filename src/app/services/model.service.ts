@@ -234,9 +234,12 @@ export class ModelService {
           if (!vert) {
             console.error('Узел не обраружен в словаре ', child.id);
           }
-          vert.props.edges.push(new Edge(parent, child.match));
+          let error = false;
+          if (child.match.length === 0) error = true
+          vert.props.edges.push(new Edge(parent, child.match, error));
           vert.parent.push(parent);
           parent.child.push(vert);
+
         });
       }
       if (node.edgeIfEmpty) {
@@ -310,6 +313,8 @@ export class ModelService {
           if (edge.error) {
             if (parent['edgeIfEmpty']) {
               parent['edgeIfEmpty'].push({id: rel.id, match: edge.match});
+            } else {
+              parent['edgeList'].push({id: rel.id, match: edge.match});
             }
           } else {
             parent['edgeList'].push({id: rel.id, match: edge.match});
