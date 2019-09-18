@@ -15,7 +15,8 @@ export class WebSocketAPI {
     connect() {
         const _this = this;
         console.log("Initialize WebSocket Connection");
-        this.stompClient = Stomp.client('/wss');
+        let url = window.location.hostname
+        this.stompClient = Stomp.client('wss://' + url + ':8080' + '/wss');
         this.stompClient.connect({}, function (frame) {
             _this._eventService._events.emit('socketConnected')
             _this.stompClient.subscribe('/ivr/dialog', function (sdkEvent) {
