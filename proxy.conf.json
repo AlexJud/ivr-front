@@ -7,7 +7,7 @@
       "ws": true
     },
   "/wss/*": {
-      "target": "https://192.168.1.74:8080",
+      "target": "wss://192.168.1.74:8080",
       "secure": false,
       "ws": true
     }

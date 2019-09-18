@@ -4,7 +4,7 @@ import * as Stomp from 'stompjs'
 
 @Injectable()
 export class WebSocketAPI {
-    webSocketEndPoint: string = 'wss://192.168.1.74:8080/wss';
+    // webSocketEndPoint: string = 'wss://192.168.1.74:8080/wss';
     topic: string = "/topic/greetings";
     stompClient: any;
     logStyle = 'background: #222; color: #bada55'
@@ -15,7 +15,7 @@ export class WebSocketAPI {
     connect() {
         const _this = this;
         console.log("Initialize WebSocket Connection");
-        this.stompClient = Stomp.client('wss://192.168.1.74:8080/wss');
+        this.stompClient = Stomp.client('/wss');
         this.stompClient.connect({}, function (frame) {
             _this._eventService._events.emit('socketConnected')
             _this.stompClient.subscribe('/ivr/dialog', function (sdkEvent) {
