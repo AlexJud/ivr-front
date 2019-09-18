@@ -385,8 +385,23 @@ export class MxGraphComponent implements OnInit {
     }
   }
 
-  private addIcon() {
+  private addIcon(imgSrc: any, title: string, posX: any, posY: any,) {
+    let img = mxUtils.createImage(imgSrc);
+    img.setAttribute('title', title);
+    img.style.position = 'absolute';
+    img.style.cursor = 'pointer';
+    img.style.width = '24px';
+    img.style.height = '24px';
+    img.style.left = posX + 'px';
+    img.style.top = posY + 'px';
 
+    mxEvent.addGestureListeners(img,
+      mxUtils.bind(this, function(evt) {
+        mxEvent.consume(evt);
+      })
+    );
+
+    return img;
   }
 
   mxIconSet(state) {
@@ -400,105 +415,122 @@ export class MxGraphComponent implements OnInit {
       return;
     }
 
-    if (permit.addLogicVertex){
-    for (let i = 0; i < imgArr.length; i++) {
-
-
-      // if (imgArr[i].type === NodeType.SpecifierNode) {
-      //   let array = this.modelService.getChildEdges(state.cell.id)
-      //   // todo
-      //   continue
-      // }
-
-      var img = mxUtils.createImage(`assets/images/${imgArr[i].img}`);
-      img.setAttribute('title', imgArr[i].title);
-      img.style.position = 'absolute';
-      img.style.cursor = 'pointer';
-      img.style.width = '24px';
-      img.style.height = '24px';
-      if (imgArr[i].position === 'bottom') {
-        img.style.left = (state.x + (imgArr[i].index * 30) + 5) + 'px';
-        img.style.top = (state.y + state.height + 10) + 'px';
-      }
-      if (imgArr[i].position === 'right') {
-        img.style.left = (state.x + state.width + 10) + 'px';
-        img.style.top = (state.y + (imgArr[i].index * 30) + 5) + 'px';
-      }
-
-      mxEvent.addGestureListeners(img,
-        mxUtils.bind(this, function(evt) {
-          mxEvent.consume(evt);
-        })
-      );
-
-      if (imgArr[i].vertex) {
-        mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
-          // this.createNewNode(imgArr[i].type, state.cell.id);
-          this.modelService.addVertex(new Vertex(null, NodeType[imgArr[i].type]), state.cell.id);
-        }));
-      } else {
-        mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
-          if (!mxClient.IS_TOUCH) {
-            // mxEvent.redirectMouseEvents(state.cell, graph, state);
-            console.log('TOUCH', state);
-          }
-          // graph.popupMenuHandler.hideMenu();
-          graph.stopEditing(false);
-
-          var pt = mxUtils.convertPoint(graph.container,
-            mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-          // console.log('ConnectionHandler',graph.connectionHandler)
-
-          graph.connectionHandler.createEdgeState = function(me) {
-            let edge;
-            if (imgArr[i].type === 'greenEdge') {
-              edge = graph.createEdge(null, null, null, null, null, 'greenEdge');
-            } else {
-              edge = graph.createEdge(null, null, null, null, null, 'redEdge');
-            }
-            return new mxCellState(graph.view, edge, graph.getCellStyle(edge));
-          };
-          graph.connectionHandler.start(state);
-          // graph.isMouseDown = true;
-          graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
-          mxEvent.consume(evt);
-        }));
-      }
-
-      state.view.graph.container.appendChild(img);
-      this.tempImages.push(img);
-    }}
-
-
-    if ((state.cell.style === NodeType.SpecifierNode) && (!node.props.state.errorEdge)) {
-
-      let ar = imgArr.filter(icon => icon.position === 'bottom');
-      console.log('TRACE 2', ar);
-      ar.forEach(item => {
-        var img = mxUtils.createImage(`assets/images/${item.img}`);
-        img.setAttribute('title', item.title);
-        img.style.position = 'absolute';
-        img.style.cursor = 'pointer';
-        img.style.width = '24px';
-        img.style.height = '24px';
-        img.style.left = (state.x + (item.index * 30) + 5) + 'px';
-        img.style.top = (state.y + state.height + 10 + 30) + 'px';
-
-        mxEvent.addGestureListeners(img,
-          mxUtils.bind(this, function(evt) {
-            mxEvent.consume(evt);
-          })
-        );
+    if (permit.addLogicVertex) {
+      let array = imgArr.filter(item => item.position === 'bottom');
+      array.forEach(icon => {
+        let posX = state.x + (icon.index * 30) + 5;
+        let posY = state.y + state.height + 10;
+        let img = this.addIcon(`assets/images/${icon.img}`, icon.title, posX, posY);
 
         mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
           // this.createNewNode(imgArr[i].type, state.cell.id);
-          this.modelService.addVertex(new Vertex(null, NodeType[item.type]), state.cell.id, true);
+          this.modelService.addVertex(new Vertex(null, NodeType[icon.type]), state.cell.id);
         }));
 
         state.view.graph.container.appendChild(img);
         this.tempImages.push(img);
+
       });
     }
+
+
+    if (permit.addLogicConnection) {
+      let icon = imgArr.find(item => item.type === 'greenEdge');
+
+      let posX = state.x + state.width + 10;
+      let posY = state.y + (icon.index * 30) + 5;
+      let img = this.addIcon(`assets/images/${icon.img}`, icon.title, posX, posY);
+
+      mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
+        var pt = mxUtils.convertPoint(graph.container,
+          mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+
+        graph.connectionHandler.createEdgeState = function(me) {
+          let edge = graph.createEdge(null, null, null, null, null, 'greenEdge');
+          return new mxCellState(graph.view, edge, graph.getCellStyle(edge));
+        };
+        graph.connectionHandler.start(state);
+        graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
+        mxEvent.consume(evt);
+      }));
+
+      state.view.graph.container.appendChild(img);
+      this.tempImages.push(img);
+    }
+
+    if (permit.addErrorVertex) {
+      let array = imgArr.filter(item => item.position === 'bottom');
+      array.forEach(icon => {
+        let posX = state.x + (icon.index * 30) + 5;
+        let posY = state.y + state.height + 10 + 30;
+        let img = this.addIcon(`assets/images/${icon.img}`, icon.title, posX, posY);
+
+        mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
+          // this.createNewNode(imgArr[i].type, state.cell.id);
+          this.modelService.addVertex(new Vertex(null, NodeType[icon.type]), state.cell.id, true);
+        }));
+
+        state.view.graph.container.appendChild(img);
+        this.tempImages.push(img);
+
+      });
+    }
+
+    if (permit.addErrorConnection) {
+      let icon = imgArr.find(item => item.type === 'redEdge');
+
+      let posX = state.x + state.width + 10;
+      let posY = state.y + (icon.index * 30) + 5;
+      let img = this.addIcon(`assets/images/${icon.img}`, icon.title, posX, posY);
+
+      mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
+        // if (!mxClient.IS_TOUCH) {
+        // mxEvent.redirectMouseEvents(state.cell, graph, state);
+        // console.log('TOUCH', state);
+        // }
+        // graph.popupMenuHandler.hideMenu();
+        graph.stopEditing(true);
+
+        var pt = mxUtils.convertPoint(graph.container,
+          mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+        // console.log('ConnectionHandler',graph.connectionHandler)
+
+        graph.connectionHandler.createEdgeState = function(me) {
+          // let edge;
+          // if (icon.type === 'greenEdge') {
+          let edge = graph.createEdge(null, null, null, null, null, 'redEdge');
+          // } else {
+          //   edge = graph.createEdge(null, null, null, null, null, 'redEdge');
+          // }
+          return new mxCellState(graph.view, edge, graph.getCellStyle(edge));
+        };
+        graph.connectionHandler.start(state);
+        // graph.isMouseDown = true;
+        graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
+        mxEvent.consume(evt);
+      }));
+
+      state.view.graph.container.appendChild(img);
+      this.tempImages.push(img);
+    }
+
+    if('delete'){
+      let array = imgArr.filter(item => item.position === 'left');
+      array.forEach(icon => {
+        let posX = state.x -35;
+        let posY = state.y + 0;
+        let img = this.addIcon(`assets/images/${icon.img}`, icon.title, posX, posY);
+
+        mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
+          this.modelService.deleteVertex(state.cell.id)
+        }));
+
+        state.view.graph.container.appendChild(img);
+        this.tempImages.push(img);
+
+      });
+    }
+
   }
 
   addMenu(thiz, menu, cell, submenu = null, error: boolean = false) {
@@ -577,6 +609,7 @@ export class MxGraphComponent implements OnInit {
     if (vertex.type === NodeType.SpecifierNode) {
       if (vertex.props.state.logicEdge) {
         permission.addLogicVertex = false;
+        permission.addLogicConnection = false;
       }
     }
     if (vertex.type === NodeType.EndNode) {
