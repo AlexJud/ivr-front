@@ -97,7 +97,7 @@
     <!--    <div>-->
     <div class="textarea-field">
       <mat-form-field>
-        <textarea matInput placeholder="Сохранить в системную переменную" [(ngModel)]="currentUserVar.sysname"></textarea>
+        <textarea matInput placeholder="Сохранить в системную переменную" (change)="setValuetoSysVar($event)"></textarea>
       </mat-form-field>
     </div>
     <!--    </div>-->

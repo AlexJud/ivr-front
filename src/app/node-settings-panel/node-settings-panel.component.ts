@@ -46,16 +46,17 @@ export class NodeSettingsPanelComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.vmodel = this.modelService.graphViewModel;
     console.log('CHECH ID')
-    this.modelService.graphViewModel.events.addListener(Events.cellselected, (cellId) => {
+    this.vmodel.events.addListener(Events.cellselected, (cellId) => {
       this.setDataSource(cellId);
     });
 
     // this.setDataSource({node: 'root'})
-    this.currentNode = this.modelService.graphViewModel.graph.get('root');
+    this.currentNode = this.vmodel.graph.get('root');
 
     // this.model = this.modelService.model;
-    this.vmodel = this.modelService.graphViewModel;
+
   }
 
   setDataSource(cellId: string) {
@@ -66,6 +67,14 @@ export class NodeSettingsPanelComponent implements OnInit {
     }
     console.log(this.currentNode);
   }
+
+  setValuetoSysVar(event){
+    const value = event.target.value
+    this.currentUserVar.sysname = value;
+    this.currentNode.props.result.sysname = value
+  }
+
+
 
   // changeGrammar(selected: string, index: number) {
   //   switch(selected) {
@@ -122,7 +131,7 @@ export class NodeSettingsPanelComponent implements OnInit {
   }
 
   onHover(id: string, focus: boolean) {
-    this.modelService.graphViewModel.events.emit(Events.cellhighlight, {id, focus});
+    this.vmodel.events.emit(Events.cellhighlight, {id, focus});
   }
 
   filterChildEdges(child: Vertex, parentId): Array<string> {
@@ -151,7 +160,7 @@ export class NodeSettingsPanelComponent implements OnInit {
       return;
     }
 
-    let vertex = this.modelService.graphViewModel.graph.get(id);
+    let vertex = this.vmodel.graph.get(id);
     let edge = vertex.props.edges.find(edge => edge.parent.id === this.currentNode.id);
     edge.match.push(value);
 
@@ -186,11 +195,11 @@ export class NodeSettingsPanelComponent implements OnInit {
     //   input.value = '';
     // }
     input.value = '';
-    this.modelService.graphViewModel.events.emit(Events.updatemodel);
+    this.vmodel.events.emit(Events.updatemodel);
   }
 
   remove(key: string, childId: string): void {
-    let vertex = this.modelService.graphViewModel.graph.get(childId);
+    let vertex = this.vmodel.graph.get(childId);
     let edge = vertex.props.edges.find(edge => edge.parent.id === this.currentNode.id);
     _.pull(edge.match, key);
 
@@ -222,7 +231,7 @@ export class NodeSettingsPanelComponent implements OnInit {
     //     break
     //   }
     // }
-    this.modelService.graphViewModel.events.emit(Events.updatemodel);
+    this.vmodel.events.emit(Events.updatemodel);
 
   }
 }
