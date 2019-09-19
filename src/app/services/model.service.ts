@@ -141,27 +141,25 @@ export class ModelService {
     } else {
       // console.log('TRACE 2',vertexId)
       let edge = vertex.props.edges.find(ed => ed.id === edgeId);
-      let node = edge.parent
+      let node = edge.parent;
       // _.pull(node.child,vertex)
       // console.log('1====',node.child.splice(node.child.indexOf(vertex),node.child.indexOf(vertex)))
       // console.log('ARR',node.child)
       // console.log('2====',node.child.indexOf(vertex))
-      node.child.splice(node.child.indexOf(vertex),1)
-      _.remove(vertex.props.edges,edge => edge.id === edgeId)
-      vertex.parent.splice(vertex.parent.indexOf(node),1)
+      node.child.splice(node.child.indexOf(vertex), 1);
+      _.remove(vertex.props.edges, edge => edge.id === edgeId);
+      vertex.parent.splice(vertex.parent.indexOf(node), 1);
 
       if (node.props.state.logicEdge === vertex && (!edge.error)) {
-        console.log('TRACE 1', node.props.state.logicEdge)
+        console.log('TRACE 1', node.props.state.logicEdge);
         let edge = this.getChildEdges(node.id).find(item => item.edge.error === false);
         node.props.state.logicEdge = edge ? edge.child : null;
       }
       if (node.props.state.errorEdge === vertex && edge.error) {
-        console.log('TRACE 2', node.props.state.errorEdge)
+        console.log('TRACE 2', node.props.state.errorEdge);
         let edge = this.getChildEdges(node.id).find(item => item.edge.error === true);
         node.props.state.errorEdge = edge ? edge.child : null;
       }
-
-
 
 
       this.graphViewModel.events.emit(Events.edgeremoved);
@@ -196,14 +194,6 @@ export class ModelService {
     });
     return edges;
   }
-
-  updateVarList(){
-
-  }
-
-  // addChildrenToParent(child: string, parent: string, error: boolean) {
-  //   this.viewModel.get(parent).addChildren(child, error);
-  // }
 
   saveToJson() {
     let temp = this.convertToSourceModel(this.graphViewModel.graph);
@@ -244,8 +234,8 @@ export class ModelService {
     return 'Edge' + this.counterEdgeId++;
   }
 
-  private generateUservarId(){
-    return 'UserVar'+ this.counterUservarId++
+  private generateUservarId() {
+    return 'UserVar' + this.counterUservarId++;
   }
 
   private convertToViewModel(json) {
@@ -292,7 +282,7 @@ export class ModelService {
             console.error('Узел не обраружен в словаре ', child.id);
           }
           let error = false;
-          if (child.match.length === 0) {
+          if ((child.match.length === 0) && (node.type !== NodeType.SpecifierNode)) {
             error = true;
           }
           vert.props.edges.push(new Edge(this.generateEdgeId(), parent, child.match, error));
