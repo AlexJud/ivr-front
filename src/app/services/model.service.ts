@@ -48,6 +48,8 @@ export class ModelService {
   private sourceModel;
   public graphViewModel = new GraphViewModel(new Map<string, Vertex>());
   private counterNodeId = 0;
+  private counterEdgeId = 0;
+  private counterUservarId = 0;
 
   constructor(private _http: HttpService,
               private _eventService: EventService) {
@@ -91,7 +93,7 @@ export class ModelService {
 
     let parent = this.graphViewModel.graph.get(parentId);
     vertex.parent.push(parent);
-    vertex.props.edges.push(new Edge(parent, [], errorEdge));
+    vertex.props.edges.push(new Edge(this.generateEdgeId(), parent, [], errorEdge));
     parent.child.push(vertex);
 
     this.graphViewModel.graph.set(vertex.id, vertex);
@@ -106,33 +108,64 @@ export class ModelService {
     // console.log('added ', this.graphViewModel.graph);
   }
 
-  deleteVertex(id: string) {
-    let vertex = this.graphViewModel.graph.get(id);
+  deleteVertex(vertexId: string, edgeId: string = undefined) {
+    let vertex = this.graphViewModel.graph.get(vertexId);
     if (!vertex) {
-      console.error('При удалении не неайден узел c ID:', id);
+      console.error('При удалении не неайден узел c ID:', vertexId, ' edgeId ', edgeId);
       return;
     }
-    vertex.parent.forEach(node => {
-      _.pull(node.child, vertex);
-      if (node.props.state.logicEdge === vertex) {
+
+    if (!edgeId) {
+      // console.log('TRACE 1')
+      vertex.parent.forEach(node => {
+        // console.log('NODE PARENT', node, 'CHILD', vertex);
+        _.pull(node.child, vertex);
+        if (node.props.state.logicEdge === vertex) {
+          let edge = this.getChildEdges(node.id).find(item => item.edge.error === false);
+          node.props.state.logicEdge = edge ? edge.child : null;
+        }
+        if (node.props.state.errorEdge === vertex) {
+          let edge = this.getChildEdges(node.id).find(item => item.edge.error === true);
+          node.props.state.errorEdge = edge ? edge.child : null;
+        }
+      });
+
+      vertex.child.forEach(child => {
+        _.pull(child.parent, vertex);
+        let temp = Array.of(child.props.edges.find(edge => edge.parent.id === vertex.id));
+        child.props.edges = _.difference(child.props.edges, temp);
+      });
+
+      this.graphViewModel.graph.delete(vertex.id);
+      this.graphViewModel.events.emit(Events.noderemoved);
+    } else {
+      // console.log('TRACE 2',vertexId)
+      let edge = vertex.props.edges.find(ed => ed.id === edgeId);
+      let node = edge.parent
+      // _.pull(node.child,vertex)
+      // console.log('1====',node.child.splice(node.child.indexOf(vertex),node.child.indexOf(vertex)))
+      // console.log('ARR',node.child)
+      // console.log('2====',node.child.indexOf(vertex))
+      node.child.splice(node.child.indexOf(vertex),1)
+      _.remove(vertex.props.edges,edge => edge.id === edgeId)
+      vertex.parent.splice(vertex.parent.indexOf(node),1)
+
+      if (node.props.state.logicEdge === vertex && (!edge.error)) {
+        console.log('TRACE 1', node.props.state.logicEdge)
         let edge = this.getChildEdges(node.id).find(item => item.edge.error === false);
         node.props.state.logicEdge = edge ? edge.child : null;
       }
-      if (node.props.state.errorEdge === vertex) {
+      if (node.props.state.errorEdge === vertex && edge.error) {
+        console.log('TRACE 2', node.props.state.errorEdge)
         let edge = this.getChildEdges(node.id).find(item => item.edge.error === true);
         node.props.state.errorEdge = edge ? edge.child : null;
       }
-    });
-
-    vertex.child.forEach(child => {
-      _.pull(child.parent, vertex);
-      let temp = Array.of(child.props.edges.find(edge => edge.parent.id === vertex.id));
-      child.props.edges = _.difference(child.props.edges, temp);
-    });
 
 
-    this.graphViewModel.graph.delete(vertex.id);
-    this.graphViewModel.events.emit(Events.noderemoved);
+
+
+      this.graphViewModel.events.emit(Events.edgeremoved);
+    }
   }
 
   bindVertex(parentId, childId, isErrorLink: boolean) {
@@ -142,7 +175,7 @@ export class ModelService {
     parent.child.push(child);
     child.parent.push(parent);
 
-    child.props.edges.push(new Edge(parent, [], isErrorLink));
+    child.props.edges.push(new Edge(this.generateEdgeId(), parent, [], isErrorLink));
     if (!parent.props.state.errorEdge && isErrorLink) {
       parent.props.state.errorEdge = child;
     }
@@ -164,6 +197,10 @@ export class ModelService {
     return edges;
   }
 
+  updateVarList(){
+
+  }
+
   // addChildrenToParent(child: string, parent: string, error: boolean) {
   //   this.viewModel.get(parent).addChildren(child, error);
   // }
@@ -183,6 +220,7 @@ export class ModelService {
   requestModel() {
     this._http.requestModel().subscribe((response: any) => {
       this.counterNodeId = 0;
+      this.counterEdgeId = 0;
       this.sourceModel = response;
       this.graphViewModel.graph = this.convertToViewModel(response);
       this.graphViewModel.events.emit(Events.loadedmodel);
@@ -200,6 +238,14 @@ export class ModelService {
         return 'Node' + this.counterNodeId++;
       }
     }
+  }
+
+  private generateEdgeId() {
+    return 'Edge' + this.counterEdgeId++;
+  }
+
+  private generateUservarId(){
+    return 'UserVar'+ this.counterUservarId++
   }
 
   private convertToViewModel(json) {
@@ -236,7 +282,7 @@ export class ModelService {
 
     console.log('map 1 step', map);
 
-    Array.from(json).forEach((node: any) => {
+    array.forEach((node: any) => {
       let parent = map.get(node.id);
 
       if (node.edgeList) {
@@ -249,7 +295,7 @@ export class ModelService {
           if (child.match.length === 0) {
             error = true;
           }
-          vert.props.edges.push(new Edge(parent, child.match, error));
+          vert.props.edges.push(new Edge(this.generateEdgeId(), parent, child.match, error));
           vert.parent.push(parent);
           parent.child.push(vert);
 
@@ -258,7 +304,7 @@ export class ModelService {
       if (node.edgeIfEmpty) {
         node.edgeIfEmpty.forEach(child => {
           let vert = map.get(child.id);
-          vert.props.edges.push(new Edge(parent, [], true));
+          vert.props.edges.push(new Edge(this.generateEdgeId(), parent, [], true));
           let temp = map.get(child.id);
           parent.child.push(temp);
         });
@@ -309,7 +355,7 @@ export class ModelService {
 
         case NodeType.SystemNode:
           node.props['varName'] = item.props.result.name || '';
-          node.props['systemVar'] = item.props.result.id || '';
+          node.props['systemVar'] = item.props.result.sysname || '';
           node['edgeList'] = [];
           break;
 

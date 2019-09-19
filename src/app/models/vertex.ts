@@ -4,29 +4,20 @@ import * as _ from 'lodash';
 
 export class GraphViewModel {
   graph: Map<string, Vertex>;
-  state: any;
+  edges: Map<string,Edge[]> =new Map<string, Edge[]>()
+  state: any//GraphState = new GraphState();
   events: EventEmitter;
 
   constructor(graph: Map<string, Vertex>) {
     this.graph = graph;
     this.events = new EventEmitter();
-    // this.state['graph'] = new GraphState()
-    // this.state;
-    // console.log('GRAPH CONSTR', this);
+    // console.log('G',this)
   }
 }
 
-// export class GraphState {
-//   layout: string;
-//   // layouts : any;
-//
-//   constructor() {
-//     // this.layout = ;
-//     // this.layouts = {}
-//   }
+// class GraphState{
+//   userVars:VertexResult[]=[]
 // }
-
-
 
 export class Vertex {
   id: string;
@@ -60,12 +51,7 @@ class VertexProperties {
   state: VertexState = new VertexState();
   props: any;
 
-  constructor() {
-    // this.state.errorEdge  = undefined
-    // this.state.logicEdge = undefined
-    // console.log('THIS> CONstr', this)
-    // this.state.errorEdge = 1
-  }
+  constructor() {}
 }
 
 class VertexState {
@@ -74,27 +60,30 @@ class VertexState {
   constructor(){}
 }
 
-class VertexResult {
+export class VertexResult {
   id: string;
+  sysname:string
   name: string;
   grammar: string;
   asrOptions: string;
   repeat: string;
   seek: string[] = [];
 
-
-  constructor() {
-  }
+  constructor() {  }
 }
 
 export class Edge {
+  id:string
   parent: Vertex;
   match: string[] = [];
   error: boolean = false;
+  child: Vertex;
 
-  constructor(parent: Vertex, match: string[], isError: boolean = false) {
+  constructor(id: string, parent: Vertex, match: string[], isError: boolean = false, child?:Vertex) {
     this.parent = parent;
     this.match = match;
     this.error = isError;
+    this.id = id;
+    this.child = new Vertex(null)
   }
 }

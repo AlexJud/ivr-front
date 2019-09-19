@@ -11,7 +11,7 @@ import {Strings} from '../graph/nodeProps/optionStrings';
 import {MatSnackBar} from '@angular/material';
 import {NodeType} from '../graph/nodes/nodes';
 import {Events} from '../models/events';
-import {Vertex} from '../models/vertex';
+import {GraphViewModel, Vertex, VertexResult} from '../models/vertex';
 import * as _ from 'lodash';
 
 @Component({
@@ -23,6 +23,7 @@ export class NodeSettingsPanelComponent implements OnInit {
   @ViewChild('file', {static: false}) file: ElementRef;
   isProgress = false;
   currentNode: Vertex;
+  currentUserVar: VertexResult=new VertexResult();
   model;
   myControl = new FormControl();
   visible = true;
@@ -31,7 +32,9 @@ export class NodeSettingsPanelComponent implements OnInit {
   addOnBlur = true;
   readonly separatorKeysCodes: number[] = [ENTER];
 
-  vmodel;
+
+  vmodel :GraphViewModel;
+  userVars: any[] = []
 
   panelOpenState = false;
 
@@ -43,7 +46,7 @@ export class NodeSettingsPanelComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    console.log('CHECH ID')
     this.modelService.graphViewModel.events.addListener(Events.cellselected, (cellId) => {
       this.setDataSource(cellId);
     });
@@ -52,12 +55,15 @@ export class NodeSettingsPanelComponent implements OnInit {
     this.currentNode = this.modelService.graphViewModel.graph.get('root');
 
     // this.model = this.modelService.model;
-    this.vmodel = this.modelService;
+    this.vmodel = this.modelService.graphViewModel;
   }
 
   setDataSource(cellId: string) {
     // this.currentNode = this.modelService.viewModel.get(data.node)
-    this.currentNode = this.modelService.graphViewModel.graph.get(cellId);
+    this.currentNode = this.vmodel.graph.get(cellId);
+    if (this.currentNode.type === NodeType.SystemNode){
+     this.userVars = this.filterUserVars()
+    }
     console.log(this.currentNode);
   }
 
@@ -85,6 +91,11 @@ export class NodeSettingsPanelComponent implements OnInit {
   //     }
   //   }
   // }
+
+  show(){
+    // console.log('EVENT',event)
+    console.log('DATA',this.currentUserVar)
+  }
 
   uploadFile(event: any) {
     // this.isProgress = true
@@ -117,6 +128,19 @@ export class NodeSettingsPanelComponent implements OnInit {
   filterChildEdges(child: Vertex, parentId): Array<string> {
     let edges = child.props.edges.find(edge => edge.parent.id === parentId);
     return edges ? edges.match : [];
+  }
+  filterUserVars():Array<any>{
+    console.log('TRACE FILTER')
+    let array = []
+    this.vmodel.graph.forEach(node => {
+      if (node.type === NodeType.SpecifierNode) {
+        if(node.props.result.name){
+          array.push({name:node.props.result.name,value:node.props.result})
+        }
+      }
+    })
+    console.log('ARRAY VARS',array)
+    return array;
   }
 
   add(event: MatChipInputEvent, id: string): void {

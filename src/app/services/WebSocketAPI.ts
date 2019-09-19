@@ -1,53 +1,56 @@
-import { Injectable } from '@angular/core';
-import { EventService } from './event.service';
-import * as Stomp from 'stompjs'
+import {Injectable} from '@angular/core';
+import {EventService} from './event.service';
+import * as Stomp from 'stompjs';
+import {ModelService} from './model.service';
+import {Events} from '../models/events';
 
 @Injectable()
 export class WebSocketAPI {
-    // webSocketEndPoint: string = 'wss://192.168.1.74:8080/wss';
-    topic: string = "/topic/greetings";
-    stompClient: any;
-    logStyle = 'background: #222; color: #bada55'
+  // webSocketEndPoint: string = 'wss://192.168.1.74:8080/wss';
+  topic: string = '/topic/greetings';
+  stompClient: any;
+  logStyle = 'background: #222; color: #bada55';
 
-    constructor(private _eventService: EventService) {
-    }
+  constructor(private _eventService: EventService, private modelService: ModelService) {
+  }
 
-    connect() {
-        const _this = this;
-        console.log("Initialize WebSocket Connection");
-        let url = window.location.hostname
-        this.stompClient = Stomp.client('wss://' + url + ':8080' + '/wss');
-        this.stompClient.connect({}, function (frame) {
-            _this._eventService._events.emit('socketConnected')
-            _this.stompClient.subscribe('/ivr/dialog', function (sdkEvent) {
-                _this.onMessageReceived(sdkEvent)
-            });
-        },
-        (error) => {
-            console.log("errorCallBack -> " + error)
-            if(error.indexOf('Lost connection') !== -1) {
-                _this._eventService._events.emit('socketLost')
-            }
+  connect() {
+    const _this = this;
+    console.log('Initialize WebSocket Connection');
+    let url = window.location.hostname //'192.168.1.74';
+    this.stompClient = Stomp.client('wss://' + url + ':8080' + '/wss');
+    this.stompClient.connect({}, function(frame) {
+        _this._eventService._events.emit('socketConnected');
+        _this.stompClient.subscribe('/ivr/dialog', function(sdkEvent) {
+          _this.onMessageReceived(sdkEvent);
         });
-    }
-
-    disconnect() {
-        if (this.stompClient !== null) {
-            this.stompClient.disconnect();
+      },
+      (error) => {
+        console.log('errorCallBack -> ' + error);
+        if (error.indexOf('Lost connection') !== -1) {
+          _this._eventService._events.emit('socketLost');
         }
-        console.log("Disconnected");
-    }
+      });
+  }
 
-    send(message) {
-        this.stompClient.send("/app/echo", {}, JSON.stringify(message));
+  disconnect() {
+    if (this.stompClient !== null) {
+      this.stompClient.disconnect();
     }
+    console.log('Disconnected');
+  }
 
-    onMessageReceived(message) {
-        console.log("Message Received from Server :: " + message);
-        let body = JSON.parse(message.body);
-        if(body.level === 'highlight') {
-            this._eventService._events.emit('highlightNode', body.message)
-        }
-        this._eventService._events.emit('messageReceived', message)
+  send(message) {
+    this.stompClient.send('/app/echo', {}, JSON.stringify(message));
+  }
+
+  onMessageReceived(message) {
+    console.log('Message Received from Server :: ' + message);
+    let body = JSON.parse(message.body);
+    if (body.level === 'highlight') {
+      this._eventService._events.emit('highlightNode', body.message);
+      this.modelService.graphViewModel.events.emit(Events.nodeactive, body.message);
     }
+    this._eventService._events.emit('messageReceived', message);
+  }
 }

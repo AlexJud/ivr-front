@@ -10,14 +10,15 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
 
-    <div >
+    <div>
       <div class="textarea-field">
-        <mat-form-field >
+        <mat-form-field>
           <textarea matInput placeholder="Синтезировать" [(ngModel)]="currentNode.speech"></textarea>
         </mat-form-field>
         <mat-form-field *ngIf="currentNode.type === 'SpecifierNode'">
           <input matInput placeholder="Сохранить ответ c именем" [(ngModel)]="currentNode.props.result.name">
         </mat-form-field>
+
         <!--        </div>-->
         <!--        <div class="input-field" *ngIf="prop.type === 1">-->
         <!--          <mat-form-field>-->
@@ -76,6 +77,33 @@
     </div>
   </mat-expansion-panel>
 </mat-accordion>
+
+<mat-accordion class="example-headers-align" *ngIf="currentNode.type === 'SystemNode'">
+  <mat-expansion-panel expanded="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <label>Опции:</label>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <mat-form-field>
+      <mat-label>Пользовательские переменные</mat-label>
+      <mat-select [(value)]="currentUserVar">
+        <mat-option *ngFor="let item of userVars" [value]="item.value">
+          {{item.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <!--    <div>-->
+    <div class="textarea-field">
+      <mat-form-field>
+        <textarea matInput placeholder="Сохранить в системную переменную" [(ngModel)]="currentUserVar.sysname"></textarea>
+      </mat-form-field>
+    </div>
+    <!--    </div>-->
+  </mat-expansion-panel>
+</mat-accordion>
+
 <!-- Дочерние узлы -->
 <mat-accordion class="example-headers-align" *ngIf="currentNode.child.length > 0">
   <mat-expansion-panel>
