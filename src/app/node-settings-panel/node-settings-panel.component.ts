@@ -71,6 +71,7 @@ export class NodeSettingsPanelComponent implements OnInit {
   setValuetoSysVar(event){
     const value = event.target.value
     this.currentUserVar.sysname = value;
+    this.currentNode.props.result.name = this.currentUserVar.name
     this.currentNode.props.result.sysname = value
   }
 
