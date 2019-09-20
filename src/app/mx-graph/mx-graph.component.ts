@@ -140,7 +140,7 @@ export class MxGraphComponent implements OnInit {
     this.vmodel.events.addListener(Events.edgeremoved, () => this.redrawGraph());
     this.vmodel.events.addListener(Events.noderemoved, () => this.redrawGraph());
     this.vmodel.events.addListener(Events.cellhighlight, (obj) => this.high(obj));
-    this.vmodel.events.addListener(Events.nodeactive, (data) => this.high({id:data,focus:true}));
+    this.vmodel.events.addListener(Events.nodeactive, (data) => this.high({id: data, focus: true}));
 
     this.vmodel.events.addListener(Events.noderemoved, () => {
       this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()));
@@ -150,9 +150,11 @@ export class MxGraphComponent implements OnInit {
     this.graph.setCellsResizable(false);
 
     this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt) {
-      if (evt.properties['cell'] ) {
-        let id = evt.properties['cell'].vertex? evt.properties['cell'].id : evt.properties['cell'].source.id
-        this.vmodel.events.emit(Events.nodeselected, {id,vertex: evt.properties['cell'].vertex});
+      console.log('CLICK',evt)
+      console.log('CLICK 2',sender)
+      if (evt.properties['cell']) {
+        let id = evt.properties['cell'].vertex ? evt.properties['cell'].id : evt.properties['cell'].source.id;
+        this.vmodel.events.emit(Events.nodeselected, {id, vertex: evt.properties['cell'].vertex});
       }
     }));
 
@@ -163,13 +165,13 @@ export class MxGraphComponent implements OnInit {
     }));
 
     this.graph.addListener(mxEvent.LABEL_CHANGED, mxUtils.bind(this, function(sender, evt) {
-      console.log('LABEL CHANGED', evt)
+      console.log('LABEL CHANGED', evt);
       let idNode = evt.properties['cell'].vertex ? evt.properties['cell'].id : evt.properties['cell'].target.id;
       let node = this.vmodel.graph.get(idNode);
 
       if (evt.properties['cell'].vertex) {
         let text = evt.properties['value'];
-               node.speech = text;
+        node.speech = text;
       } else {
         if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
           // let childId = evt.properties['cell'].target.id;
@@ -205,6 +207,13 @@ export class MxGraphComponent implements OnInit {
     } else {
       this.highlightCellReset();
     }
+  }
+
+  cleanTempImages(){
+    this.tempImages.forEach(i => {
+      i.parentNode.removeChild(i);
+    });
+    this.tempImages = []
   }
 
   private initializeMxGraph() {
@@ -273,10 +282,15 @@ export class MxGraphComponent implements OnInit {
           }
         },
         mouseMove: function(sender, me) {
-          if (this.currentState != null) {// && (me.getState() == this.currentState || me.getState() == null))
-            let offset = 70;
+          if (this.currentState != null && (me.getState() == this.currentState || me.getState() == null)) {//  //
+            let offset;
+            if (this.currentState.cell.vertex) {
+              offset = 30;
+            } else {
+              offset = 5
+            }
             let tmp = new mxRectangle(me.getGraphX() - offset,
-              me.getGraphY() - offset, 2 * offset, 2 * offset);
+              me.getGraphY() - offset * 2, 2 * offset, 2 * offset);
             if (mxUtils.intersects(tmp, this.currentState)) {
               return;
             }
@@ -315,7 +329,7 @@ export class MxGraphComponent implements OnInit {
         dragLeave: function(evt, state) {
           // if (this.currentIconSet !== null) {
           if (!this.currentIconSet) {
-            if (thiz.tempImages) {
+            if (thiz.tempImages.length > 0) {
               thiz.tempImages.forEach(i => {
                 i.parentNode.removeChild(i);
               });
@@ -341,46 +355,47 @@ export class MxGraphComponent implements OnInit {
       // });
 
       this.graph.popupMenuHandler.factoryMethod = function(menu, cell, evt) {
-        if (!cell ) {
+        if (!cell) {
           return;
         }
-        if(cell.isVertex()){
-        let node = thiz.vmodel.graph.get(cell.id);
-        console.log('current NODE DATA', thiz.vmodel.edges);
-        // let node = thiz.modelService.viewModel.get(cell.id);
-        if (node.type !== NodeType.EndNode) {
-          let submenu = node.type === NodeType.SpecifierNode;
+        if (cell.isVertex()) {
+          let node = thiz.vmodel.graph.get(cell.id);
+          console.log('current NODE DATA', thiz.vmodel.edges);
+          // let node = thiz.modelService.viewModel.get(cell.id);
+          if (node.type !== NodeType.EndNode) {
+            let submenu = node.type === NodeType.SpecifierNode;
 
-          if (submenu) {
-            let ok;
-            let err;
-            node.child.forEach(elem => {
-              let edges = elem.props.edges.filter(edge => edge.parent.id === node.id);
+            if (submenu) {
+              let ok;
+              let err;
+              node.child.forEach(elem => {
+                let edges = elem.props.edges.filter(edge => edge.parent.id === node.id);
+                if (!ok) {
+                  ok = edges.find(item => item.error === false);
+                }
+                if (!err) {
+                  err = edges.find(item => item.error);
+                }
+              });
+
               if (!ok) {
-                ok = edges.find(item => item.error === false);
+                submenu = menu.addItem('Ответ получен', null, null);
+                thiz.addMenu(thiz, menu, cell, submenu);
               }
               if (!err) {
-                err = edges.find(item => item.error);
+                submenu = menu.addItem('Eсли ошибка', null, null);
+                thiz.addMenu(thiz, menu, cell, submenu, true);
               }
-            });
-
-            if (!ok) {
-              submenu = menu.addItem('Ответ получен', null, null);
-              thiz.addMenu(thiz, menu, cell, submenu);
+            } else {
+              thiz.addMenu(thiz, menu, cell);
             }
-            if (!err) {
-              submenu = menu.addItem('Eсли ошибка', null, null);
-              thiz.addMenu(thiz, menu, cell, submenu, true);
-            }
-          } else {
-            thiz.addMenu(thiz, menu, cell);
           }
-        }}
+        }
 
         menu.addItem('Удалить', 'assets/images/delete.png', function() {
-          let edgeId = cell.vertex? null : cell.id
-          let id = cell.vertex? cell.id: cell.target.id
-          thiz.modelService.deleteVertex(id, edgeId );
+          let edgeId = cell.vertex ? null : cell.id;
+          let id = cell.vertex ? cell.id : cell.target.id;
+          thiz.modelService.deleteVertex(id, edgeId);
         });
       };
     }
@@ -425,7 +440,9 @@ export class MxGraphComponent implements OnInit {
 
         mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
           // this.createNewNode(imgArr[i].type, state.cell.id);
+
           this.modelService.addVertex(new Vertex(null, NodeType[icon.type]), state.cell.id);
+          this.cleanTempImages();
         }));
 
         state.view.graph.container.appendChild(img);
@@ -453,6 +470,7 @@ export class MxGraphComponent implements OnInit {
         graph.connectionHandler.start(state);
         graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
         mxEvent.consume(evt);
+        this.cleanTempImages()
       }));
 
       state.view.graph.container.appendChild(img);
@@ -468,7 +486,10 @@ export class MxGraphComponent implements OnInit {
 
         mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
           // this.createNewNode(imgArr[i].type, state.cell.id);
+          // let terms = this.getCellPermissions(null,state.cell.id,state.cell.isVertex())
+          // if (terms.addErrorVertex)
           this.modelService.addVertex(new Vertex(null, NodeType[icon.type]), state.cell.id, true);
+          this.cleanTempImages()
         }));
 
         state.view.graph.container.appendChild(img);
@@ -509,23 +530,24 @@ export class MxGraphComponent implements OnInit {
         // graph.isMouseDown = true;
         graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
         mxEvent.consume(evt);
+        this.cleanTempImages()
       }));
 
       state.view.graph.container.appendChild(img);
       this.tempImages.push(img);
     }
 
-    if ('delete') {
+    if ('delete' && state.cell.id !== 'root') {
       let array = imgArr.filter(item => item.position === 'left');
       array.forEach(icon => {
         let posX;
-        let posY
+        let posY;
         if (state.cell.isVertex()) {
           posX = state.x - 35;
           posY = state.y + 0;
         } else {
-          console.log('STATE',state)
-          posX = state.x
+          console.log('STATE', state);
+          posX = state.x;
           posY = state.y;
         }
 
@@ -533,10 +555,11 @@ export class MxGraphComponent implements OnInit {
         let img = this.addIcon(`assets/images/${icon.img}`, icon.title, posX, posY);
 
         mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt) {
-          console.log('CHECK',state.cell.isVertex())
-          let edge = state.cell.vertex? null:state.cell.id;
-          let id = state.cell.vertex? state.cell.id : state.cell.target.id
-          this.modelService.deleteVertex(id,edge );
+          console.log('CHECK', state.cell.isVertex());
+          let edge = state.cell.vertex ? null : state.cell.id;
+          let id = state.cell.vertex ? state.cell.id : state.cell.target.id;
+          this.modelService.deleteVertex(id, edge);
+          this.cleanTempImages()
         }));
 
         state.view.graph.container.appendChild(img);
@@ -619,7 +642,7 @@ export class MxGraphComponent implements OnInit {
     let permission: Permission = {addLogicVertex: true, addErrorVertex: true, addLogicConnection: true, addErrorConnection: true};
 
     let vertex = cell ? cell : this.vmodel.graph.get(cellId);
-    let edges = this.vmodel.edges.get(vertex.id)
+    let edges = this.vmodel.edges.get(vertex.id);
 
     if (edges && edges.find(edge => edge.error === true)) {
       permission.addErrorVertex = false;

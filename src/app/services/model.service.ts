@@ -154,7 +154,7 @@ export class ModelService {
     }
 
     if (!edgeId) {
-      // console.log('TRACE 1')
+
       vertex.parent.forEach(node => {
         _.pull(node.child, vertex);
         this.deleteEdgeFromMap(node.id, null, vertex);
@@ -192,6 +192,8 @@ export class ModelService {
       node.child.splice(node.child.indexOf(vertex), 1);
       _.remove(vertex.props.edges, edge => edge.id === edgeId);
       vertex.parent.splice(vertex.parent.indexOf(node), 1);
+
+      this.deleteEdgeFromMap(edge.parent.id,edge)
 
       // if (node.props.state.logicEdge === vertex && (!edge.error)) {
       //   console.log('TRACE 1', node.props.state.logicEdge);

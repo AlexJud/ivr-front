@@ -136,6 +136,11 @@ export class NodeSettingsPanelComponent implements OnInit {
   onHover(id: string, focus: boolean) {
     this.vmodel.events.emit(Events.cellhighlight, {id, focus});
   }
+  emitUpdateModel(){
+    this.vmodel.events.emit(Events.updatemodel, this.currentNode.id)
+  }
+
+
 
   filterChildEdges(child: Vertex, parentId): Array<string> {
     let edges = child.props.edges.find(edge => edge.parent.id === parentId);
