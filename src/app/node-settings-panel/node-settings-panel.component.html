@@ -106,7 +106,7 @@
 
 <!-- Дочерние узлы -->
 <mat-accordion class="example-headers-align" *ngIf="currentNode.child.length > 0">
-  <mat-expansion-panel>
+  <mat-expansion-panel [expanded]="matChildren">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <span style="font-size: 12px">Дочерние узлы</span>

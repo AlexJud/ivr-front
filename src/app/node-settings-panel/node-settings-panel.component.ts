@@ -32,6 +32,7 @@ export class NodeSettingsPanelComponent implements OnInit {
   addOnBlur = true;
   readonly separatorKeysCodes: number[] = [ENTER];
 
+  matChildren = false;
 
   vmodel :GraphViewModel;
   userVars: any[] = []
@@ -48,8 +49,9 @@ export class NodeSettingsPanelComponent implements OnInit {
   ngOnInit() {
     this.vmodel = this.modelService.graphViewModel;
     console.log('CHECH ID')
-    this.vmodel.events.addListener(Events.cellselected, (cellId) => {
-      this.setDataSource(cellId);
+    this.vmodel.events.addListener(Events.nodeselected, (obj) => {
+      this.setDataSource(obj.id);
+      this.matChildren = !obj.vertex;
     });
 
     // this.setDataSource({node: 'root'})

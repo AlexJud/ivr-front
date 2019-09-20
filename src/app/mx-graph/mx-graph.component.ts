@@ -150,8 +150,9 @@ export class MxGraphComponent implements OnInit {
     this.graph.setCellsResizable(false);
 
     this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt) {
-      if (evt.properties['cell'] && evt.properties['cell'].vertex) {
-        this.vmodel.events.emit(Events.cellselected, evt.properties['cell'].id);
+      if (evt.properties['cell'] ) {
+        let id = evt.properties['cell'].vertex? evt.properties['cell'].id : evt.properties['cell'].source.id
+        this.vmodel.events.emit(Events.nodeselected, {id,vertex: evt.properties['cell'].vertex});
       }
     }));
 

@@ -6,7 +6,7 @@ export enum Events {
   noderemoved = 'noderemoved',
   edgeadded = 'edgeadded',
   edgeremoved = 'edgeremoved',
-  cellselected = 'cellselected',
+  nodeselected = 'nodeselected',
   cellhighlight = 'cellhighlight',
   changelayout = 'changelayout',
   nodeactive = 'nodeactive'
