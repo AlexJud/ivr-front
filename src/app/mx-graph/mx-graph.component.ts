@@ -92,7 +92,7 @@ export class MxGraphComponent implements OnInit {
 
 
     this.initListeners();
-    this.viewModel = this.modelService.viewModel;
+    // this.viewModel = this.modelService.viewModel;
 
     this.buildGraph();
 
@@ -151,7 +151,7 @@ export class MxGraphComponent implements OnInit {
 
     this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function(sender, evt) {
       if (evt.properties['cell'] && evt.properties['cell'].vertex) {
-        this.modelService.graphViewModel.events.emit(Events.cellselected, evt.properties['cell'].id);
+        this.vmodel.events.emit(Events.cellselected, evt.properties['cell'].id);
       }
     }));
 
@@ -345,7 +345,7 @@ export class MxGraphComponent implements OnInit {
         }
         if(cell.isVertex()){
         let node = thiz.vmodel.graph.get(cell.id);
-        console.log('current NODE DATA', node);
+        console.log('current NODE DATA', thiz.vmodel.edges);
         // let node = thiz.modelService.viewModel.get(cell.id);
         if (node.type !== NodeType.EndNode) {
           let submenu = node.type === NodeType.SpecifierNode;
@@ -618,14 +618,15 @@ export class MxGraphComponent implements OnInit {
     let permission: Permission = {addLogicVertex: true, addErrorVertex: true, addLogicConnection: true, addErrorConnection: true};
 
     let vertex = cell ? cell : this.vmodel.graph.get(cellId);
+    let edges = this.vmodel.edges.get(vertex.id)
 
-    if (vertex.props.state.errorEdge) {
+    if (edges && edges.find(edge => edge.error === true)) {
       permission.addErrorVertex = false;
       permission.addErrorConnection = false;
     }
 
     if (vertex.type === NodeType.SpecifierNode) {
-      if (vertex.props.state.logicEdge) {
+      if (edges && edges.find(edge => edge.error === false)) {
         permission.addLogicVertex = false;
         permission.addLogicConnection = false;
       }
@@ -705,10 +706,10 @@ export class MxGraphComponent implements OnInit {
   }
 
 
-  public deleteNode(id: string) {
-    this.modelService.deleteVertex(id);
-    // this._eventService._events.emit('updateModel');
-  }
+  // public deleteNode(id: string) {
+  //   this.modelService.deleteVertex(id);
+  //   // this._eventService._events.emit('updateModel');
+  // }
 
   // changeLayout(name) {
   //   switch (name) {
@@ -825,80 +826,80 @@ export class MxGraphComponent implements OnInit {
 
   }
 
-  public addNode(id: string) {
-    const viewNode = this.modelService.viewModel.get(id);
-    this.graph.getModel().beginUpdate();
-    try {
-      let vObj = this.graph.insertVertex(this.parent, viewNode.id, '', 0, 0, 120, 80, viewNode.type);
-      //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
-      this.map.set(viewNode.id, vObj);
-      this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'greenEdge');
-    } finally {
-      this.layout.execute(this.parent);
-      this.graph.getModel().endUpdate();
-    }
-  }
-
-  private addNewNode(id: string, type: string, parent: string, error: boolean = false) {
-    let style = error ? 'redEdge' : 'greenEdge';
-
-    this.graph.getModel().beginUpdate();
-    let vObj;
-    try {
-      vObj = this.graph.insertVertex(this.parent, id, '', 0, 0, 120, 80, type);
-      this.map.set(id, vObj);
-      // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'greenEdge');
-      let edge = this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, style);
-    } finally {
-      this.layout.execute(this.parent);
-      this.graph.getModel().endUpdate();
-      // let element = this.graph.view.getState(vObj).shape.node
-      // var clickEvent  = document.createEvent ('MouseEvents');
-      // clickEvent.initEvent('dblclick', true, true);
-      // element.dispatchEvent(clickEvent);
-    }
-  }
-
-  private buildModel() {
-    const mapNode = new Map();
-    this.map = new Map();
-    // console.log('VIEW ',this.viewModel)
-    this.graph.getModel().beginUpdate();
-    try {
-      this.viewModel.forEach((node: ViewNode) => {
-
-        let vObj = this.graph.insertVertex(this.parent, node.id, node.props[0].value, 0, 0, 120, 80, node.type);
-        // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
-        // this.addOverlay(vObj)
-        this.map.set(node.id, vObj);
-        mapNode.set(node.id, node);
-      });
-
-      this.map.forEach((v, k) => {
-        let object = mapNode.get(k);
-        if (object.edgeList !== undefined && object.edgeList.length !== 0) {
-          object.edgeList.forEach((nodeName) => {
-            let p = this.graph.insertEdge(this.parent, null, nodeName.match ? nodeName.match[0] : '', this.map.get(k), this.map.get(nodeName.id), 'greenEdge');
-          });
-        }
-        if (object.edgeIfEmpty && object.edgeIfEmpty.length !== 0) {
-          object.edgeIfEmpty.forEach(node => {
-            let edge = this.graph.insertEdge(this.parent, null, node.match ? node.match[0] : '', this.map.get(k), this.map.get(node.id), 'redEdge');
-            mxEdgeHandler.prototype.isConnectableCell = function(cell) {
-              console.log('CHECK IS CONNECT', cell);
-              // return this.graph.connectionHandler.isConnectableCell(cell);
-            };
-            console.log('EDGE ', edge);
-
-          });
-        }
-      });
-    } catch (e) {
-      console.error(`mx-graph.component Erorr: ${e}`);
-    } finally {
-      this.layout.execute(this.parent);
-      this.graph.getModel().endUpdate();
-    }
-  }
+  // public addNode(id: string) {
+  //   const viewNode = this.modelService.viewModel.get(id);
+  //   this.graph.getModel().beginUpdate();
+  //   try {
+  //     let vObj = this.graph.insertVertex(this.parent, viewNode.id, '', 0, 0, 120, 80, viewNode.type);
+  //     //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
+  //     this.map.set(viewNode.id, vObj);
+  //     this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'greenEdge');
+  //   } finally {
+  //     this.layout.execute(this.parent);
+  //     this.graph.getModel().endUpdate();
+  //   }
+  // }
+  //
+  // private addNewNode(id: string, type: string, parent: string, error: boolean = false) {
+  //   let style = error ? 'redEdge' : 'greenEdge';
+  //
+  //   this.graph.getModel().beginUpdate();
+  //   let vObj;
+  //   try {
+  //     vObj = this.graph.insertVertex(this.parent, id, '', 0, 0, 120, 80, type);
+  //     this.map.set(id, vObj);
+  //     // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'greenEdge');
+  //     let edge = this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, style);
+  //   } finally {
+  //     this.layout.execute(this.parent);
+  //     this.graph.getModel().endUpdate();
+  //     // let element = this.graph.view.getState(vObj).shape.node
+  //     // var clickEvent  = document.createEvent ('MouseEvents');
+  //     // clickEvent.initEvent('dblclick', true, true);
+  //     // element.dispatchEvent(clickEvent);
+  //   }
+  // }
+  //
+  // private buildModel() {
+  //   const mapNode = new Map();
+  //   this.map = new Map();
+  //   // console.log('VIEW ',this.viewModel)
+  //   this.graph.getModel().beginUpdate();
+  //   try {
+  //     this.viewModel.forEach((node: ViewNode) => {
+  //
+  //       let vObj = this.graph.insertVertex(this.parent, node.id, node.props[0].value, 0, 0, 120, 80, node.type);
+  //       // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
+  //       // this.addOverlay(vObj)
+  //       this.map.set(node.id, vObj);
+  //       mapNode.set(node.id, node);
+  //     });
+  //
+  //     this.map.forEach((v, k) => {
+  //       let object = mapNode.get(k);
+  //       if (object.edgeList !== undefined && object.edgeList.length !== 0) {
+  //         object.edgeList.forEach((nodeName) => {
+  //           let p = this.graph.insertEdge(this.parent, null, nodeName.match ? nodeName.match[0] : '', this.map.get(k), this.map.get(nodeName.id), 'greenEdge');
+  //         });
+  //       }
+  //       if (object.edgeIfEmpty && object.edgeIfEmpty.length !== 0) {
+  //         object.edgeIfEmpty.forEach(node => {
+  //           let edge = this.graph.insertEdge(this.parent, null, node.match ? node.match[0] : '', this.map.get(k), this.map.get(node.id), 'redEdge');
+  //           mxEdgeHandler.prototype.isConnectableCell = function(cell) {
+  //             console.log('CHECK IS CONNECT', cell);
+  //             // return this.graph.connectionHandler.isConnectableCell(cell);
+  //           };
+  //           console.log('EDGE ', edge);
+  //
+  //         });
+  //       }
+  //     });
+  //   } catch (e) {
+  //     console.error(`mx-graph.component Erorr: ${e}`);
+  //   } finally {
+  //     this.layout.execute(this.parent);
+  //     this.graph.getModel().endUpdate();
+  //   }
+  // }
 
 }

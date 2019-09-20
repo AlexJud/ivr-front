@@ -55,8 +55,8 @@ class VertexProperties {
 }
 
 class VertexState {
-  errorEdge:any;
-  logicEdge:any;
+  // errorEdge:any;
+  // logicEdge:any;
   constructor(){}
 }
 
@@ -79,11 +79,11 @@ export class Edge {
   error: boolean = false;
   child: Vertex;
 
-  constructor(id: string, parent: Vertex, match: string[], isError: boolean = false, child?:Vertex) {
+  constructor(id: string, parent: Vertex, match: string[], isError: boolean = false, child:Vertex) {
     this.parent = parent;
     this.match = match;
     this.error = isError;
     this.id = id;
-    this.child = new Vertex(null)
+    this.child = child
   }
 }
