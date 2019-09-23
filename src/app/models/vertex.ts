@@ -1,23 +1,16 @@
 import {EventEmitter} from 'events';
 import {NodeType} from '../graph/nodes/nodes';
-import * as _ from 'lodash';
 
 export class GraphViewModel {
-  graph: Map<string, Vertex>;
-  edges: Map<string,Edge[]> =new Map<string, Edge[]>()
-  state: any//GraphState = new GraphState();
+  // graph: Map<string, Vertex>;
+  // edges: Map<string,Edge[]>
+  state: any;
   events: EventEmitter;
 
-  constructor(graph: Map<string, Vertex>) {
-    this.graph = graph;
+  constructor(public graph: Map<string, Vertex>,public edges: Map<string,Edge[]>) {
     this.events = new EventEmitter();
-    // console.log('G',this)
   }
 }
-
-// class GraphState{
-//   userVars:VertexResult[]=[]
-// }
 
 export class Vertex {
   id: string;
@@ -41,12 +34,9 @@ export class Vertex {
     }
     this.props = new VertexProperties();
   }
-
-
 }
 
 class VertexProperties {
-  edges: Edge[] = [];
   result: VertexResult = new VertexResult();
   state: VertexState = new VertexState();
   props: any;

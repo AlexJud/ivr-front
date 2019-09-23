@@ -11,7 +11,7 @@ import {Strings} from '../graph/nodeProps/optionStrings';
 import {MatSnackBar} from '@angular/material';
 import {NodeType} from '../graph/nodes/nodes';
 import {Events} from '../models/events';
-import {GraphViewModel, Vertex, VertexResult} from '../models/vertex';
+import {Edge, GraphViewModel, Vertex, VertexResult} from '../models/vertex';
 import * as _ from 'lodash';
 
 @Component({
@@ -140,12 +140,26 @@ export class NodeSettingsPanelComponent implements OnInit {
     this.vmodel.events.emit(Events.updatemodel, this.currentNode.id)
   }
 
+  isChildrenExist(parentId:string){
+    let edges = this.vmodel.edges? this.vmodel.edges.get(parentId): null;
+    return edges && edges.length > 0
+  }
+
 
 
   filterChildEdges(child: Vertex, parentId): Array<string> {
-    let edges = child.props.edges.find(edge => edge.parent.id === parentId);
-    return edges ? edges.match : [];
+    // let edges = child.props.edges.find(edge => edge.parent.id === parentId);
+    let edges = this.vmodel.edges.get(parentId)
+    let edge = edges? edges.find(item => item.child.id === child.id):null;
+    return edge ? edge.match : [];
   }
+
+  filterEdges(parentId):Array<Edge>{
+    let edges = this.vmodel.edges.get(parentId);
+    // console.log('EDGES ',edges)
+    return edges? edges: []
+  }
+
   filterUserVars():Array<any>{
     console.log('TRACE FILTER')
     let array = []
@@ -160,7 +174,7 @@ export class NodeSettingsPanelComponent implements OnInit {
     return array;
   }
 
-  add(event: MatChipInputEvent, id: string): void {
+  add(event: MatChipInputEvent, edge: Edge): void {
 
     const input = event.input;
     const value = event.value;
@@ -168,8 +182,9 @@ export class NodeSettingsPanelComponent implements OnInit {
       return;
     }
 
-    let vertex = this.vmodel.graph.get(id);
-    let edge = vertex.props.edges.find(edge => edge.parent.id === this.currentNode.id);
+    // let vertex = this.vmodel.graph.get(id);
+    // let edge = this.vmodel.edges.get(id);
+    // let edge = vertex.props.edges.find(edge => edge.parent.id === this.currentNode.id);
     edge.match.push(value);
 
     // if (edge.parent.type === NodeType.SpecifierNode) {
@@ -206,9 +221,9 @@ export class NodeSettingsPanelComponent implements OnInit {
     this.vmodel.events.emit(Events.updatemodel);
   }
 
-  remove(key: string, childId: string): void {
-    let vertex = this.vmodel.graph.get(childId);
-    let edge = vertex.props.edges.find(edge => edge.parent.id === this.currentNode.id);
+  remove(key: string, edge: Edge): void {
+    // let vertex = this.vmodel.graph.get(childId);
+    // let edge = vertex.props.edges.find(edge => edge.parent.id === this.currentNode.id);
     _.pull(edge.match, key);
 
     // if (edge.parent.type === NodeType.SpecifierNode) {
