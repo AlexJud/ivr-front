@@ -34,6 +34,7 @@ declare var mxCellTracker: any;
 declare var mxIconSet: any;
 declare var mxRectangle: any;
 declare var mxCellState: any;
+declare var mxMultiplicity: any;
 
 // declare var require: any;
 // const mx = require('mxgraph')
@@ -107,18 +108,12 @@ export class MxGraphComponent implements OnInit {
     //   this.highlightCellOn(name);
     // });
 
-    // this._eventService._events.addListener('changeLayout', (name) => this.changeLayout(name));
     this._eventService._events.addListener('updateCell', (id) => this.renderNodeFromViewModel(id));
-    // this._eventService._events.addListener('onHover', (obj) => this.high(obj));
 
     this.tracker = new mxCellTracker(this.graph, '#de7f1c'); // hover cell подсветка
 
 
-    // this.vmodel.events.addListener(Events.nodeadded, () => {
-    //   this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()));
-    //   this.layout2 = new mxHierarchicalLayout(this.graph, mxConstants.DIRECTION_WEST);
-    //   this.buildGraph();
-    // });
+
 
 
   }
@@ -272,7 +267,7 @@ export class MxGraphComponent implements OnInit {
 
       this.graph.addMouseListener({
 
-        currentState: null,
+
         currentIconSet: null,
 
         mouseDown: function(sender, me) {
@@ -282,7 +277,7 @@ export class MxGraphComponent implements OnInit {
           }
         },
         mouseMove: function(sender, me) {
-          if (this.currentState != null && (me.getState() == this.currentState || me.getState() == null)) {//  //
+          if (this.currentState != null){ // && (me.getState() == this.currentState || me.getState() == null)) {//  //
             let offset;
             if (this.currentState.cell.vertex) {
               offset = 30;
