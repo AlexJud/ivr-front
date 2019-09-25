@@ -62,7 +62,6 @@ export class MxGraphComponent implements OnInit {
   mxGraphHandler;
   highlight;
   layout;
-  // node: Node;
   tracker;
   tempImages = [];
 
@@ -72,10 +71,7 @@ export class MxGraphComponent implements OnInit {
     hierarch: any;
   };
 
-  private counterNodeId = 0;
-
-  constructor(private modelService: ModelService,
-              private _eventService: EventService) {
+  constructor(private modelService: ModelService) {
   }
 
   ngOnInit() {
@@ -93,7 +89,6 @@ export class MxGraphComponent implements OnInit {
   redrawGraph() {
     this.graph.removeCells(this.graph.getChildVertices(this.graph.getDefaultParent()));
     this.layout = new mxHierarchicalLayout(this.graph, mxConstants.DIRECTION_WEST);
-    // this.layout = this.vmodel.state.graph.layouts['hierarch'];
     this.buildGraph();
   }
 
@@ -116,8 +111,6 @@ export class MxGraphComponent implements OnInit {
     this.graph.setCellsResizable(false);
 
     this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function (sender, evt) {
-      // console.log('CLICK',evt)
-      // console.log('CLICK 2',sender)
       if (evt.properties['cell']) {
         let id = evt.properties['cell'].vertex ? evt.properties['cell'].id : evt.properties['cell'].source.id;
         this.vmodel.events.emit(Events.nodeselected, {id, vertex: evt.properties['cell'].vertex});
@@ -131,9 +124,6 @@ export class MxGraphComponent implements OnInit {
     }));
 
     this.graph.addListener(mxEvent.LABEL_CHANGED, mxUtils.bind(this, function (sender, evt) {
-      // console.log('LABEL CHANGED', evt);
-      // let idNode = evt.properties['cell'].vertex ? evt.properties['cell'].id : evt.properties['cell'].target.id;
-      // let item = evt.properties['cell'].vertex ? this.vmodel.graph.get(idNode): this.vmodel.edges.get(idNode);
 
       if (evt.properties['cell'].vertex) {
         let node = this.vmodel.graph.get(evt.properties['cell'].id)
@@ -142,26 +132,37 @@ export class MxGraphComponent implements OnInit {
       } else {
         let edges = this.vmodel.edges.get(evt.properties['cell'].source.id)
         let edge = edges.find(item => item.id === evt.properties['cell'].id)
-        if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
-          let words = [];
-          evt.properties.value.split(',').forEach(elem => {
-            words.push(elem.trim());
-          });
-          edge.match = words;
-          if (edge.parent.type === NodeType.SpecifierNode) {
-            edge.parent.props.result.seek = words;
-          }
-          console.log('edge', edge, words)
-        } else {
-          return null;
+
+        let words = [];
+        evt.properties.value.split(',').forEach(elem => {
+          words.push(elem.trim());
+        });
+        edge.match = words;
+        if (edge.parent.type === NodeType.SpecifierNode) {
+          edge.parent.props.result.seek = words;
         }
+        console.log('edge', edge, words)
+        if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
+          // if words.length === 0
+
+        } else {
+          // let model = this.graph.model.getCell(evt.properties['cell'].id)
+          // evt.properties['cell'].setStyle = ''
+
+          if (edge.parent.type !== NodeType.SpecifierNode) {
+            edge.error = false
+          } else {
+            edge.match = []
+          }
+
+
+          // edge.
+          // return null;
+        }
+        this.vmodel.events.emit(Events.updatemodel)
       }
     }));
 
-    // this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function (sender, evt) {
-    //   console.log('CHANGE ----------- Cell', evt.properties['cell'])
-    //
-    // }));
   }
 
   private buildGraph() {
@@ -193,9 +194,10 @@ export class MxGraphComponent implements OnInit {
 
   high({id, focus}) {
     if (focus) {
-      this.highlightCellOn(this.graph.model.getCell(id));
+      // this.highlightCellOn(this.graph.model.getCell(id));
+      this.highlight.highlight(this.graph.view.getState(this.graph.model.getCell(id)));
     } else {
-      this.highlightCellReset();
+      this.highlight.resetHandler();
     }
   }
 
@@ -231,34 +233,13 @@ export class MxGraphComponent implements OnInit {
       this.graph.setPanning(true);
       this.graph.centerZoom = false;
       this.graph.panningHandler.useLeftButtonForPanning = true;
-
+      // this.graph.getView().updateStyle = true;
       this.graph.setConnectable(true);
 
       // Disables new connections via "hotspot"
       this.graph.connectionHandler.marker.isEnabled = function () {
         return this.graph.connectionHandler.first != null;
       };
-      // this.graph.cellLabelChanged = function (cell, value, autoSize) {
-      //   this.graph.setValue(cell,value)
-      //   console.log('LABEL CHANGED ',cell)
-      //   console.log('LABEL CHANGED 2',value)
-      // }
-
-
-      // mxIconSet.prototype.destroy = function()
-      // {
-      //   if (thiz.images != null)
-      //   {
-      //     for (var i = 0; i < this.images.length; i++)
-      //     {
-      //       var img = this.images[i];
-      //       img.parentNode.removeChild(img);
-      //     }
-      //   }
-      //
-      //   this.images = null;
-      // };
-
 
       this.graph.addMouseListener({
 
@@ -273,7 +254,7 @@ export class MxGraphComponent implements OnInit {
           }
         },
         mouseMove: function (sender, me) {
-          if (this.currentState != null){// && (me.getState() == this.currentState || me.getState() == null)) {//  //
+          if (this.currentState != null) {// && (me.getState() == this.currentState || me.getState() == null)) {//  //
             let offset;
             if (this.currentState.cell.vertex) {
               offset = 30;
@@ -283,20 +264,13 @@ export class MxGraphComponent implements OnInit {
             let tmp = new mxRectangle(me.getGraphX() - offset,
               me.getGraphY() - offset * 2, 2 * offset, 2 * offset);
             if (mxUtils.intersects(tmp, this.currentState)) {
-              // return;
+              if (thiz.tempImages.length > 0) {
+                return;
+              }
             }
           }
 
           var tmp = thiz.graph.view.getState(me.getCell());
-
-          // Ignores everything but verticesco
-          // if(tmp != null && !thiz.graph.getModel().isVertex(tmp.cell)){
-          //   console.log('IS VERTEX ',tmp)
-          // }
-          // if (thiz.graph.isMouseDown || (tmp != null && !thiz.graph.getModel().isVertex(tmp.cell))) {
-          //   tmp = null;
-          // }
-
 
           if (tmp != this.currentState) {
             if (this.currentState != null) {
@@ -318,7 +292,6 @@ export class MxGraphComponent implements OnInit {
           }
         },
         dragLeave: function (evt, state) {
-          // if (this.currentIconSet !== null) {
           if (!this.currentIconSet) {
             if (thiz.tempImages.length > 0) {
               thiz.tempImages.forEach(i => {
@@ -334,12 +307,10 @@ export class MxGraphComponent implements OnInit {
       const thiz = this;
 
       mxEvent.addMouseWheelListener(function (evt, up) {
-        console.log('eventListener',evt, '  up ',up)
-        // mx.Print = false;
+        console.log('eventListener', evt, '  up ', up)
         if (up && evt.altKey) {
           thiz.graph.zoomIn();
-          // mxEvent.consume(evt);
-        } else if (evt.altKey){
+        } else if (evt.altKey) {
           thiz.graph.zoomOut();
           mxEvent.consume(evt);
         }
@@ -360,15 +331,6 @@ export class MxGraphComponent implements OnInit {
               let edges = thiz.vmodel.edges.get(node.id);
               let ok = edges ? edges.find(edge => edge.error === false) : null;
               let err = edges ? edges.find(edge => edge.error === true) : null;
-              // node.child.forEach(elem => {
-              //   let edges = elem.props.edges.filter(edge => edge.parent.id === node.id);
-              //   if (!ok) {
-              //     ok = edges.find(item => item.error === false);
-              //   }
-              //   if (!err) {
-              //     err = edges.find(item => item.error);
-              //   }
-              // });
 
               if (!ok) {
                 submenu = menu.addItem('Ответ получен', null, null);
@@ -433,15 +395,12 @@ export class MxGraphComponent implements OnInit {
         let img = this.addIcon(`assets/images/${icon.img}`, icon.title, posX, posY);
 
         mxEvent.addListener(img, 'click', mxUtils.bind(this, function (evt) {
-          // this.createNewNode(imgArr[i].type, state.cell.id);
-
           this.modelService.addVertex(new Vertex(null, NodeType[icon.type]), state.cell.id);
           this.cleanTempImages();
         }));
 
         state.view.graph.container.appendChild(img);
         this.tempImages.push(img);
-
       });
     }
 
@@ -479,9 +438,6 @@ export class MxGraphComponent implements OnInit {
         let img = this.addIcon(`assets/images/${icon.img}`, icon.title, posX, posY);
 
         mxEvent.addListener(img, 'click', mxUtils.bind(this, function (evt) {
-          // this.createNewNode(imgArr[i].type, state.cell.id);
-          // let terms = this.getCellPermissions(null,state.cell.id,state.cell.isVertex())
-          // if (terms.addErrorVertex)
           this.modelService.addVertex(new Vertex(null, NodeType[icon.type]), state.cell.id, true);
           this.cleanTempImages()
         }));
@@ -500,28 +456,17 @@ export class MxGraphComponent implements OnInit {
       let img = this.addIcon(`assets/images/${icon.img}`, icon.title, posX, posY);
 
       mxEvent.addListener(img, 'click', mxUtils.bind(this, function (evt) {
-        // if (!mxClient.IS_TOUCH) {
-        // mxEvent.redirectMouseEvents(state.cell, graph, state);
-        // console.log('TOUCH', state);
-        // }
-        // graph.popupMenuHandler.hideMenu();
+
         graph.stopEditing(true);
 
         var pt = mxUtils.convertPoint(graph.container,
           mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-        // console.log('ConnectionHandler',graph.connectionHandler)
 
         graph.connectionHandler.createEdgeState = function (me) {
-          // let edge;
-          // if (icon.type === 'greenEdge') {
           let edge = graph.createEdge(null, null, null, null, null, 'redEdge');
-          // } else {
-          //   edge = graph.createEdge(null, null, null, null, null, 'redEdge');
-          // }
           return new mxCellState(graph.view, edge, graph.getCellStyle(edge));
         };
         graph.connectionHandler.start(state);
-        // graph.isMouseDown = true;
         graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
         mxEvent.consume(evt);
         this.cleanTempImages()
@@ -583,51 +528,6 @@ export class MxGraphComponent implements OnInit {
     }, submenu);
   }
 
-
-  // private createNewNode(nodeType: NodeType, parentId: string, error: boolean = false) {
-  //   const id = 'Node_' + this.counterNodeId++;
-  //   this.modelService.addNewViewNode(id, nodeType, parentId, error);
-  //   // this._eventService._events.emit('updateModel');
-  // }
-
-  // addChild(cell) {
-  //   this.graph.clearSelection();
-  //
-  //   let model = this.graph.getModel();
-  //   let vertex;
-  //
-  //   model.beginUpdate();
-  //   try {
-  //     var geo = this.graph.getCellGeometry(cell);
-  //     vertex = this.graph.insertVertex(this.parent, null, '', geo.x, geo.y, 120, 80);
-  //
-  //     this.graph.view.refresh(vertex);
-  //     let geometry = model.getGeometry(vertex);
-  //     var edge = this.graph.insertEdge(this.parent, null, '', cell, vertex, 'greenEdge');
-  //     this.addOverlay(vertex);
-  //
-  //   } finally {
-  //     model.endUpdate();
-  //     this.layout.execute(this.parent);
-  //     // var morph = new mxMorphing(this.graph);
-  //
-  //     // morph.addListener(mxEvent.DONE, mxUtils.bind(this, function()
-  //     // {
-  //     //   this.graph.getModel().endUpdate();
-  //     //
-  //     //   // if (post != null)
-  //     //   // {
-  //     //   //   post();
-  //     //   // }
-  //     // }));
-  //     //
-  //     // morph.startAnimation();
-  //     // this.graph.view.refresh()
-  //   }
-  //   return vertex;
-  //
-  // }
-
   getCellPermissions(cell: Vertex, cellId?: string, isVertex: boolean = true): Permission {
 
     if (!isVertex) {
@@ -666,32 +566,6 @@ export class MxGraphComponent implements OnInit {
   }
 
 
-
-  // ПОДСВЕТКА ЯЧЕКИ
-  highlightCellOn(cell) {
-    this.highlight.highlight(this.graph.view.getState(cell));
-  }
-
-  highlightCellReset() {
-    this.highlight.resetHandler();
-  }
-
-
-  // public deleteNode(id: string) {
-  //   this.modelService.deleteVertex(id);
-  //   // this._eventService._events.emit('updateModel');
-  // }
-
-  // changeLayout(name) {
-  //   switch (name) {
-  //     case 'tree':
-  //       return this.layouts.tree.execute(this.parent);
-  //     case 'organic':
-  //       return this.layouts.organic.execute(this.parent);
-  //     case 'hierarch':
-  //       return this.layouts.hierarch.execute(this.parent);
-  //   }
-  // }
 
 
   initStyles() {
@@ -797,80 +671,5 @@ export class MxGraphComponent implements OnInit {
 
   }
 
-  // public addNode(id: string) {
-  //   const viewNode = this.modelService.viewModel.get(id);
-  //   this.graph.getModel().beginUpdate();
-  //   try {
-  //     let vObj = this.graph.insertVertex(this.parent, viewNode.id, '', 0, 0, 120, 80, viewNode.type);
-  //     //let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
-  //     this.map.set(viewNode.id, vObj);
-  //     this.graph.insertEdge(this.parent, null, '', this.map.get(viewNode.parent), vObj, 'greenEdge');
-  //   } finally {
-  //     this.layout.execute(this.parent);
-  //     this.graph.getModel().endUpdate();
-  //   }
-  // }
-  //
-  // private addNewNode(id: string, type: string, parent: string, error: boolean = false) {
-  //   let style = error ? 'redEdge' : 'greenEdge';
-  //
-  //   this.graph.getModel().beginUpdate();
-  //   let vObj;
-  //   try {
-  //     vObj = this.graph.insertVertex(this.parent, id, '', 0, 0, 120, 80, type);
-  //     this.map.set(id, vObj);
-  //     // this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, 'greenEdge');
-  //     let edge = this.graph.insertEdge(this.parent, null, '', this.map.get(parent), vObj, style);
-  //   } finally {
-  //     this.layout.execute(this.parent);
-  //     this.graph.getModel().endUpdate();
-  //     // let element = this.graph.view.getState(vObj).shape.node
-  //     // var clickEvent  = document.createEvent ('MouseEvents');
-  //     // clickEvent.initEvent('dblclick', true, true);
-  //     // element.dispatchEvent(clickEvent);
-  //   }
-  // }
-  //
-  // private buildModel() {
-  //   const mapNode = new Map();
-  //   this.map = new Map();
-  //   // console.log('VIEW ',this.viewModel)
-  //   this.graph.getModel().beginUpdate();
-  //   try {
-  //     this.viewModel.forEach((node: ViewNode) => {
-  //
-  //       let vObj = this.graph.insertVertex(this.parent, node.id, node.props[0].value, 0, 0, 120, 80, node.type);
-  //       // let vCell = this.graph.insertVertex(vObj, null, node.id, 0, 20, 120, 40, this.styleCell);
-  //       // this.addOverlay(vObj)
-  //       this.map.set(node.id, vObj);
-  //       mapNode.set(node.id, node);
-  //     });
-  //
-  //     this.map.forEach((v, k) => {
-  //       let object = mapNode.get(k);
-  //       if (object.edgeList !== undefined && object.edgeList.length !== 0) {
-  //         object.edgeList.forEach((nodeName) => {
-  //           let p = this.graph.insertEdge(this.parent, null, nodeName.match ? nodeName.match[0] : '', this.map.get(k), this.map.get(nodeName.id), 'greenEdge');
-  //         });
-  //       }
-  //       if (object.edgeIfEmpty && object.edgeIfEmpty.length !== 0) {
-  //         object.edgeIfEmpty.forEach(node => {
-  //           let edge = this.graph.insertEdge(this.parent, null, node.match ? node.match[0] : '', this.map.get(k), this.map.get(node.id), 'redEdge');
-  //           mxEdgeHandler.prototype.isConnectableCell = function(cell) {
-  //             console.log('CHECK IS CONNECT', cell);
-  //             // return this.graph.connectionHandler.isConnectableCell(cell);
-  //           };
-  //           console.log('EDGE ', edge);
-  //
-  //         });
-  //       }
-  //     });
-  //   } catch (e) {
-  //     console.error(`mx-graph.component Erorr: ${e}`);
-  //   } finally {
-  //     this.layout.execute(this.parent);
-  //     this.graph.getModel().endUpdate();
-  //   }
-  // }
 
 }

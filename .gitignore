@@ -46,3 +46,6 @@ testem.log
 Thumbs.db
 proxy.conf.json
 .gitignore
+package-lock.json
+
+workspace.xml
