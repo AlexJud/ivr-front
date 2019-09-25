@@ -5,24 +5,22 @@
   <mat-drawer-content>
     <div class="wrapper">
       <div class="content">
+
         <app-header></app-header>
+
         <app-grid-toolbar #data (toggleDrawer)="sideNav.toggle()"></app-grid-toolbar>
-          <!-- <div class="tree-container">
-            <app-tree class="tree"></app-tree>
-          </div> -->
+
         <div class="mx-graph">
+
           <app-mx-graph class="mxGraph"></app-mx-graph>
+
           <app-node-settings-panel class="right-panel"></app-node-settings-panel>
+
         </div>
-
-
       </div>
         <div class="footer">
-        <!-- <app-grid-settings></app-grid-settings> -->
       </div>
     </div>
-    <!-- <button (click)="sideNav.toggle()" mat-button>Toggle SideNav</button> -->
-    <!-- <button (click)="onTogglePosition(nav_position)" mat-button>Toggle Position {{ nav_position }}</button> -->
   </mat-drawer-content>
 </mat-drawer-container>
 <!-- <router-outlet></router-outlet> -->

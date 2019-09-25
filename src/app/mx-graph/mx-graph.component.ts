@@ -1,12 +1,17 @@
-import {NodeType} from './../graph/nodes/nodes';
+import {NodeType} from '../models/types';
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {ModelService} from '../services/model.service';
-import {EventService} from '../services/event.service';
-import {Node} from '../graph/nodes/nodes';
-import {ViewNode} from '../view-model-nodes/viewNode';
-import {arrayControlsImage} from './graph-settings/properties';
-import {Edge, GraphViewModel, Vertex} from '../models/vertex';
+import {
+  arrayControlsImage,
+  branchNodeStyle,
+  classNodeStyle, edgeStyle, endNodeStyle,
+  redArrow,
+  specNodeStyle
+} from './properties';
+import { Vertex} from '../models/vertex';
 import {Events} from '../models/events';
+import {GraphViewModel} from "../models/graph-v-model";
+import {Edge} from "../models/edge";
 // import {mxResources, mxVertexHandler} from "mxgraph";
 
 declare var mxClient: any;
@@ -118,7 +123,7 @@ export class MxGraphComponent implements OnInit {
     }));
 
     this.graph.connectionHandler.addListener(mxEvent.CONNECT, mxUtils.bind(this, function (sender, evt) {
-      console.log('connection edge', evt);
+      // console.log('connection edge', evt);
       let error = evt.properties['cell'].style.indexOf('redEdge') > -1;
       this.modelService.bindVertex(evt.properties.cell.source.id, evt.properties.cell.target.id, error);
     }));
@@ -141,28 +146,88 @@ export class MxGraphComponent implements OnInit {
         if (edge.parent.type === NodeType.SpecifierNode) {
           edge.parent.props.result.seek = words;
         }
-        console.log('edge', edge, words)
+        // console.log('edge', edge, words)
         if (evt.properties['cell'].style.indexOf('greenEdge') > -1) {
-          // if words.length === 0
 
         } else {
-          // let model = this.graph.model.getCell(evt.properties['cell'].id)
-          // evt.properties['cell'].setStyle = ''
-
           if (edge.parent.type !== NodeType.SpecifierNode) {
             edge.error = false
           } else {
             edge.match = []
           }
-
-
-          // edge.
-          // return null;
         }
         this.vmodel.events.emit(Events.updatemodel)
       }
     }));
 
+    this.graph.addMouseListener({
+
+      currentState: null,
+      currentIconSet: null,
+
+      mouseDown: function (sender, me) {
+        if (this.currentState != null) {
+          this.dragLeave(me.getEvent(), this.currentState);
+          this.currentState = null;
+        }
+      },
+      mouseMove: function (sender, me) {
+        if (this.currentState != null) {// && (me.getState() == this.currentState || me.getState() == null)) {//  //
+          let offset;
+          if (this.currentState.cell.vertex) {
+            offset = 30;
+          } else {
+            offset = 5
+          }
+          let tmp = new mxRectangle(me.getGraphX() - offset,
+            me.getGraphY() - offset * 2, 2 * offset, 2 * offset);
+          if (mxUtils.intersects(tmp, this.currentState)) {
+            if (thiz.tempImages.length > 0) {
+              return;
+            }
+          }
+        }
+        var tmp = thiz.graph.view.getState(me.getCell());
+        if (tmp != this.currentState) {
+          if (this.currentState != null) {
+            this.dragLeave(me.getEvent(), this.currentState);
+          }
+          this.currentState = tmp;
+          if (this.currentState != null) {
+            this.dragEnter(me.getEvent(), this.currentState);
+          }
+        }
+      },
+      mouseUp: function (sender, me) {
+      },
+      dragEnter: function (evt, state) {
+        if (this.currentIconSet == null) {
+          this.currentIconSet = thiz.mxIconSet(state);
+        }
+      },
+      dragLeave: function (evt, state) {
+        if (!this.currentIconSet) {
+          if (thiz.tempImages.length > 0) {
+            thiz.tempImages.forEach(i => {
+              i.parentNode.removeChild(i);
+            });
+          }
+          this.currentIconSet = null;
+        }
+      }
+    });
+
+    const thiz = this;
+
+    mxEvent.addMouseWheelListener(function (evt, up) {
+      console.log('eventListener', evt, '  up ', up)
+      if (up && evt.altKey) {
+        thiz.graph.zoomIn();
+      } else if (evt.altKey) {
+        thiz.graph.zoomOut();
+        mxEvent.consume(evt);
+      }
+    });
   }
 
   private buildGraph() {
@@ -183,14 +248,13 @@ export class MxGraphComponent implements OnInit {
       })
 
     } catch (e) {
-      console.error('Error rendex graph', e);
+      console.error('Error build graph', e);
     } finally {
       this.layout.execute(this.parent);
       this.graph.getModel().endUpdate();
     }
 
   }
-
 
   high({id, focus}) {
     if (focus) {
@@ -241,80 +305,7 @@ export class MxGraphComponent implements OnInit {
         return this.graph.connectionHandler.first != null;
       };
 
-      this.graph.addMouseListener({
-
-
-        currentState: null,
-        currentIconSet: null,
-
-        mouseDown: function (sender, me) {
-          if (this.currentState != null) {
-            this.dragLeave(me.getEvent(), this.currentState);
-            this.currentState = null;
-          }
-        },
-        mouseMove: function (sender, me) {
-          if (this.currentState != null) {// && (me.getState() == this.currentState || me.getState() == null)) {//  //
-            let offset;
-            if (this.currentState.cell.vertex) {
-              offset = 30;
-            } else {
-              offset = 5
-            }
-            let tmp = new mxRectangle(me.getGraphX() - offset,
-              me.getGraphY() - offset * 2, 2 * offset, 2 * offset);
-            if (mxUtils.intersects(tmp, this.currentState)) {
-              if (thiz.tempImages.length > 0) {
-                return;
-              }
-            }
-          }
-
-          var tmp = thiz.graph.view.getState(me.getCell());
-
-          if (tmp != this.currentState) {
-            if (this.currentState != null) {
-              this.dragLeave(me.getEvent(), this.currentState);
-            }
-
-            this.currentState = tmp;
-
-            if (this.currentState != null) {
-              this.dragEnter(me.getEvent(), this.currentState);
-            }
-          }
-        },
-        mouseUp: function (sender, me) {
-        },
-        dragEnter: function (evt, state) {
-          if (this.currentIconSet == null) {
-            this.currentIconSet = thiz.mxIconSet(state);
-          }
-        },
-        dragLeave: function (evt, state) {
-          if (!this.currentIconSet) {
-            if (thiz.tempImages.length > 0) {
-              thiz.tempImages.forEach(i => {
-                i.parentNode.removeChild(i);
-              });
-            }
-            this.currentIconSet = null;
-          }
-        }
-      });
-
-
       const thiz = this;
-
-      mxEvent.addMouseWheelListener(function (evt, up) {
-        console.log('eventListener', evt, '  up ', up)
-        if (up && evt.altKey) {
-          thiz.graph.zoomIn();
-        } else if (evt.altKey) {
-          thiz.graph.zoomOut();
-          mxEvent.consume(evt);
-        }
-      });
 
       this.graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
         if (!cell) {
@@ -565,96 +556,13 @@ export class MxGraphComponent implements OnInit {
     return permission;
   }
 
-
-
-
   initStyles() {
-    let branchNodeStyle = {};
-    branchNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
-    // actNodeStyle[mxConstants.STYLE_OPACITY] = 50;
-    branchNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
-    branchNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    branchNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
-    branchNodeStyle[mxConstants.STYLE_ROUNDED] = 0;
-    branchNodeStyle[mxConstants.STYLE_ARCSIZE] = 10;
-    branchNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
-    branchNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
-    branchNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#C2C923';
-    // actNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#09af00';
-    branchNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
-    branchNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
-    // actNodeStyle[mxConstants.WORD_WRAP] = 'break-word';
-    branchNodeStyle[mxConstants.STYLE_WHITE_SPACE] = 'wrap';
-    this.graph.getStylesheet().putCellStyle('BranchNode', branchNodeStyle);
-
-    let classNodeStyle = {};
-    classNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RHOMBUS;
-    // classNodeStyle[mxConstants.STYLE_OPACITY] = 50;
-    classNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
-    classNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    classNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
-    classNodeStyle[mxConstants.STYLE_ROUNDED] = 0;
-    classNodeStyle[mxConstants.STYLE_ARCSIZE] = 10;
-    // classNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
-    classNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#FCB414';
-    classNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
-    classNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#ee6002';
-    classNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
-    classNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
-    classNodeStyle[mxConstants.STYLE_WHITE_SPACE] = 'wrap';
-    classNodeStyle[mxConstants.STYLE_SPACING] = '10px';
-    this.graph.getStylesheet().putCellStyle('ClassifierNode', classNodeStyle);
-
-    let specNodeStyle = {};
-    specNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_HEXAGON;
-    // specNodeStyle[mxConstants.STYLE_OPACITY] = 50;
-    specNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#FFFFFF';
-    specNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    specNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
-    specNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
-    specNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
-    // specNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#2196F3';
-    specNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#16A5C7';
-    specNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
-    specNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
-    specNodeStyle[mxConstants.STYLE_WHITE_SPACE] = 'wrap';
-    specNodeStyle[mxConstants.STYLE_SPACING] = '10px';
-    this.graph.getStylesheet().putCellStyle('SpecifierNode', specNodeStyle);
-
-    let endNodeStyle = {};
-    endNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_ELLIPSE;
-    // endNodeStyle[mxConstants.STYLE_OPACITY] = 50;
-    endNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#ffffff';
-    endNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
-    endNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
-    endNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
-    endNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
-    // endNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#FF4081';
-    endNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#F04E63';
-    endNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
-    endNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
-    endNodeStyle[mxConstants.STYLE_WHITE_SPACE] = 'wrap';
-    this.graph.getStylesheet().putCellStyle('EndNode', endNodeStyle);
-
-    let edgeStyle = {};
-    edgeStyle[mxConstants.STYLE_STROKECOLOR] = '#107539';
-    edgeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
-    edgeStyle[mxConstants.STYLE_VERTICAL_LABEL_POSITION] = 'top';
-    edgeStyle[mxConstants.STYLE_VERTICAL_ALIGN] = 'bottom';
-    edgeStyle[mxConstants.STYLE_FONTSIZE] = '14';
-
-    this.graph.getStylesheet().putCellStyle('greenEdge', edgeStyle);
-
-    let redEdge = {
-      verticalLabelPosition: 'top',
-      verticalAlign: 'bottom',
-      strokeWidth: 2,
-      strokeColor: '#ff0500',
-      fontSize: 14,
-      fontColor: '#730017',
-
-    };
-    this.graph.getStylesheet().putCellStyle('redEdge', redEdge);
+    this.graph.getStylesheet().putCellStyle('BranchNode', branchNodeStyle());
+    this.graph.getStylesheet().putCellStyle('ClassifierNode', classNodeStyle());
+    this.graph.getStylesheet().putCellStyle('SpecifierNode', specNodeStyle());
+    this.graph.getStylesheet().putCellStyle('EndNode', endNodeStyle());
+    this.graph.getStylesheet().putCellStyle('greenEdge', edgeStyle());
+    this.graph.getStylesheet().putCellStyle('redEdge', redArrow);
   }
 
   addOverlay(cell: string) {

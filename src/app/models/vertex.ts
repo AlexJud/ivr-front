@@ -1,16 +1,4 @@
-import {EventEmitter} from 'events';
-import {NodeType} from '../graph/nodes/nodes';
-
-export class GraphViewModel {
-  // graph: Map<string, Vertex>;
-  // edges: Map<string,Edge[]>
-  state: any;
-  events: EventEmitter;
-
-  constructor(public graph: Map<string, Vertex>,public edges: Map<string,Edge[]>) {
-    this.events = new EventEmitter();
-  }
-}
+import {NodeType} from './types';
 
 export class Vertex {
   id: string;
@@ -45,8 +33,6 @@ class VertexProperties {
 }
 
 class VertexState {
-  // errorEdge:any;
-  // logicEdge:any;
   constructor(){}
 }
 
@@ -62,18 +48,4 @@ export class VertexResult {
   constructor() {  }
 }
 
-export class Edge {
-  id:string
-  parent: Vertex;
-  match: string[] = [];
-  error: boolean = false;
-  child: Vertex;
 
-  constructor(id: string, parent: Vertex, match: string[], isError: boolean = false, child:Vertex) {
-    this.parent = parent;
-    this.match = match;
-    this.error = isError;
-    this.id = id;
-    this.child = child
-  }
-}

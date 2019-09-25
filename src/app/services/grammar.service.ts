@@ -1,11 +1,11 @@
-import { Strings } from '../graph/nodeProps/optionStrings';
+import { Strings } from '../models/optionStrings';
 import { Injectable } from '@angular/core';
 
 @Injectable()
 export class GrammarService {
     private _grammars: string[]
     private _asrTypes: ['Слитное распознавание', 'Распознавание по грамматике']
-    
+
    constructor() {
        this._grammars = [Strings.LOAD_GRAMMAR, 'grammar.xml']
    }
@@ -14,7 +14,7 @@ export class GrammarService {
    }
 
    get asrTypes(): string[] {
-       return this._asrTypes 
+       return this._asrTypes
    }
 
    parseGrammar(grammarPath: string): string {
