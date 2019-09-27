@@ -5,8 +5,9 @@ import {Vertex} from '../models/vertex';
 import {Edge} from '../models/edge';
 import {Events} from '../models/events';
 import * as _ from 'lodash';
-import {NodeType} from "../models/types";
-import {GraphViewModel} from "../models/graph-v-model";
+import {NodeType} from '../models/types';
+import {GraphViewModel} from '../models/graph-v-model';
+import {from, Observable, of} from 'rxjs';
 
 type ChildEdges = { child: Vertex, edge: Edge };
 
@@ -18,8 +19,6 @@ export interface TableView {
 @Injectable()
 export class ModelService {
 
-
-  private _model: Node[];
   // private asrTypes: string[];
 
   private sourceModel;
@@ -31,14 +30,6 @@ export class ModelService {
   constructor(private _http: HttpService,
               private _eventService: EventService) {
     // this.asrTypes = ['Слитное распознавание', 'Распознавание по грамматике'];
-  }
-
-  get model(): Node[] {
-    return this._model;
-  }
-
-  set model(model: Node[]) {
-    this._model = model;
   }
 
   init() {
@@ -133,12 +124,12 @@ export class ModelService {
       this.graphViewModel.graph.delete(vertex.id);
       this.graphViewModel.events.emit(Events.noderemoved);
     } else {
-      let edges = this.graphViewModel.edges.get(vertex.id)
-      let edge = edges.find(item => item.id === edgeId)
+      let edges = this.graphViewModel.edges.get(vertex.id);
+      let edge = edges.find(item => item.id === edgeId);
       edge.child.parent.splice(edge.child.parent.indexOf(edge.parent), 1);
       edge.parent.child.splice(edge.parent.child.indexOf(edge.child), 1);
 
-      this.deleteEdgeFromMap(edge.parent.id, edge)
+      this.deleteEdgeFromMap(edge.parent.id, edge);
       this.graphViewModel.events.emit(Events.edgeremoved);
     }
   }
@@ -171,7 +162,7 @@ export class ModelService {
       this.sourceModel = response;
       let result = this.convertToViewModel(response);
       this.graphViewModel.graph = result.graph;
-      this.graphViewModel.edges = result.edges
+      this.graphViewModel.edges = result.edges;
       this.graphViewModel.events.emit(Events.loadedmodel);
     }, error => console.error('Error get model: ', error));
   }
@@ -242,9 +233,9 @@ export class ModelService {
           if ((child.match.length === 0) && (node.type !== NodeType.SpecifierNode)) {
             error = true;
           }
-          let temp = new Edge(this.generateEdgeId(), parent, child.match, error, vert)
-          console.log('EDGE CREATE ', temp)
-          this.addEdgeToMap(node.id, temp, edges)
+          let temp = new Edge(this.generateEdgeId(), parent, child.match, error, vert);
+          console.log('EDGE CREATE ', temp);
+          this.addEdgeToMap(node.id, temp, edges);
           vert.parent.push(parent);
           parent.child.push(vert);
         });
@@ -254,7 +245,7 @@ export class ModelService {
           let vert = map.get(child.id);
           this.addEdgeToMap(node.id, new Edge(this.generateEdgeId(), parent, [], true, vert), edges);
           parent.child.push(vert);
-          vert.parent.push(parent)
+          vert.parent.push(parent);
         });
       }
 
@@ -317,7 +308,7 @@ export class ModelService {
 
     this.graphViewModel.edges.forEach((value, key) => {
       value.forEach(edge => {
-        let parent = target.find(item => item.id === key)
+        let parent = target.find(item => item.id === key);
         if (edge.error) {
           if (parent['edgeIfEmpty']) {
             parent['edgeIfEmpty'].push({id: edge.child.id, match: edge.match});
@@ -327,8 +318,8 @@ export class ModelService {
         } else {
           parent['edgeList'].push({id: edge.child.id, match: edge.match});
         }
-      })
-    })
+      });
+    });
 
     console.log('SAVE MODEL', target);
     return target;

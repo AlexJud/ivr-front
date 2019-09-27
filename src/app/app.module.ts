@@ -17,7 +17,7 @@ import {MatButtonModule, MatIconModule, MatListModule, MatSidenavModule} from '@
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatTreeModule} from '@angular/material/tree';
 import {HeaderComponent} from './components/header/header.component';
-import {GridToolbarComponent} from './components/grid-toolbar/grid-toolbar.component';
+import {DialogComponent, GridToolbarComponent} from './components/grid-toolbar/grid-toolbar.component';
 import {CallButtonComponent} from './components/call-button/call-button.component';
 import {MxGraphComponent} from './mx-graph/mx-graph.component';
 // import { TreeComponent } from './tree/tree.component';
@@ -52,7 +52,8 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
     // TreeComponent,
     // GridSettingsComponent,
     CallViewerComponent,
-    NodeSettingsPanelComponent
+    NodeSettingsPanelComponent,
+    DialogComponent
   ],
   imports: [
     BrowserModule,
@@ -82,6 +83,9 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
   ],
   providers: [ ModelService, EventService, HttpService, GrammarService,  WebSocketAPI ],
   bootstrap: [AppComponent],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  entryComponents: [
+    DialogComponent
+  ]
 })
 export class AppModule { }

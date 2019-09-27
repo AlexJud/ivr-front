@@ -14,7 +14,7 @@
     <div>
       <div class="textarea-field">
         <mat-form-field>
-          <textarea matInput placeholder="Синтезировать" [(ngModel)]="currentNode.speech" (change)="emitUpdateModel()"></textarea>
+          <textarea matInput placeholder="Синтезировать" [(ngModel)]="currentNode.speech" (keyup)="emitUpdateModel($event)"></textarea>
         </mat-form-field>
         <mat-form-field *ngIf="currentNode.type === 'SpecifierNode'">
           <input matInput placeholder="Сохранить ответ c именем" [(ngModel)]="currentNode.props.result.name">

@@ -1,0 +1,89 @@
+<h2 mat-dialog-title>Автоматизированный сервис выявления потребностей</h2>
+<mat-dialog-content class="mat-typography">
+  <mat-vertical-stepper>
+    <mat-step>
+      <ng-template matStepLabel>Обзор сервиса</ng-template>
+      <p>Сервис предоставляет возможность построения сценария телефонного диалога с собеседником. С помощью сервеса
+        можно
+        озвучивать необходиму информацию и записывать ответы собеседника. Редактирование диалогов сценария происходит с
+        использованием визуального редактора</p>
+      <img src="assets/images/help/start.png" width="100%">
+      <p>Текст написанный в центре фигур, синтезируется и воспроизводится собеседнику и в зависимости от его ответов,
+        происходит дальнейший переход между блоками. Надписи над
+        стрелками указывают на ключевые слова (первое из списка) для перехода по ветке</p>
+      <div>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </mat-step>
+    <mat-step>
+
+      <ng-template matStepLabel>Создание сценария</ng-template>
+      <p>Создание сценария происходит путем добавления новых блоков и переходов между ними. </p>
+      <img src="assets/images/help/1.png">
+
+      <p> Блоки можно добавлять с помощью
+        иконок вокруг фигуры или через контекстное меню (нажитем
+        правой кнопкой мыши на фигуре диалога). </p>
+      <img src="assets/images/help/2.png">
+      <img src="assets/images/help/3.png">
+
+
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </mat-step>
+    <mat-step>
+
+      <ng-template matStepLabel>Типа блоков сценария</ng-template>
+      <p>Сервис предусматривает три речевых блока.</p>
+      <img src="assets/images/help/4.png">
+      <img src="assets/images/help/5.png">
+      <img src="assets/images/help/7.png">
+      <p>и системный блок, для взаимодействия с базой данных. Он не синтезирует речь.</p>
+      <img src="assets/images/help/6.png">
+
+
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Редактирование</ng-template>
+      <p>Текст для синтезирования можно вводить как в сам блок (двойной клик мыши переводит в рижим редактирования
+        содержимое блока), так и в панели справа</p>
+      <img src="assets/images/help/8.png">
+      <p> Ключевые слова можно, так же добавлять на графе и в панели. Для добавления нескольких слов: на графе - слова
+        вводятся через запятую ",", а в панели через ввод слова и нажания клавиши "Enter"</p>
+      <img src="assets/images/help/9.png">
+      <p>На графе отображается только первое слово из списка. При редактировании ключевых слов на графе, все слова
+      перезаписываются
+      </p>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Запись ответов</ng-template>
+      <p>Блок записи ответов может сохранять сказанное собеседником ключевое слово в заданную переменную, которую можно
+        использовать в речи или сохранить в базу данных с помощью cистемного блока. Если ключевое слово не названо,
+        речевой модуль повторяется или при наличии ветки с красной стрелкой, переходит к другому блоку</p>
+      <img src="assets/images/help/10.png">
+      <p>Если ключевые слова не указаны, то записывается любой ответ</p>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+      </div>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Приступить к работе со сценарием</ng-template>
+      <p>Теперь Вы знаете как создать сценарий</p>
+      <p>Для тестового диалога, необходимо в меню соединиться с серверами: телефонии и обработки ответов, предварительно сохранив свой сценарий в панели управления</p>
+
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+      </div>
+    </mat-step>
+  </mat-vertical-stepper>
+</mat-dialog-content>

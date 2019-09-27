@@ -237,7 +237,7 @@ export class MxGraphComponent implements OnInit {
     try {
       this.vmodel.graph.forEach((node: Vertex) => {
         console.log('GRAPH', node)
-        let vert = this.graph.insertVertex(this.parent, node.id, node.speech, 0, 0, 120, 80, node.type);
+        let vert = this.graph.insertVertex(this.parent, node.id, node.speech,0 , 0, 120, 80, node.type);
         mapCells.set(node.id, vert);
       });
 

@@ -1,9 +1,14 @@
-import {Component, OnInit, Output, EventEmitter} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, Inject} from '@angular/core';
 import {EventService} from '../../services/event.service';
 import { NodeType } from '../../models/types';
 import {ModelService} from "../../services/model.service";
+import {MatDialog} from '@angular/material/dialog'
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
-
+export interface DialogData {
+  animal: string;
+  name: string;
+}
 
 @Component({
   selector: 'app-grid-toolbar',
@@ -18,7 +23,12 @@ export class GridToolbarComponent implements OnInit {
   nodeDescription: Map<string, string>
   description: string
 
-  constructor(private modelService: ModelService) {
+  animal: string;
+  name: string;
+
+
+  constructor(private modelService: ModelService, private dialog: MatDialog) {
+
     this.nodeDescription = new Map<string, string>()
     this.nodeDescription.set(NodeType.BranchNode,
       'Задаёт вопрос, распознаёт и сохраняет ответ от пользователя для дальнейшей обработки.')
@@ -69,4 +79,39 @@ export class GridToolbarComponent implements OnInit {
   load() {
     this.modelService.requestModel()
   }
+
+  openDialog() {
+    const dialogRef = this.dialog.open(DialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: ${result}`);
+    });
+  }
+
 }
+
+
+@Component({
+  selector: 'dialog-component',
+  templateUrl: 'modal-page.component.html',
+})
+
+export class DialogComponent {
+  isLinear = false;
+  firstFormGroup: FormGroup;
+  secondFormGroup: FormGroup;
+
+  constructor(private _formBuilder: FormBuilder) {}
+
+  ngOnInit() {
+    this.firstFormGroup = this._formBuilder.group({
+      firstCtrl: ['', Validators.required]
+    });
+    this.secondFormGroup = this._formBuilder.group({
+      secondCtrl: ['', Validators.required]
+    });
+  }
+}
+
+
+

@@ -137,8 +137,11 @@ export class NodeSettingsPanelComponent implements OnInit {
   onHover(id: string, focus: boolean) {
     this.vmodel.events.emit(Events.cellhighlight, {id, focus});
   }
-  emitUpdateModel(){
-    this.vmodel.events.emit(Events.updatemodel, this.currentNode.id)
+  emitUpdateModel(event){
+    if(event.key === 'Enter'){
+      this.currentNode.speech = this.currentNode.speech.substring(0,this.currentNode.speech.length - 1)
+      this.vmodel.events.emit(Events.updatemodel, this.currentNode.id)
+    }
   }
 
   isChildrenExist(parentId:string){
