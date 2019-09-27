@@ -39,6 +39,7 @@ declare var mxCellTracker: any;
 declare var mxIconSet: any;
 declare var mxRectangle: any;
 declare var mxCellState: any;
+declare var mxGeometry: any;
 
 // declare var require: any;
 // const mx = require('mxgraph')
@@ -116,6 +117,7 @@ export class MxGraphComponent implements OnInit {
     this.graph.setCellsResizable(false);
 
     this.graph.addListener(mxEvent.CLICK, mxUtils.bind(this, function (sender, evt) {
+      console.log('CLICK',evt)
       if (evt.properties['cell']) {
         let id = evt.properties['cell'].vertex ? evt.properties['cell'].id : evt.properties['cell'].source.id;
         this.vmodel.events.emit(Events.nodeselected, {id, vertex: evt.properties['cell'].vertex});
@@ -284,6 +286,7 @@ export class MxGraphComponent implements OnInit {
       this.graph = new mxGraph(container);
       // const mxRubberband1 = new mxRubberband(this.graph);
       this.parent = this.graph.getDefaultParent();
+      this.parent.setGeometry(new mxGeometry(300,300,0,0))
       this.graph.graphHandler.setRemoveCellsFromParent(false);
       this.graph.resetEdgesOnMove = true;
       this.graph.graphHandler.setSelectEnabled(false);
