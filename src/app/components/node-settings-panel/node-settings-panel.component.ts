@@ -13,7 +13,11 @@ import {Events} from '../../models/events';
 import {Vertex, VertexResult} from '../../models/vertex';
 import {Edge} from '../../models/edge';
 import * as _ from 'lodash';
-import {GraphViewModel} from "../../models/graph-v-model";
+import {GraphViewModel} from '../../models/graph-v-model';
+import {startWith} from 'rxjs/operators';
+
+// import {commands} from '../../models/commands';
+
 
 @Component({
   selector: 'app-node-settings-panel',
@@ -21,10 +25,24 @@ import {GraphViewModel} from "../../models/graph-v-model";
   styleUrls: ['./node-settings-panel.component.scss']
 })
 export class NodeSettingsPanelComponent implements OnInit {
+
+  // commands =[
+  //   {name: null, value:  'Нет комманд'},
+  //   {name: 'saveToRedmine', value:  'Сохранить как задачу в RedMine'}
+  // ]
+  commands = [
+    {name: null, value: 'Нет комманд'},
+    // {name: 'SaveToRedMine', value: 'Сохранить как задачу в RedMine'}
+  ];
+
   @ViewChild('file', {static: false}) file: ElementRef;
   isProgress = false;
   currentNode: Vertex;
-  currentUserVar: VertexResult=new VertexResult();
+  currentUserVar: VertexResult = new VertexResult();
+  currentEdge: Edge;
+  // currentEdges: Edge[];
+  // commands;
+
   model;
   myControl = new FormControl();
   visible = true;
@@ -35,8 +53,8 @@ export class NodeSettingsPanelComponent implements OnInit {
 
   matChildren = false;
 
-  vmodel :GraphViewModel;
-  userVars: any[] = []
+  vmodel: GraphViewModel;
+  userVars: any[] = [];
 
   panelOpenState = false;
 
@@ -49,10 +67,27 @@ export class NodeSettingsPanelComponent implements OnInit {
 
   ngOnInit() {
     this.vmodel = this.modelService.graphViewModel;
-    console.log('CHECH ID')
-    this.vmodel.events.addListener(Events.nodeselected, (obj) => {
-      this.setDataSource(obj.id);
-      this.matChildren = !obj.vertex;
+    this.vmodel.events.addListener(Events.nodeselected, (cell) => {
+      console.log('message recieved: ', cell);
+      if (cell.vertex) {
+        console.log('TRACE1 VERTEX', cell.vertex);
+        this.currentEdge = null;
+        this.setDataSource(cell.vertex);
+      } else if (cell.edge) {
+        console.log('TRACE2 EDGES', cell.edge);
+        this.currentNode = null;
+        this.setEdgeSelected(cell.edge);
+        // if ( cell.node.source.id.indexOf('_')===0) {
+        //   this.setEdgeSelected(cell.node.id,cell.node.source.id.substring(1));
+        // } else {
+        //   this.setEdgeSelected(cell.node.id, cell.node.source.id);
+        // }
+      } else {
+        this.currentEdge = null;
+        this.currentNode = null;
+      }
+      // this.matChildren = !obj.vertex;
+
     });
 
     // this.setDataSource({node: 'root'})
@@ -60,24 +95,41 @@ export class NodeSettingsPanelComponent implements OnInit {
 
     // this.model = this.modelService.model;
 
+    this._http.getCommands().subscribe((data:any[]) => {
+      data.forEach(rec => {
+        console.log('Data get classes ',rec)
+        this.commands.push({name:rec.name,value:rec.description})
+      })
+    })
+
   }
 
   setDataSource(cellId: string) {
+    console.log('CELLID ', cellId);
     // this.currentNode = this.modelService.viewModel.get(data.node)
     this.currentNode = this.vmodel.graph.get(cellId);
-    if (this.currentNode.type === NodeType.SystemNode){
-     this.userVars = this.filterUserVars()
+    if (this.currentNode.type === NodeType.SystemNode) {
+      this.userVars = this.filterUserVars();
     }
     console.log(this.currentNode);
   }
 
-  setValuetoSysVar(event){
-    const value = event.target.value
-    this.currentUserVar.sysname = value;
-    this.currentNode.props.result.name = this.currentUserVar.name
-    this.currentNode.props.result.sysname = value
+  setEdgeSelected(edge: Edge) {
+    console.log('new edge selected', edge);
+    // let edges = this.vmodel.edges.get(parentId);
+    // this.currentEdges = array;
+    this.currentEdge = edge;
+
+    console.log('this.currentEdge', this.currentEdge);
+
   }
 
+  setValuetoSysVar(event) {
+    // const value = event.target.value
+    // this.currentUserVar.sysname = value;
+    // this.currentNode.props.result.name = this.currentUserVar.name
+    // this.currentNode.props.result.sysname = value
+  }
 
 
   // changeGrammar(selected: string, index: number) {
@@ -105,9 +157,9 @@ export class NodeSettingsPanelComponent implements OnInit {
   //   }
   // }
 
-  show(){
+  show() {
     // console.log('EVENT',event)
-    console.log('DATA',this.currentUserVar)
+    console.log('DATA', this.currentUserVar);
   }
 
   uploadFile(event: any) {
@@ -137,48 +189,69 @@ export class NodeSettingsPanelComponent implements OnInit {
   onHover(id: string, focus: boolean) {
     this.vmodel.events.emit(Events.cellhighlight, {id, focus});
   }
-  emitUpdateModel(event){
-    if(event.key === 'Enter'){
-      this.currentNode.speech = this.currentNode.speech.substring(0,this.currentNode.speech.length - 1)
-      this.vmodel.events.emit(Events.updatemodel, this.currentNode.id)
+
+  emitUpdateModel(event) {
+    if (event.key === 'Enter') {
+      this.currentNode.speech = this.currentNode.speech.substring(0, this.currentNode.speech.length - 1);
+      this.vmodel.events.emit(Events.updatemodel, this.currentNode.id);
     }
   }
 
-  isChildrenExist(parentId:string){
-    let edges = this.vmodel.edges? this.vmodel.edges.get(parentId): null;
-    return edges && edges.length > 0
-  }
-
-
-
-  filterChildEdges(child: Vertex, parentId): Array<string> {
-    // let edges = child.props.edges.find(edge => edge.parent.id === parentId);
-    let edges = this.vmodel.edges.get(parentId)
-    let edge = edges? edges.find(item => item.child.id === child.id):null;
-    return edge ? edge.match : [];
-  }
-
-  filterEdges(parentId):Array<Edge>{
-    let edges = this.vmodel.edges.get(parentId);
-    // console.log('EDGES ',edges)
-    return edges? edges: []
-  }
-
-  filterUserVars():Array<any>{
-    console.log('TRACE FILTER')
-    let array = []
-    this.vmodel.graph.forEach(node => {
-      if (node.type === NodeType.SpecifierNode) {
-        if(node.props.result.name){
-          array.push({name:node.props.result.name,value:node.props.result})
-        }
+  changeEdgeColor() {
+      let allEdges = this.vmodel.edges.get(this.currentEdge.parent.id)
+      let edges =  allEdges.filter(edge => edge.error === true);
+      if (edges.length > 1) {
+        alert('Не можеть быть больше 2х красных стрелок');
+        this.currentEdge.error = false;
       }
-    })
-    console.log('ARRAY VARS',array)
+      if (edges.length <= 1) {
+        // this.currentEdge.error = true;
+        this.vmodel.events.emit(Events.updatemodel, null);
+      } else {
+        console.error('Ошибка переключения цвета стрелки. у родителя не найдены связи');
+      }
+
+  }
+
+  // isChildrenExist(parentId: string) {
+  //   let edges = this.vmodel.edges ? this.vmodel.edges.get(parentId) : null;
+  //   return edges && edges.length > 0;
+  // }
+
+
+  // filterChildEdges(child: Vertex, parentId): Array<string> {
+  //   // let edges = child.props.edges.find(edge => edge.parent.id === parentId);
+  //   let edges = this.vmodel.edges.get(parentId);
+  //   let edge = edges ? edges.find(item => item.child.id === child.id) : null;
+  //   return edge ? edge.match : [];
+  // }
+
+  // filterEdges(parentId): Array<Edge> {
+  //   let edges = this.vmodel.edges.get(parentId);
+  //   // console.log('EDGES ',edges)
+  //   return edges ? edges : [];
+  // }
+
+  filterUserVars(): Array<any> {
+    console.log('TRACE FILTER');
+    let array = [];
+
+    // this.vmodel.graph.forEach(node => {
+    //   if (node.type === NodeType.SpecifierNode) {
+    //     if(node.props.result.name){
+    //       array.push({name:node.props.result.name,value:node.props.result})
+    //     }
+    //   }
+    // })
+
+
+    console.log('ARRAY VARS', array);
     return array;
   }
 
-  add(event: MatChipInputEvent, edge: Edge): void {
+  add(event: MatChipInputEvent): void {
+
+    console.log('EVENT CURRENT EDGES', event.value);
 
     const input = event.input;
     const value = event.value;
@@ -186,79 +259,25 @@ export class NodeSettingsPanelComponent implements OnInit {
       return;
     }
 
-    // let vertex = this.vmodel.graph.get(id);
-    // let edge = this.vmodel.edges.get(id);
-    // let edge = vertex.props.edges.find(edge => edge.parent.id === this.currentNode.id);
-    edge.match.push(value);
-
-    // if (edge.parent.type === NodeType.SpecifierNode) {
-    //   edge.parent.props.result.seek.push(value);
-    // }
-    // switch(this.currentNode.type) {
-    //   case NodeType.BranchNode: {
-    //     if ((value || '').trim()) {
-    //       this.currentNode.edgeList.forEach(edge => {
-    //         if (edge.id === id) {
-    //           edge.match.push(value.trim())
-    //           this._eventService._events.emit('updateCell', this.currentNode.id)
-    //         }
-    //       });
-    //     }
-    //     break
-    //   }
-    //   case NodeType.SpecifierNode: {
-    //     if ((value || '').trim()) {
-    //       this.currentNode.props.forEach(prop => {
-    //         if (prop.name === 'Ключевые слова') {
-    //           prop.value.push(value.trim())
-    //           this._eventService._events.emit('updateCell', this.currentNode.id)
-    //         }
-    //       });
-    //     }
-    //     break
-    //   }
-    // }
-    // if (input) {
-    //   input.value = '';
-    // }
+    // this.currentEdges.forEach(edge => {
+    //   console.log('EDGE ADD NEW WORD',edge.match)
+    //   console.log('EDGE ADD NEW WORD 2',value)
+    //   edge.match.push(value)
+    // })
+    this.currentEdge.match.push(value);
     input.value = '';
     this.vmodel.events.emit(Events.updatemodel);
   }
 
-  remove(key: string, edge: Edge): void {
-    // let vertex = this.vmodel.graph.get(childId);
-    // let edge = vertex.props.edges.find(edge => edge.parent.id === this.currentNode.id);
-    _.pull(edge.match, key);
-
-    // if (edge.parent.type === NodeType.SpecifierNode) {
-    //   _.pull(edge.parent.props.result.seek, key);
-    // }
-    // let index: number
-    // switch(this.currentNode.type) {
-    //   case NodeType.BranchNode: {
-    //     this.currentNode.edgeList.forEach(edge => {
-    //       if (edge.id === id) {
-    //         index = edge.match.indexOf(key);
-    //       }
-    //       if (index >= 0) {
-    //         edge.match.splice(index, 1);
-    //       }
-    //     })
-    //     break
-    //   }
-    //   case NodeType.SpecifierNode: {
-    //     this.currentNode.props.forEach(prop => {
-    //       if(prop.name === Strings.KEYWORDS) {
-    //         index = prop.value.indexOf(key);
-    //       }
-    //       if (index >= 0) {
-    //         prop.value.splice(index, 1);
-    //       }
-    //     })
-    //     break
-    //   }
-    // }
+  remove(key: string): void {
+    // this.currentEdges.forEach(edge => _.pull(edge.match, key))
+    _.pull(this.currentEdge.match, key);
     this.vmodel.events.emit(Events.updatemodel);
+  }
+
+  addVariableToEdge(event: any) {
+    // console.log('EVENT ',event.target.value)
+    // this.currentEdges.forEach(edge => edge.variable = event.target.value)
 
   }
 }

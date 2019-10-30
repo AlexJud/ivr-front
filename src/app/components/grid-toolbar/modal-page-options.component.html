@@ -1,0 +1,40 @@
+<h3>HEllo max </h3>
+<mat-accordion >
+
+  <mat-expansion-panel *ngFor="let item of options">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{item.name}}
+      </mat-panel-title>
+      <mat-panel-description>
+        {{item.description}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+
+    <mat-form-field *ngIf="item.type === 'string' || item.type === 'number'">
+      <input matInput placeholder="Type here options" [type]="item.type" [(ngModel)]="item.value">
+    </mat-form-field>
+
+    <mat-select *ngIf="checkIsArray(item.type)" [(ngModel)]="item.value">
+      <mat-option *ngFor="let props of item.type" [value]="props">
+        {{props}}
+      </mat-option>
+    </mat-select>
+  </mat-expansion-panel>
+
+<!--  <mat-expansion-panel (opened)="panelOpenState = true"-->
+<!--                       (closed)="panelOpenState = false">-->
+<!--    <mat-expansion-panel-header>-->
+<!--      <mat-panel-title>-->
+<!--        Self aware panel-->
+<!--      </mat-panel-title>-->
+<!--      <mat-panel-description>-->
+<!--        Currently I am {{panelOpenState ? 'open' : 'closed'}}-->
+<!--      </mat-panel-description>-->
+<!--    </mat-expansion-panel-header>-->
+<!--    <p>I'm visible because I am open</p>-->
+<!--  </mat-expansion-panel>-->
+<!--  -->
+</mat-accordion>
+<!--<button mat-button (click)="close()">Save</button>-->

@@ -8,7 +8,7 @@
 
         <app-header></app-header>
 
-        <app-grid-toolbar #data (toggleDrawer)="sideNav.toggle()"></app-grid-toolbar>
+        <app-grid-toolbar #data (toggleDrawer)="sideNav.toggle()" [scenarios]="filesScenarios"></app-grid-toolbar>
 
         <div class="mx-graph">
 

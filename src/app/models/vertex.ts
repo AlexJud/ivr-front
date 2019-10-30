@@ -38,7 +38,8 @@ class VertexState {
 
 export class VertexResult {
   id: string;
-  sysname:string
+  command:string;
+  options:string;
   name: string;
   grammar: string;
   asrOptions: string;

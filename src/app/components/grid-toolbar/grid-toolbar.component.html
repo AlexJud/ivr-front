@@ -3,12 +3,30 @@
   <div class="toggleDrawer">
       <button id="toggle" mat-button (click)="onToggleDrawer()"><mat-icon [ngStyle]="{'color': '#fff'}">menu</mat-icon> Меню</button>
   </div>
-  <button mat-icon-button (click)="save()"><mat-icon>save</mat-icon></button>
-  <button mat-icon-button (click)="load()"><mat-icon>cloud_download</mat-icon></button>
+<!--  <button mat-icon-button (click)="save(currentScenario)"><mat-icon>save</mat-icon></button>-->
+  <button mat-icon-button (click)="openDialogSave()"><mat-icon>save</mat-icon></button>
+<!--  <button mat-icon-button (click)="load(currentScenario)"><mat-icon>cloud_download</mat-icon></button>-->
 
+<!--  <button class="drag-selector__controls" mat-icon-button ><mat-icon>check_box_outline_blank</mat-icon></button>-->
+<!--  <button mat-icon-button ><mat-icon>radio_button_unchecked</mat-icon></button>-->
+<!--  <button mat-icon-button (click)="print()"> <mat-icon>call_end</mat-icon></button>-->
+<!--  <mat-form-field >-->
+<!--    <input matInput placeholder="имя сценария" [(ngModel)]="currentScenario" >-->
+<!--  </mat-form-field>-->
+<!--  <mat-form-field>-->
+<!--    <mat-label>Сценарии</mat-label>-->
+<!--    <mat-select [(value)]="currentScenario">-->
+<!--      <mat-option *ngFor="let file of scenarios" [value]="file">-->
+<!--        {{file}}-->
+<!--      </mat-option>-->
+<!--    </mat-select>-->
+<!--  </mat-form-field>-->
 
   <span class="example-spacer"></span>
+  <button mat-icon-button (click)="openDialogOptions()"><mat-icon>settings_applications</mat-icon></button>
+
   <button mat-icon-button (click)="openDialog()"><mat-icon>help_outline</mat-icon></button>
+
 </div>
 
 <mat-divider></mat-divider>

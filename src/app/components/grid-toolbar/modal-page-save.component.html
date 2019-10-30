@@ -1,0 +1,13 @@
+
+<label>Список сценариев</label>
+  <mat-list role="list" >
+    <button mat-list-item (click)="select(item)" *ngFor="let item of scenariosList">{{item}}  </button>
+  </mat-list>
+  <mat-form-field class="example-full-width">
+    <input matInput placeholder="Название файла" [(ngModel)]="selectedFile">
+  </mat-form-field>
+  <button mat-button (click)="close('save')">Save</button>
+  <button mat-button (click)="close('load')">Load</button>
+  <button mat-button (click)="close('null')">Cancel</button>
+
+

@@ -1,7 +1,8 @@
 import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {Observable, throwError} from 'rxjs';
+import {interval, merge, Observable, of, pipe, throwError} from 'rxjs';
 import {HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
+import {catchError, map, mergeMap, take} from 'rxjs/operators';
 
 @Injectable()
 export class HttpService {
@@ -10,15 +11,30 @@ export class HttpService {
 
   }
 
-  sendModel(data: Node[]): Observable<Node[]> {
+  sendModel(data: Node[], file: string, call: boolean = false): Observable<Node[]> {
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
         'Authorization': 'Basic dXNlcjpwYXNzd29yZA=='
+
       })
     };
-    return this.http.post<Node[]>('/api/json/', data, httpOptions);
-    // .pipe(catchError(this.handleError));
+    return this.http.post<Node[]>(`/api/json?fileName=${file}&call=${call}`, data, httpOptions).pipe(
+      catchError(err => throwError(err)));
+  }
+
+  getCommands(): Observable<any> {
+    let url = 'api/commands';
+    return this.http.get(url).pipe(
+      catchError(err => of(console.error(err)))
+    );
+  }
+
+  public getListScenarios(): Observable<any> {
+    const url = 'api/models';
+    return this.http.get(url).pipe(
+      catchError(err => of(console.error(err)))
+    );
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -57,7 +73,69 @@ export class HttpService {
     }
   }
 
-  requestModel(): Observable<any> {
-    return this.http.get('/api/model');
+  requestModel(file): Observable<any> {
+    if (!file) {
+      return throwError('Не задано имя файла');
+
+    }
+    return this.http.get(`/api/model/${file}`);
+  }
+
+  testModel() {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic dXNlcjpwYXNzd29yZA=='
+      })
+    };
+    return this.http.post('/api/test',
+      [
+        {
+          'id': 'root',
+          'type': 'BranchNode',
+          'props': {
+            'synthText': 'Как дела?',
+            'grammar': 'http://localhost/theme:graph',
+            'asrOptions': ''
+          },
+          'edgeList': [
+            {
+              'id': 'Node0',
+              'match': [
+                'привет'
+              ]
+            },
+            {
+              'id': 'Node1',
+              'match': [
+                'пока'
+              ]
+            }
+          ]
+        },
+        {
+          'id': 'Node0',
+          'type': 'BranchNode',
+          'props': {
+            'synthText': '1',
+            'grammar': 'http://localhost/theme:graph',
+            'asrOptions': ''
+          },
+          'edgeList': [
+            {
+              'id': 'Node2',
+              'match': [
+                'еще'
+              ]
+            },
+            {
+              'id': 'Node4',
+              'match': [
+                'нет'
+              ]
+            }
+          ]
+        }]
+      , httpOptions);
   }
 }

@@ -9,6 +9,11 @@ export enum Events {
   nodeselected = 'nodeselected',
   cellhighlight = 'cellhighlight',
   changelayout = 'changelayout',
-  nodeactive = 'nodeactive'
+  nodeactive = 'nodeactive',
+
+  sidebaropened = 'sidebaropened',
+  sidebarclosed = 'sidebarclosed'
+
+
 }
 

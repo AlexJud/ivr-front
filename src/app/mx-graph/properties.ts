@@ -1,6 +1,7 @@
 import {NodeType} from '../models/types';
 
 declare var mxConstants: any;
+declare var mxEdgeStyle: any;
 
 export const arrayControlsImage = [
     {title: 'Завершить диалог', type: NodeType.EndNode, vertex: true, img: 'elips.png', position: 'bottom', index: 3},
@@ -89,6 +90,24 @@ export function endNodeStyle() {
   return endNodeStyle
 }
 
+export function mergeSymbolStyle() {
+  let mergeSymbolStyle = {};
+  endNodeStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RHOMBUS;
+  // endNodeStyle[mxConstants.STYLE_OPACITY] = 50;
+  endNodeStyle[mxConstants.STYLE_FONTCOLOR] = '#ffffff';
+  endNodeStyle[mxConstants.STYLE_FONTFAMILY] = 'Roboto';
+  endNodeStyle[mxConstants.STYLE_FONTSIZE] = 13;
+  endNodeStyle[mxConstants.STYLE_STROKECOLOR] = '#757575';
+  endNodeStyle[mxConstants.STYLE_STROKEWIDTH] = 2;
+  // endNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#FF4081';
+  endNodeStyle[mxConstants.STYLE_FILLCOLOR] = '#0ef00a';
+  endNodeStyle[mxConstants.STYLE_OVERFLOW] = 'hidden';
+  endNodeStyle[mxConstants.STYLE_ALIGN] = 'center';
+  endNodeStyle[mxConstants.STYLE_WHITE_SPACE] = 'wrap';
+  return endNodeStyle
+}
+
+
 export  function edgeStyle() {
   let edgeStyle = {};
   edgeStyle[mxConstants.STYLE_STROKECOLOR] = '#107539';
@@ -96,6 +115,8 @@ export  function edgeStyle() {
   edgeStyle[mxConstants.STYLE_VERTICAL_LABEL_POSITION] = 'top';
   edgeStyle[mxConstants.STYLE_VERTICAL_ALIGN] = 'bottom';
   edgeStyle[mxConstants.STYLE_FONTSIZE] = '14';
+  edgeStyle[mxConstants.STYLE_ROUNDED] = true;
+  // edgeStyle[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
   return edgeStyle
 }
 
@@ -106,5 +127,6 @@ export const redArrow = {
   strokeColor: '#ff0500',
   fontSize: 14,
   fontColor: '#730017',
+
 
 };
