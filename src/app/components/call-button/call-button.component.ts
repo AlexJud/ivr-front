@@ -175,6 +175,8 @@ export class CallButtonComponent implements OnInit {
             // acceptMessage(e);
           } else if (e.type == 'i_new_call') { // incoming audio/video call
             this.acceptCall(e);
+          } else if (e.type == 'stopped') {
+            this.startSipStack();
           }
         }
       }, // optional: '*' means all events
