@@ -82,9 +82,10 @@ export class GridToolbarComponent implements OnInit {
   onToggleDrawer() {
     this.sideBarOpen = !this.sideBarOpen;
     if (this.sideBarOpen) {
-      this.modelService.saveToJson(null, true);
+      // this.modelService.saveToJson(null, true);
       // this.webSocket.connect();
       this.modelService.graphViewModel.events.emit(Events.sidebaropened);
+
     } else {
       // this.webSocket.connect();
       this.modelService.graphViewModel.events.emit(Events.sidebarclosed);
@@ -93,7 +94,7 @@ export class GridToolbarComponent implements OnInit {
   }
 
   save(filename) {
-    this.modelService.saveToJson(filename);
+    this.modelService.saveToJson(null, true);
     // this._modelService.convertModel()
   }
 
@@ -118,6 +119,7 @@ export class GridToolbarComponent implements OnInit {
         this.modelService.saveToJson(result.file);
       }
       if (result.command === 'load') {
+        console.log('LOAD FILE')
         this.modelService.requestModel(result.file);
       }
     });
