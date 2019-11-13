@@ -119,13 +119,13 @@ export class GridToolbarComponent implements OnInit {
         this.modelService.saveToJson(result.file);
       }
       if (result.command === 'load') {
-        console.log('LOAD FILE')
+        console.log('LOAD FILE');
         this.modelService.requestModel(result.file);
       }
     });
   }
 
-  openDialogOptions(){
+  openDialogOptions() {
     const dialogRef = this.dialog.open(DialogOptionsComponent);
 
     dialogRef.afterClosed().subscribe(result => {
@@ -155,19 +155,21 @@ export class DialogSaveComponent {
   scenariosList: string[];
   selectedFile;
 
-  constructor(private _formBuilder: FormBuilder, private http: HttpService, public dialogRef: MatDialogRef<DialogSaveComponent>) {
+  constructor(private _formBuilder: FormBuilder, private http: HttpService, public dialogRef: MatDialogRef<DialogSaveComponent>, private modelService: ModelService) {
   }
 
   ngOnInit() {
-    this.http.getListScenarios().subscribe(data => this.scenariosList = data);
+    this.http.getListScenarios(this.modelService.user).subscribe(data => this.scenariosList = data);
   }
 
   close(option): void {
     if (option === 'save') {
-      let exist = this.scenariosList.find(i => i === this.selectedFile);
-      if (exist) {
-        if (!confirm('такой файл существует, перезаписать?')) {
-          return;
+      if (this.scenariosList) {
+        let exist = this.scenariosList.find(i => i === this.selectedFile);
+        if (exist) {
+          if (!confirm('такой файл существует, перезаписать?')) {
+            return;
+          }
         }
       }
     }
@@ -189,20 +191,21 @@ export class DialogSaveComponent {
 export class DialogOptionsComponent {
   options;
 
-  constructor(private modelService: ModelService,public dialogRef: MatDialogRef<DialogSaveComponent>) {
+  constructor(private modelService: ModelService, public dialogRef: MatDialogRef<DialogSaveComponent>) {
   }
 
   ngOnInit() {
     this.options = this.modelService.mrcpOptions;
-    console.log('OPTIONS ',this.options)
-    this.options.forEach(x => console.log('x ',x , '   ', Array.isArray(x.type)));
+    console.log('OPTIONS ', this.options);
+    this.options.forEach(x => console.log('x ', x, '   ', Array.isArray(x.type)));
   }
 
-  checkIsArray(item){
+  checkIsArray(item) {
     // console.log('ITEM ',item, Array.isArray(item))
     return Array.isArray(item);
   }
-  close(): void{
+
+  close(): void {
     this.modelService.mrcpOptions = this.options;
     this.dialogRef.close('ok');
   }

@@ -16,6 +16,9 @@ export class CallButtonComponent implements OnInit {
   @ViewChild('callPhone', {static: false}) callPhone: ElementRef;
   sipStack;
   callSession;
+  messageSession;
+  demoUserId;
+
   callStatus: boolean;
   registerSession;
   bttns: any;
@@ -26,7 +29,7 @@ export class CallButtonComponent implements OnInit {
   isSocketConnected: boolean;
 
   constructor(private _webSocket: WebSocketAPI,
-              private _eventService: EventService, private modelService : ModelService) {
+              private _eventService: EventService, private modelService: ModelService) {
     this.bttns = {
       socketButton: {
         color: false,
@@ -49,14 +52,14 @@ export class CallButtonComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.modelService.graphViewModel.events.addListener(Events.sidebaropened,()=> {
+    this.modelService.graphViewModel.events.addListener(Events.sidebaropened, () => {
       this.toggleWebSocket();
-      this. toggleAsterisk();
-    })
-    this.modelService.graphViewModel.events.addListener(Events.sidebarclosed,()=> {
+      this.toggleAsterisk();
+    });
+    this.modelService.graphViewModel.events.addListener(Events.sidebarclosed, () => {
       this.toggleWebSocket();
-      this. toggleAsterisk();
-    })
+      this.toggleAsterisk();
+    });
 
     //Initialize the engine
     // SIPml.init(/*this.readyCallback, this.errorCallback*/);
@@ -157,13 +160,20 @@ export class CallButtonComponent implements OnInit {
   //Создаём SipStack, указываем кто слушает события
   createSipStack() {
     this.sipStack = new SIPml.Stack({
-      realm: 'indev.studio', // mandatory: domain name
+      // realm: 'indev.studio', // mandatory: domain name
+      // impi: '1060', // mandatory: authorization name (IMS Private Identity)
+      // // impu: 'sip:1060@192.168.1.86', // mandatory: valid SIP Uri (IMS Public Identity)
+      // impu: 'sip:1060@indev.studio', // mandatory: valid SIP Uri (IMS Public Identity)
+      // password: 'password', // optional
+      // // websocket_proxy_url: 'wss://asterisk.indev:8089/ws',//'wss://192.168.1.86:8089/ws', // optional
+      // websocket_proxy_url: 'wss://indev.studio/ws',//'wss://192.168.1.86:8089/ws', // optional
+
+      realm: '192.168.1.130', // mandatory: domain name
       impi: '1060', // mandatory: authorization name (IMS Private Identity)
-      // impu: 'sip:1060@192.168.1.86', // mandatory: valid SIP Uri (IMS Public Identity)
-      impu: 'sip:1060@indev.studio', // mandatory: valid SIP Uri (IMS Public Identity)
+      impu: 'sip:1060@192.168.1.130', // mandatory: valid SIP Uri (IMS Public Identity)
       password: 'password', // optional
-      // websocket_proxy_url: 'wss://asterisk.indev:8089/ws',//'wss://192.168.1.86:8089/ws', // optional
-      websocket_proxy_url: 'wss://indev.studio/ws',//'wss://192.168.1.86:8089/ws', // optional
+      websocket_proxy_url: 'wss://asterisk.indev:8089/ws',//'wss://192.168.1.86:8089/ws', // optional
+
       // ice_servers: '[{ url: \'stun:stun.l.google.com:19302\'}]',
       ice_servers: '[]',
       // enable_rtcweb_breaker: false, // optional
@@ -203,8 +213,9 @@ export class CallButtonComponent implements OnInit {
           if (e.type == 'connected' && e.session == this.registerSession) {
             console.log('%c We are successfuly logged in!', this.logStyle);
             _this.asteriskConnected();
+            _this.acceptMessage();
             // makeCall();
-            // sendMessage();
+            // this.sendMessage();
             // publishPresence();
             // subscribePresence('johndoe'); // watch johndoe's presence status change
           }
@@ -219,12 +230,22 @@ export class CallButtonComponent implements OnInit {
   }
 
   makeCall() {
+
+    // this.demoUserId = 'demoUser' + Math.floor(Math.random() * 100000);
+    this.demoUserId = this.modelService.user;
+    console.log('DEMO USER ',this.demoUserId);
+    this._webSocket.setUserId(this.demoUserId);
+    console.log('THIS> USER IN ',this.demoUserId)
     this.callSession = this.sipStack.newSession('call-audio', {
       audio_remote: document.getElementById('audio_remote'),
+
       events_listener: {
         events: '*',
         listener: (e) => {
           console.log('%c Event recived ' + e.type, this.logStyle);
+          if (e.type == 'i_ao_request') {
+            console.log(e);
+          }
           if (e.type === 'terminated') {
             if (this.callStatus) {
               console.log(this.callStatus);
@@ -234,7 +255,33 @@ export class CallButtonComponent implements OnInit {
         }
       } // optional: '*' means all events
     });
-    this.callSession.call(this.callPhone.nativeElement.value);
+
+    // this.callSession.call(this.callPhone.nativeElement.value);
+
+    this.callSession.call(this.demoUserId);
     this.callStatus = true;
+    console.log('SESSION ID ', this.callSession.getId());
+
+    // SIPml.tsk_utils_log_info() = ()=> {}
+  }
+
+  acceptMessage() {
+    var messageSession = this.sipStack.newSession('message', {
+      events_listener: {
+        events: '*', listener: (e) => {
+          console.log('Message recived success' + e);
+        }
+      } // optional: '*' means all events
+    });
+  }
+
+  sendSMS() {
+    if (!this.messageSession) {
+      this.messageSession = this.sipStack.newSession('message', {
+        events_listener: {events: '*', listener: (e) => console.log('SIP EVENT ', e)} // optional: '*' means all events
+      });
+    }
+    this.messageSession.send('1080', 'MESSAGE TEXT', 'text/plain;charset=utf-8');
+    console.log('DID IT', this.messageSession);
   }
 }

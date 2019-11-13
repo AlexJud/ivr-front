@@ -1,9 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-5" />
-    <option name="width" value="1198" />
-    <option name="height" value="833" />
+  <component name="ChangeListManager">
+    <list default="true" id="d48ab957-8583-4cc6-b8fc-6d693b980e89" name="Default Changelist" comment="add demo and user test calls">
+      <change afterPath="$PROJECT_DIR$/src/app/models/messageDTO.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proxy.conf.json" beforeDir="false" afterPath="$PROJECT_DIR$/proxy.conf.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/app.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/app.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/call-button/call-button.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/call-button/call-button.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/call-button/call-button.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/call-button/call-button.component.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/call-button/call-button.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/call-button/call-button.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/call-viewer/call-viewer.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/call-viewer/call-viewer.component.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/call-viewer/call-viewer.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/call-viewer/call-viewer.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/grid-toolbar/grid-toolbar.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/grid-toolbar/grid-toolbar.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/header/header.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/header/header.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/header/header.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/header/header.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/models/events.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/models/events.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/services/WebSocketAPI.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/services/WebSocketAPI.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/services/http.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/services/http.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/services/model.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/services/model.service.ts" afterDir="false" />
+    </list>
+    <list id="e36c8a9f-2dc4-4180-8d90-2377d5e8f9fd" name="1" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1RPcTN3bXlmUTuaee3k5JorCsIi" />
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -12,5 +41,133 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="ts.external.directory.path" value="C:\Projects\voice-ivr-demo\node_modules\typescript\lib" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Projects\voice-ivr-demo\src\assets\images\help" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d48ab957-8583-4cc6-b8fc-6d693b980e89" name="Default Changelist" comment="" />
+      <changelist id="e36c8a9f-2dc4-4180-8d90-2377d5e8f9fd" name="1" comment="" />
+      <created>1569572183465</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1569572183465</updated>
+      <workItem from="1569572196489" duration="32754000" />
+      <workItem from="1570781431710" duration="2806000" />
+      <workItem from="1571040467835" duration="6638000" />
+      <workItem from="1571127475906" duration="17277000" />
+      <workItem from="1571385206651" duration="13186000" />
+      <workItem from="1571643538978" duration="3824000" />
+      <workItem from="1571638715476" duration="17864000" />
+      <workItem from="1571732596923" duration="14597000" />
+      <workItem from="1571815464225" duration="20646000" />
+      <workItem from="1571903885453" duration="19358000" />
+      <workItem from="1571990530026" duration="7958000" />
+      <workItem from="1572249421385" duration="6147000" />
+      <workItem from="1572339017420" duration="9788000" />
+      <workItem from="1572420326052" duration="7190000" />
+      <workItem from="1572511165330" duration="5251000" />
+      <workItem from="1572596335159" duration="911000" />
+      <workItem from="1572598113652" duration="164000" />
+      <workItem from="1572598293140" duration="4539000" />
+      <workItem from="1572941939625" duration="5659000" />
+      <workItem from="1573025998879" duration="10055000" />
+      <workItem from="1573113563663" duration="5859000" />
+      <workItem from="1573130764210" duration="3676000" />
+      <workItem from="1573136260515" duration="861000" />
+      <workItem from="1573197066825" duration="5430000" />
+      <workItem from="1573212821773" duration="1179000" />
+      <workItem from="1573225518977" duration="1201000" />
+      <workItem from="1573306888506" duration="20262000" />
+      <workItem from="1573628298253" duration="10088000" />
+    </task>
+    <task id="LOCAL-00001" summary="краткая инструкция по использованию сервиса">
+      <created>1569591585663</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1569591585663</updated>
+    </task>
+    <task id="LOCAL-00002" summary="set root node to center view">
+      <created>1569593548130</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1569593548130</updated>
+    </task>
+    <task id="LOCAL-00003" summary="add images to help menu">
+      <created>1569593605580</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1569593605580</updated>
+    </task>
+    <task id="LOCAL-00004" summary="refactor design">
+      <created>1572444236154</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1572444236154</updated>
+    </task>
+    <task id="LOCAL-00005" summary="max kills process">
+      <created>1572446723253</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1572446723253</updated>
+    </task>
+    <task id="LOCAL-00006" summary="add phone number">
+      <created>1572615206692</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1572615206692</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="краткая инструкция по использованию сервиса" />
+    <MESSAGE value="set root node to center view" />
+    <MESSAGE value="add images to help menu" />
+    <MESSAGE value="refactor design" />
+    <MESSAGE value="max kills process" />
+    <MESSAGE value="add phone number" />
+    <option name="LAST_COMMIT_MESSAGE" value="add phone number" />
   </component>
 </project>

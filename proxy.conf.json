@@ -1,13 +1,13 @@
 {
     "/api/*": {
-      "target": "https://192.168.1.74:8080",
+      "target": "https://192.168.1.41:8080",
       "secure": false,
       "logLevel": "debug",
       "changeOrigin": true,
       "ws": true
     },
   "/wss/*": {
-      "target": "wss://192.168.1.74:8080",
+      "target": "wss://192.168.1.41:8080",
       "secure": false,
       "ws": true
     }

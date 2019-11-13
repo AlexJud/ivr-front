@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {ModelService} from '../../services/model.service';
 
 @Component({
   selector: 'app-header',
@@ -7,9 +8,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HeaderComponent implements OnInit {
 
-  constructor() { }
+  constructor(private model: ModelService) {
+  }
 
   ngOnInit() {
+  }
+
+  showLK() {
+    let user = prompt('Hello User', 'DemoUser');
+    this.model.user = user;
   }
 
 }

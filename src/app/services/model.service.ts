@@ -7,9 +7,8 @@ import {Events} from '../models/events';
 import * as _ from 'lodash';
 import {NodeType} from '../models/types';
 import {GraphViewModel} from '../models/graph-v-model';
-import {from, interval, merge, Observable, of, pipe, range} from 'rxjs';
-import {map, mergeAll, take} from 'rxjs/operators';
-import {Variable} from '@angular/compiler/src/render3/r3_ast';
+import {range} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {MRCP} from '../components/enums/MRCPoptions';
 
 type ChildEdges = { child: Vertex, edge: Edge };
@@ -26,6 +25,7 @@ export class ModelService {
 
   private sourceModel;
   public graphViewModel = new GraphViewModel(new Map<string, Vertex>(), new Map<string, Edge[]>());
+  public user = 'demoUser' + Math.floor(Math.random() * 100000);
 
   private counterNodeId = 0;
   private counterEdgeId = 0;
@@ -214,7 +214,7 @@ export class ModelService {
   saveToJson(filename, call: boolean = false) {
     let temp = this.convertToSourceModel(this.graphViewModel.graph);
 
-    this._http.sendModel(temp, filename, call).subscribe(
+    this._http.sendModel(temp, filename, call,this.user).subscribe(
       (data: any) => {
         console.log('Saved Success');
         this.graphViewModel.events.emit(Events.savedsucces);
@@ -223,7 +223,7 @@ export class ModelService {
   }
 
   requestModel(filename) {
-    this._http.requestModel(filename).subscribe((response: any) => {
+    this._http.requestModel(filename, this.user).subscribe((response: any) => {
       this.counterNodeId = this.counterEdgeId = this.counterUservarId = 0;
       this.sourceModel = response;
       let result = this.convertToViewModel(response);

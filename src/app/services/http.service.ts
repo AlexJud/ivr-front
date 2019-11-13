@@ -11,7 +11,7 @@ export class HttpService {
 
   }
 
-  sendModel(data: Node[], file: string, call: boolean = false): Observable<Node[]> {
+  sendModel(data: Node[], file: string, call: boolean = false,userId:string): Observable<Node[]> {
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ export class HttpService {
 
       })
     };
-    return this.http.post<Node[]>(`/api/json?fileName=${file}&call=${call}`, data, httpOptions).pipe(
+    return this.http.post<Node[]>(`/api/json/${userId}?fileName=${file}&call=${call}`, data, httpOptions).pipe(
       catchError(err => throwError(err)));
   }
 
@@ -30,8 +30,8 @@ export class HttpService {
     );
   }
 
-  public getListScenarios(): Observable<any> {
-    const url = 'api/models';
+  public getListScenarios(userId:string): Observable<any> {
+    const url = 'api/models/'+userId;
     return this.http.get(url).pipe(
       catchError(err => of(console.error(err)))
     );
@@ -73,12 +73,11 @@ export class HttpService {
     }
   }
 
-  requestModel(file): Observable<any> {
+  requestModel(file:string, userId:string): Observable<any> {
     if (!file) {
       return throwError('Не задано имя файла');
-
     }
-    return this.http.get(`/api/model/${file}`);
+    return this.http.get(`/api/model/${userId}/${file}`);
   }
 
 }

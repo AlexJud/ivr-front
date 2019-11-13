@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { WebSocketAPI } from '../../services/WebSocketAPI';
-import { EventService } from '../../services/event.service';
-import { style } from '@angular/animations';
+import {Component, OnInit, ViewChild, ElementRef, AfterViewInit} from '@angular/core';
+import {WebSocketAPI} from '../../services/WebSocketAPI';
+import {EventService} from '../../services/event.service';
+import {style} from '@angular/animations';
+import {MessageDTO} from '../../models/messageDTO';
 
 interface MessageStyle {
   isServerMessage?: boolean
@@ -24,22 +25,24 @@ interface Message {
 })
 
 export class CallViewerComponent implements OnInit, AfterViewInit {
-  messages: Message[] = []
-  logStyle = 'background: #222; color: #bada55'
+  messages: Message[] = [];
+  logStyle = 'background: #222; color: #bada55';
+
   constructor(private _webSocket: WebSocketAPI,
-              private _eventService: EventService) { }
+              private _eventService: EventService) {
+  }
 
   ngAfterViewInit() {
-    let height = document.getElementsByClassName('mat-drawer-inner-container')[0].scrollHeight
-    document.getElementsByClassName('mat-drawer-inner-container')[0].scrollTo(0, height)
+    let height = document.getElementsByClassName('mat-drawer-inner-container')[0].scrollHeight;
+    document.getElementsByClassName('mat-drawer-inner-container')[0].scrollTo(0, height);
   }
 
   ngOnInit() {
     this._eventService._events.addListener('messageReceived', (message) => {
       console.log('%c Message recieved', this.logStyle);
       console.log(JSON.parse(message.body));
-      this.messageHandler(JSON.parse(message.body))
-    })
+      this.messageHandler(JSON.parse(message.body));
+    });
     // const date = new Date().toLocaleString("ru", {
     //   hour: 'numeric',
     //   minute: 'numeric',
@@ -68,46 +71,34 @@ export class CallViewerComponent implements OnInit, AfterViewInit {
     // this.messageHandler(userMessage)
   }
 
-  messageHandler(message: any) {
-    let style: MessageStyle
-    switch(message.type) {
-      case 'SYSTEM': {
-        if(message.level === 'info') {
-          style = {
-            isSystemMessageInfo: true
-          }
-        } else {
-          style = {
-            isSysytemMessageError: true
-          }
-        }
-        this.messages.push({message: message.message, name: message.name, header: message.date, style: style})
+  messageHandler(message: MessageDTO) {
+    let style: MessageStyle;
+    switch (message.type) {
+      case 'SYSTEM':
+        style = {isSystemMessageInfo: true};
+        this.messages.push({message: message.text, name: 'Системное сообщение', header: message.sentTime, style: style});
         break;
-      }
-      case 'USER': {
-        style = {
-          isUserMessage: true
-        }
-        this.messages.push({message: message.message, name: message.name, header: message.date, style: style})
+
+      case 'USER':
+        style = {isUserMessage: true};
+        this.messages.push({message: message.text, name: message.destination, header: message.sentTime, style: style});
         break;
-      }
+
       case 'SERVER': {
-        style = {
-          isServerMessage: true
-        }
-        this.messages.push({message: message.message, name: message.name, header: message.date, style: style})
+        style = {isServerMessage: true};
+        this.messages.push({message: message.text, name: 'Сервер', header: message.sentTime, style: style});
         break;
       }
     }
-    this.scrollDown()
+    this.scrollDown();
   }
 
   scrollDown() {
-    let height = document.getElementsByClassName('mat-drawer-inner-container')[0].scrollHeight
-    document.getElementsByClassName('mat-drawer-inner-container')[0].scrollTo(0, height)
+    let height = document.getElementsByClassName('mat-drawer-inner-container')[0].scrollHeight;
+    document.getElementsByClassName('mat-drawer-inner-container')[0].scrollTo(0, height);
   }
 
   clear() {
-    this.messages = []
+    this.messages = [];
   }
 }

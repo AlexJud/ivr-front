@@ -12,8 +12,7 @@ export enum Events {
   nodeactive = 'nodeactive',
 
   sidebaropened = 'sidebaropened',
-  sidebarclosed = 'sidebarclosed'
-
+  sidebarclosed = 'sidebarclosed',
 
 }
 

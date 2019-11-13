@@ -1,6 +1,7 @@
 .chat {
     height: calc(100% - 164px);
     background-color: #EEEEEE;
+  overflow-y: auto;
 }
 .serverMessage {
     background-color: lightblue;
@@ -19,7 +20,7 @@
     width: 15rem;
     margin: auto auto 7px auto;
     padding: 5px 0 5px 10px;
-    height: 28px;
+    //height: 28px;
     font-weight: bold;
 }
 

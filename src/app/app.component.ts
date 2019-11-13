@@ -19,6 +19,6 @@ export class AppComponent implements  OnInit{
   }
 
   ngOnInit(): void {
-   this.httpService.getListScenarios().subscribe(data => this.filesScenarios = data)
+   this.httpService.getListScenarios(this.modelService.user).subscribe(data => this.filesScenarios = data)
   }
 }
