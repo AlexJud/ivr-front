@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:10.17.0-jessie'
-            args '-p 3000:3000' 
+            args '-u 0:0'
         }
     }
     stages {
