@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Git') { 
             steps {
-                sh 'apk add git' 
+                sh 'apt install git' 
             }
         }
         stage('Build') { 
