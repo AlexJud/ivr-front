@@ -23,7 +23,7 @@
     "@angular/router": "~8.0.0",
     "@types/mxgraph": "github:lgleim/mxgraph-typings",
     "hammerjs": "^2.0.8",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "lodash": "^4.17.15",
     "mxgraph": "file:mxgraph2",
     "net": "^1.0.2",
