@@ -26,6 +26,6 @@
     "grunt-webpack": "^2.0.1",
     "load-grunt-parent-tasks": "^0.1.1",
     "load-grunt-tasks": "^3.5.2",
-    "webpack": "^2.2.1"
+    "webpack": "^5.74.0"
   }
 }
